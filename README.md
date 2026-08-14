@@ -6,5 +6,6 @@ Work in progress.
 
 ## Notes
 
-Changes in this repo are committed and pushed automatically after each
-Claude Code turn (configured as a `Stop` hook in `~/.claude/settings.json`).
+Changes here are committed and pushed as they are made, rather than batched.
+
+Commit/push pipeline verified 2026-08-15.

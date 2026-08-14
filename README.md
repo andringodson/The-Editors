@@ -1,4 +1,4 @@
-# Editors
+# The Editors
 
 ## Getting started
 

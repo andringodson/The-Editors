@@ -1,30 +1,24 @@
-import Link from "next/link";
-
 interface BatchLimitNoticeProps {
   limit: number;
   attempted: number;
 }
 
 /**
- * Shown when a batch exceeds the current plan's cap.
+ * Shown when a batch exceeds what one tab can safely hold.
  *
- * Deliberately states what was kept rather than only what was refused — the
- * files under the cap are still processed, so this is a ceiling, not a failure.
+ * This is a memory ceiling, not a sales tactic — pdf-lib keeps whole documents
+ * in memory, and past a certain point the tab simply dies. Saying so plainly is
+ * better than an unexplained cap that reads like an upsell.
  */
 export default function BatchLimitNotice({
   limit,
   attempted,
 }: BatchLimitNoticeProps) {
   return (
-    <p className="mt-3 rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3 text-sm">
-      <span className="text-muted">
-        Kept the first {limit} of {attempted} files — that&apos;s the limit on the
-        Free plan.{" "}
-      </span>
-      <Link href="/pricing" className="font-medium text-accent underline">
-        Pro raises it to 100
-      </Link>
-      <span className="text-muted">.</span>
+    <p className="mt-3 rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3 text-sm text-muted">
+      Kept the first {limit} of {attempted} files. Everything is held in memory
+      at once, so past {limit} the browser tab runs out of room — run the rest as
+      a second batch.
     </p>
   );
 }

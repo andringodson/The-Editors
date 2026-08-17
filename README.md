@@ -58,44 +58,54 @@ which caps request bodies at about 4.5 MB. Access is gated by a five-minute HMAC
 token minted at `/api/convert-token`, so the endpoint is not free CPU for
 whoever finds it, without putting a login in front of a first-time user.
 
-## Pricing
+## How it's funded
 
-The rule the plan model is built around: **never gate the core promise.**
-"Compress this to 200 KB, privately, for free" is why anyone shows up, and
-putting it behind a wall would trade the product for a little revenue.
+Advertising. There are no paid tiers and no accounts required for anything that
+runs in your browser — every tool is available to everyone.
 
-So Free keeps every single-file browser tool unlimited — they cost us nothing,
-because the user's own CPU does the work. Pro sells the two things that
-genuinely have a cost or a ceiling:
+Two limits survive, and neither is a sales tactic:
 
-| | Free | Pro — $4/mo |
-|---|---|---|
-| Compress, passport, crop, upscale, convert | Unlimited | Unlimited |
-| Batch merge / images→PDF | 3 files | 100 files |
-| Office→PDF | 3 a day | 100 a day |
-| Saved presets | — | ✓ |
+| Limit | Why it exists |
+|---|---|
+| 100 files per batch | pdf-lib holds whole documents in memory; past this the tab dies |
+| 10 Office→PDF a day, per account | The only tool on hardware we pay for |
 
-Two enforcement notes that matter:
+The Office quota is enforced server-side at `/api/convert-token` — the one
+chokepoint that cannot be skipped, since the converter rejects any request
+without a token. The batch cap is a client-side affordance by contrast, and the
+code says so rather than pretending otherwise.
 
-- **Batch caps are UI affordances, not security.** Bypassing them costs us
-  nothing since the work is local. They keep the code honest about intent
-  without pretending to be a boundary.
-- **The Office→PDF quota is enforced server-side** at `/api/convert-token` —
-  the one chokepoint that cannot be skipped, because the converter rejects any
-  request without a token. It is the only feature that spends our money, so it
-  is the only one with a real lock. It also requires an account: there is no
-  reliable way to meter an anonymous visitor, and an unmetered paid resource is
-  an invitation.
+### The honest version of the privacy claim
 
-`schema.sql` revokes the `UPDATE` grant on `profiles.plan` from `authenticated`
-and re-grants only `display_name`. Without that, any user could set themselves
-to Pro with a single API call — RLS alone cannot restrict columns.
+"Your files never leave your device" stays true — ads don't touch them. But
+AdSense profiles visitors and sets cookies, so the site must not imply it
+collects nothing. `/privacy` states both plainly rather than letting the
+marketing copy overstate.
 
-**On tax:** Stripe leaves sales tax to you, which for a worldwide consumer
-product means registering for VAT/GST across a growing list of jurisdictions. A
-merchant of record (Paddle, Lemon Squeezy) absorbs that for a higher cut and is
-usually the saner choice for a solo developer. Swapping means replacing
-`src/lib/stripe.ts` and the two API routes — nothing else knows Stripe exists.
+Three deliberate choices:
+
+- **Non-personalised by default.** Ads render untargeted unless a visitor opts
+  in. It earns less; it is also the only default that is lawful in the EEA/UK
+  without a consent flow, and the only one consistent with the rest of the
+  product.
+- **The CSP widens only when ads are switched on.** `next.config.ts` adds the
+  Google origins conditionally, so a deployment with no publisher id keeps the
+  strict `'self'` policy. The tight version isn't quietly lost for everyone.
+- **No unit sits inside a tool's working area.** Slots go below the tool, never
+  between a user and the thing they came to do.
+
+### Before you switch ads on
+
+- **AdSense approval is not automatic.** New sites with thin content are
+  routinely rejected. The seven tool pages plus `/privacy` are a reasonable
+  starting position, but expect to iterate.
+- **EEA/UK traffic needs a Google-certified CMP.** `ConsentBanner` is an honest
+  prompt, not a certified one — Google requires a CMP from its approved list
+  before serving European traffic. Wire one in before launching there.
+- **Fill in `public/ads.txt`.** Without your publisher id served at the site
+  root, most programmatic demand won't bid.
+- **Expect heavy ad blocking.** A privacy-conscious audience is exactly the
+  audience that blocks ads, so model revenue pessimistically.
 
 ## Mobile and tablet
 

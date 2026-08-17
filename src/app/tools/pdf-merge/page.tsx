@@ -6,7 +6,7 @@ import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { getPageCount, mergePdfs } from "@/lib/pdf/operations";
-import { usePlan } from "@/lib/use-plan";
+import { BATCH_FILE_LIMIT } from "@/lib/quotas";
 
 interface Entry {
   file: File;
@@ -24,8 +24,6 @@ export default function PdfMergePage() {
     null,
   );
 
-  const { plan } = usePlan();
-
   async function addFiles(files: File[]) {
     const pdfs = files.filter(
       (file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"),
@@ -38,9 +36,9 @@ export default function PdfMergePage() {
 
     setError(null);
 
-    // Take what fits under the plan's cap rather than rejecting the whole drop —
-    // losing four files because the fifth was one too many is hostile.
-    const limit = plan.limits.batchFiles;
+    // Take what fits rather than rejecting the whole drop — losing four files
+    // because the fifth was one too many is hostile.
+    const limit = BATCH_FILE_LIMIT;
     const room = Math.max(0, limit - entries.length);
     const accepted = pdfs.slice(0, room);
 

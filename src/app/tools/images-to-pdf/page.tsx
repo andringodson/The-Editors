@@ -6,7 +6,7 @@ import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { imagesToPdf } from "@/lib/pdf/operations";
-import { usePlan } from "@/lib/use-plan";
+import { BATCH_FILE_LIMIT } from "@/lib/quotas";
 
 type PageSize = "a4" | "fit";
 
@@ -20,8 +20,6 @@ export default function ImagesToPdfPage() {
     null,
   );
 
-  const { plan } = usePlan();
-
   function addFiles(incoming: File[]) {
     const images = incoming.filter((file) => file.type.startsWith("image/"));
     if (images.length === 0) {
@@ -31,7 +29,7 @@ export default function ImagesToPdfPage() {
     setError(null);
 
     // Keep what fits rather than rejecting the whole drop.
-    const limit = plan.limits.batchFiles;
+    const limit = BATCH_FILE_LIMIT;
     const room = Math.max(0, limit - files.length);
 
     setOverflow(

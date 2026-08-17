@@ -3,29 +3,69 @@ import type { NextConfig } from "next";
 /**
  * Security headers.
  *
- * This site's whole promise is that files stay on the user's device. That
- * promise is only as strong as the guarantee that no injected script can ship
- * them somewhere — so the CSP restricts where anything may connect, and
- * `Permissions-Policy` switches off hardware the tools never use.
+ * This site's promise is that files stay on the user's device, and that promise
+ * is only as strong as the guarantee no injected script can ship them
+ * elsewhere. So `connect-src` is the header that matters most here.
  *
- * `connect-src` allows Supabase (auth and telemetry) and nothing else. Adding a
- * third-party script later means widening this deliberately rather than by
- * accident.
+ * Advertising forces that open. Ad libraries load code from several Google
+ * origins and phone home constantly, and there is no way to serve AdSense under
+ * a `'self'`-only policy. The widening is therefore **conditional**: a
+ * deployment with no publisher id configured keeps the strict policy, and only
+ * one actually serving ads pays the cost. That way the tight version is not
+ * quietly lost for everyone the moment ads are switched on somewhere.
  */
 
 const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const adsEnabled = Boolean(process.env.NEXT_PUBLIC_ADSENSE_CLIENT);
+
+const AD_SCRIPT_ORIGINS = [
+  "https://pagead2.googlesyndication.com",
+  "https://partner.googleadservices.com",
+  "https://tpc.googlesyndication.com",
+  "https://www.googletagservices.com",
+  "https://adservice.google.com",
+];
+
+const AD_FRAME_ORIGINS = [
+  "https://googleads.g.doubleclick.net",
+  "https://tpc.googlesyndication.com",
+  "https://www.google.com",
+];
+
+const AD_IMAGE_ORIGINS = [
+  "https://*.googlesyndication.com",
+  "https://*.doubleclick.net",
+  "https://www.google.com",
+  "https://*.g.doubleclick.net",
+];
+
+const AD_CONNECT_ORIGINS = [
+  "https://pagead2.googlesyndication.com",
+  "https://googleads.g.doubleclick.net",
+  "https://*.googlesyndication.com",
+];
+
+function join(...parts: (string | string[])[]): string {
+  return parts.flat().filter(Boolean).join(" ");
+}
 
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next injects inline bootstrap scripts; 'unsafe-inline' is required until
   // nonce-based CSP is wired through.
-  "script-src 'self' 'unsafe-inline'",
+  join("script-src 'self' 'unsafe-inline'", adsEnabled ? AD_SCRIPT_ORIGINS : []),
   "style-src 'self' 'unsafe-inline'",
   // blob: and data: cover canvas output and object URLs, which is how every
   // result is previewed and downloaded.
-  "img-src 'self' blob: data:",
+  join("img-src 'self' blob: data:", adsEnabled ? AD_IMAGE_ORIGINS : []),
   "font-src 'self' data:",
-  `connect-src 'self' blob: data:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  join(
+    "connect-src 'self' blob: data:",
+    supabaseOrigin,
+    adsEnabled ? AD_CONNECT_ORIGINS : [],
+  ),
+  // Ads render inside iframes; without ads nothing may be framed at all.
+  adsEnabled ? join("frame-src", AD_FRAME_ORIGINS) : "frame-src 'none'",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import { isConverterConfigured } from "@/lib/converter";
 import {
   CATEGORY_LABELS,
@@ -87,6 +88,12 @@ export default function Home() {
           </section>
         );
       })}
+
+      <AdSlot
+        name="landingInline"
+        className="mt-14"
+        label="Advertisement — keeps these tools free"
+      />
     </div>
   );
 }

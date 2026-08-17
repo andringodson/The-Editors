@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+import AdScript from "@/components/AdScript";
+import ConsentBanner from "@/components/ConsentBanner";
 import ServiceWorker from "@/components/ServiceWorker";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
@@ -55,13 +58,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <ServiceWorker />
+        <AdScript />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <footer className="border-t border-border py-6">
-          <div className="mx-auto max-w-5xl px-4 text-sm text-muted">
-            Files are processed on your device and never uploaded.
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 text-sm text-muted">
+            <p>Files are processed on your device and never uploaded.</p>
+            <Link href="/privacy" className="underline hover:text-foreground">
+              Privacy &amp; ads
+            </Link>
           </div>
         </footer>
+        <ConsentBanner />
       </body>
     </html>
   );

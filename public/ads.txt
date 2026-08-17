@@ -1,0 +1,7 @@
+# Authorized Digital Sellers — https://iabtechlab.com/ads-txt/
+#
+# Replace PUBLISHER_ID with your AdSense publisher id (the digits from
+# ca-pub-XXXXXXXXXXXXXXXX). Without this file served at the site root, most
+# programmatic demand will not bid and revenue collapses.
+#
+# google.com, pub-PUBLISHER_ID, DIRECT, f08c47fec0942fa0

@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/*
+ * Neutral base palette. Every colour is a token so the whole site can be
+ * re-skinned from this block once the real design lands — no component needs
+ * touching. Light is defined on :root; dark only overrides what changes.
+ */
+
+:root {
+  --background: #fbfbfa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --foreground: #17171a;
+  --muted: #6b6b76;
+  --border: #e4e4e7;
+  --border-strong: #d1d1d6;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --accent-subtle: #eff4ff;
+  --success: #15803d;
+  --danger: #dc2626;
+  --radius: 0.625rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b0b0d;
+    --surface: #141417;
+    --surface-raised: #1b1b1f;
+    --foreground: #f2f2f3;
+    --muted: #9a9aa4;
+    --border: #27272b;
+    --border-strong: #35353b;
+    --accent: #60a5fa;
+    --accent-foreground: #0b0b0d;
+    --accent-subtle: #16233a;
+    --success: #4ade80;
+    --danger: #f87171;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-base: var(--radius);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Respect the OS setting for users who get motion sick. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

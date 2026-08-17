@@ -54,3 +54,6 @@ next-env.d.ts
 /services/*/node_modules/
 .vercel
 .env*
+
+# scaffold artifact, regenerated locally by next dev
+CLAUDE.md

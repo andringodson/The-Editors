@@ -115,7 +115,16 @@ export default function CropPage() {
     if (busy || !previewUrl) return;
     const point = pointIn(event);
     if (!point) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    // Pointer capture keeps the drag alive when the finger leaves the box, but
+    // it throws on an unrecognised pointerId in some browsers. Letting that
+    // escape would abort the handler and the crop would never start, so a
+    // failure here degrades to a drag that simply stops at the edge.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Non-fatal.
+    }
+
     dragStart.current = point;
     setSelection({ x: point.x, y: point.y, width: 0, height: 0 });
     setSourceRect(null);

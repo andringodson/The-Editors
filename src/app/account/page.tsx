@@ -33,7 +33,7 @@ export default async function AccountPage() {
       </h2>
 
       {runs && runs.length > 0 ? (
-        <ul className="mt-4 divide-y divide-border rounded-[var(--radius-base)] border border-border bg-surface">
+        <ul className="mt-4 divide-y divide-border bevel-out bg-surface">
           {runs.map((run, index) => (
             <li
               key={index}
@@ -57,7 +57,7 @@ export default async function AccountPage() {
       <form action="/auth/signout" method="post" className="mt-10">
         <button
           type="submit"
-          className="rounded-[var(--radius-base)] border border-border-strong px-5 py-2.5 text-sm font-medium transition-colors hover:border-danger hover:text-danger"
+          className="btn-95 bevel-out text-sm hover:text-danger"
         >
           Sign out
         </button>

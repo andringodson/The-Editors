@@ -26,13 +26,13 @@ export default function Home() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/tools/compress"
-            className="rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
+            className="btn-95 bevel-out font-bold"
           >
             Compress an image
           </Link>
           <Link
             href="/tools/pdf-merge"
-            className="rounded-[var(--radius-base)] border border-border-strong px-5 py-2.5 font-medium transition-colors hover:border-accent"
+            className="btn-95 bevel-out"
           >
             Merge PDFs
           </Link>
@@ -56,7 +56,7 @@ export default function Home() {
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-medium">{tool.name}</h3>
                       {status === "soon" ? (
-                        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
+                        <span className="shrink-0 bevel-out px-2 py-0.5 text-xs text-muted">
                           Soon
                         </span>
                       ) : null}
@@ -72,12 +72,12 @@ export default function Home() {
                     {status === "live" ? (
                       <Link
                         href={`/tools/${tool.slug}`}
-                        className="block h-full rounded-[var(--radius-base)] border border-border bg-surface p-4 transition-colors hover:border-accent"
+                        className="block h-full bevel-out bg-surface p-4 no-underline hover:bg-accent-subtle"
                       >
                         {card}
                       </Link>
                     ) : (
-                      <div className="h-full rounded-[var(--radius-base)] border border-border bg-surface p-4 opacity-65">
+                      <div className="h-full bevel-out bg-surface p-4 opacity-65">
                         {card}
                       </div>
                     )}

@@ -28,7 +28,7 @@ export default function OfflinePage() {
           <li key={tool.href}>
             <Link
               href={tool.href}
-              className="block rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3 font-medium transition-colors hover:border-accent"
+              className="block bevel-out bg-surface px-4 py-3 font-medium no-underline hover:bg-accent-subtle"
             >
               {tool.label}
             </Link>

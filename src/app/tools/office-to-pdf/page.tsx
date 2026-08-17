@@ -95,7 +95,7 @@ export default function OfficeToPdfPage() {
           This is the one tool that cannot run in your browser — converting
           PowerPoint, Word and Excel needs LibreOffice, which means a server.
         </p>
-        <p className="mt-4 rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3 text-sm text-muted">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm text-muted">
           The conversion service is not connected to this deployment yet. Every
           other tool works normally.
         </p>
@@ -134,13 +134,13 @@ export default function OfficeToPdfPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? status || "Converting…" : "Convert to PDF"}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

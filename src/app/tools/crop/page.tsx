@@ -238,10 +238,10 @@ export default function CropPage() {
                   setSourceRect(null);
                 }}
                 className={[
-                  "rounded-md border px-2.5 py-1 text-xs transition-colors",
+                  "px-3 py-2 text-xs",
                   ratioId === item.id
-                    ? "border-accent bg-accent-subtle font-medium"
-                    : "border-border hover:border-accent",
+                    ? "bevel-in bg-accent-subtle font-bold"
+                    : "bevel-out",
                 ].join(" ")}
               >
                 {item.label}
@@ -255,7 +255,7 @@ export default function CropPage() {
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
-            className="relative mt-4 touch-none select-none overflow-hidden rounded-[var(--radius-base)] border border-border bg-surface"
+            className="relative mt-4 touch-none select-none overflow-hidden bevel-out bg-surface"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -299,7 +299,7 @@ export default function CropPage() {
                 type="button"
                 disabled={busy || angle === 0}
                 onClick={() => void applyRotation(angle)}
-                className="rounded-md border border-border px-3 py-1.5 text-xs disabled:opacity-35"
+                className="bevel-out px-3 py-1.5 text-xs disabled:opacity-35"
               >
                 Apply tilt
               </button>
@@ -307,7 +307,7 @@ export default function CropPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void applyRotation(90)}
-                className="rounded-md border border-border px-3 py-1.5 text-xs disabled:opacity-35"
+                className="bevel-out px-3 py-1.5 text-xs disabled:opacity-35"
               >
                 Rotate 90°
               </button>
@@ -326,19 +326,19 @@ export default function CropPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? "Working…" : "Crop"}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 rounded-[var(--radius-base)] border border-border bg-surface p-5">
+        <section className="mt-8 bevel-out bg-surface p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Done</h2>
             <p className="text-sm text-muted tabular-nums">
@@ -348,7 +348,7 @@ export default function CropPage() {
           <button
             type="button"
             onClick={download}
-            className="mt-4 w-full rounded-[var(--radius-base)] border border-border-strong px-5 py-2.5 font-medium transition-colors hover:border-accent"
+            className="mt-4 w-full btn-95 bevel-out"
           >
             Download
           </button>

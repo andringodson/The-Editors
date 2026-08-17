@@ -141,14 +141,14 @@ export default function CompressPage() {
               value={amount}
               disabled={busy}
               onChange={(event) => setAmount(Number(event.target.value))}
-              className="w-full rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2 tabular-nums"
+              className="w-full bevel-field px-3 py-2 tabular-nums"
             />
             <select
               aria-label="Unit"
               value={unit}
               disabled={busy}
               onChange={(event) => setUnit(event.target.value as Unit)}
-              className="rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2"
+              className="bevel-field px-3 py-2"
             >
               <option value="KB">KB</option>
               <option value="MB">MB</option>
@@ -165,7 +165,7 @@ export default function CompressPage() {
             value={format}
             disabled={busy}
             onChange={(event) => setFormat(event.target.value as Format)}
-            className="mt-1.5 w-full rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2"
+            className="mt-1.5 w-full bevel-field px-3 py-2"
           >
             <option value="image/jpeg">JPEG — best for photographs</option>
             <option value="image/webp">WebP — smaller, best for flat art</option>
@@ -177,19 +177,19 @@ export default function CompressPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? `Searching… ${Math.round(progress * 100)}%` : "Compress"}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {result ? (
-        <section className="mt-8 rounded-[var(--radius-base)] border border-border bg-surface p-5">
+        <section className="mt-8 bevel-out bg-surface p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="font-medium">
               {result.missedTarget ? "Closest possible" : "Done"}
@@ -238,14 +238,14 @@ export default function CompressPage() {
             <img
               src={preview}
               alt="Compressed result"
-              className="mt-5 max-h-96 w-full rounded-[var(--radius-base)] border border-border object-contain"
+              className="mt-5 max-h-96 w-full bevel-out object-contain"
             />
           ) : null}
 
           <button
             type="button"
             onClick={download}
-            className="mt-5 w-full rounded-[var(--radius-base)] border border-border-strong px-5 py-2.5 font-medium transition-colors hover:border-accent"
+            className="mt-5 w-full btn-95 bevel-out"
           >
             Download
           </button>

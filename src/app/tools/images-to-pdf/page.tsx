@@ -131,7 +131,7 @@ export default function ImagesToPdfPage() {
           {files.map((file, index) => (
             <li
               key={`${file.name}-${index}`}
-              className="flex items-center gap-3 rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3"
+              className="flex items-center gap-3 bevel-out bg-surface px-4 py-3"
             >
               <span className="w-6 shrink-0 text-sm text-muted tabular-nums">
                 {index + 1}
@@ -148,7 +148,7 @@ export default function ImagesToPdfPage() {
                   aria-label="Move up"
                   disabled={busy || index === 0}
                   onClick={() => move(index, -1)}
-                  className="rounded border border-border px-2 py-1 text-xs disabled:opacity-35"
+                  className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
                 >
                   ↑
                 </button>
@@ -157,7 +157,7 @@ export default function ImagesToPdfPage() {
                   aria-label="Move down"
                   disabled={busy || index === files.length - 1}
                   onClick={() => move(index, 1)}
-                  className="rounded border border-border px-2 py-1 text-xs disabled:opacity-35"
+                  className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
                 >
                   ↓
                 </button>
@@ -168,7 +168,7 @@ export default function ImagesToPdfPage() {
                   onClick={() =>
                     setFiles((current) => current.filter((_, i) => i !== index))
                   }
-                  className="rounded border border-border px-2 py-1 text-xs text-danger disabled:opacity-35"
+                  className="bevel-out px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
                 >
                   ✕
                 </button>
@@ -182,13 +182,13 @@ export default function ImagesToPdfPage() {
         type="button"
         onClick={run}
         disabled={files.length === 0 || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? status || "Building…" : `Create PDF${files.length ? ` (${files.length} pages)` : ""}`}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

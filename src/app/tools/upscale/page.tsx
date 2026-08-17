@@ -121,7 +121,7 @@ export default function UpscalePage() {
               setTargetId(event.target.value);
               setOutput(null);
             }}
-            className="mt-1.5 w-full rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2"
+            className="mt-1.5 w-full bevel-field px-3 py-2"
           >
             {TARGETS.map((item) => (
               <option key={item.id} value={item.id}>
@@ -140,7 +140,7 @@ export default function UpscalePage() {
             value={format}
             disabled={busy}
             onChange={(event) => setFormat(event.target.value as EncodeMime)}
-            className="mt-1.5 w-full rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2"
+            className="mt-1.5 w-full bevel-field px-3 py-2"
           >
             <option value="image/jpeg">JPEG</option>
             <option value="image/png">PNG — lossless</option>
@@ -167,19 +167,19 @@ export default function UpscalePage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? "Resampling…" : "Upscale"}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 rounded-[var(--radius-base)] border border-border bg-surface p-5">
+        <section className="mt-8 bevel-out bg-surface p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Done</h2>
             <p className="text-sm text-muted tabular-nums">
@@ -189,7 +189,7 @@ export default function UpscalePage() {
           <button
             type="button"
             onClick={download}
-            className="mt-4 w-full rounded-[var(--radius-base)] border border-border-strong px-5 py-2.5 font-medium transition-colors hover:border-accent"
+            className="mt-4 w-full btn-95 bevel-out"
           >
             Download
           </button>

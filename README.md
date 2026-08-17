@@ -191,6 +191,29 @@ Adding a tool means adding an entry to `src/lib/tools.ts` and a page under
 
 ## Design
 
-Colours, radii and fonts are tokens in `src/app/globals.css`. Restyling the
-whole site means editing that one block — no component holds a hard-coded
+A Windows 95 interface language, adapted from
+[robbyyeager.com](https://robbyyeager.com/). The palette and bevel geometry are
+the genuine article — `#c0c0c0` face, white highlight, `#808080` shadow, black
+dark-shadow, navy title bars, `#0a8a8a` desktop — and the whole look is four
+`box-shadow` rings (`.bevel-out`, `.bevel-in`, `.bevel-field`) rather than
+images.
+
+Everything lives in `src/app/globals.css`. No component holds a hard-coded
 colour.
+
+**Where it deliberately breaks with the era**, because authenticity stops being
+a virtue the moment it costs someone the task they came for:
+
+| Authentic | Here | Why |
+|---|---|---|
+| 13px base type | 15px | Below the modern legibility floor, and this is used on phones |
+| `user-select: none` | Selectable | People copy dimensions and file sizes out of the UI |
+| 16px buttons | 44px min | Authentic hit targets are unusable with a thumb |
+| Dotted focus outline | 2px solid ring | The 90s outline all but vanishes on a grey face |
+| `#808080` secondary text | `#4a4a4a` | The original fails 4.5:1 contrast on `#c0c0c0` |
+| No dark mode | Invented "night" skin | The app already had one; dropping it would regress users |
+
+Pixel type (Pixelify Sans) is confined to `h1` — characterful at 30px, punishing
+at 15px. **Ligatures are disabled on it**, and not for taste: its `fi` ligature
+renders as a glyph that reads as a capital A, so "files" came out as "Ales" in
+the headline until it was switched off.

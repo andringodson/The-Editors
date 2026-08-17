@@ -71,14 +71,14 @@ export default function ConsentBanner() {
           <button
             type="button"
             onClick={() => choose("basic")}
-            className="rounded-[var(--radius-base)] border border-border-strong px-4 py-2 text-sm font-medium transition-colors hover:border-accent"
+            className="btn-95 bevel-out text-sm"
           >
             No, keep it basic
           </button>
           <button
             type="button"
             onClick={() => choose("personalised")}
-            className="rounded-[var(--radius-base)] border border-border-strong px-4 py-2 text-sm font-medium transition-colors hover:border-accent"
+            className="btn-95 bevel-out text-sm"
           >
             Yes, that&apos;s fine
           </button>

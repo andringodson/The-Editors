@@ -2,55 +2,64 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+const MENU = [
+  { href: "/tools/compress", label: "Compress" },
+  { href: "/tools/passport", label: "Passport" },
+  { href: "/tools/crop", label: "Crop" },
+  { href: "/tools/pdf-merge", label: "PDF" },
+];
+
+/**
+ * Window title bar plus menu strip.
+ *
+ * The window controls are decoration — there is nothing to minimise — so they
+ * are marked aria-hidden rather than rendered as buttons that lie to a screen
+ * reader about what they do.
+ */
 export default async function SiteHeader() {
   const user = isSupabaseConfigured ? await getCurrentUser() : null;
 
   return (
-    <header className="border-b border-border bg-surface">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5">
-        <Link href="/" className="font-semibold tracking-tight">
+    <header>
+      <div className="win-title">
+        <Link
+          href="/"
+          className="font-display text-base tracking-wide text-white no-underline"
+        >
           The Editors
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm">
-          <Link
-            href="/tools/compress"
-            className="rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-accent-subtle hover:text-foreground"
-          >
-            Compress
-          </Link>
-          <Link
-            href="/tools/passport"
-            className="rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-accent-subtle hover:text-foreground"
-          >
-            Passport
-          </Link>
-          <Link
-            href="/tools/pdf-merge"
-            className="rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-accent-subtle hover:text-foreground"
-          >
-            PDF
-          </Link>
-
-          {isSupabaseConfigured ? (
-            user ? (
-              <Link
-                href="/account"
-                className="ml-2 rounded-md border border-border px-3 py-1.5 transition-colors hover:border-accent"
-              >
-                Account
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="ml-2 rounded-md bg-accent px-3 py-1.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
-              >
-                Sign in
-              </Link>
-            )
-          ) : null}
-        </nav>
+        <div className="win-controls" aria-hidden="true">
+          <span className="win-control bevel-out">_</span>
+          <span className="win-control bevel-out">□</span>
+          <span className="win-control bevel-out">✕</span>
+        </div>
       </div>
+
+      <nav className="flex flex-wrap items-center gap-0.5 px-1 py-1">
+        {MENU.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+          >
+            {item.label}
+          </Link>
+        ))}
+
+        <span className="flex-1" />
+
+        {isSupabaseConfigured ? (
+          <Link
+            href={user ? "/account" : "/login"}
+            className="btn-95 bevel-out px-3 text-sm"
+          >
+            {user ? "Account" : "Sign in"}
+          </Link>
+        ) : null}
+      </nav>
+
+      <div className="mx-1 h-0.5 bevel-in" />
     </header>
   );
 }

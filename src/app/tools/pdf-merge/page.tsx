@@ -152,7 +152,7 @@ export default function PdfMergePage() {
             {entries.map((entry, index) => (
               <li
                 key={`${entry.file.name}-${index}`}
-                className="flex items-center gap-3 rounded-[var(--radius-base)] border border-border bg-surface px-4 py-3"
+                className="flex items-center gap-3 bevel-out bg-surface px-4 py-3"
               >
                 <span className="w-6 shrink-0 text-sm text-muted tabular-nums">
                   {index + 1}
@@ -174,7 +174,7 @@ export default function PdfMergePage() {
                     aria-label="Move up"
                     disabled={busy || index === 0}
                     onClick={() => move(index, -1)}
-                    className="rounded border border-border px-2 py-1 text-xs disabled:opacity-35"
+                    className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
                   >
                     ↑
                   </button>
@@ -183,7 +183,7 @@ export default function PdfMergePage() {
                     aria-label="Move down"
                     disabled={busy || index === entries.length - 1}
                     onClick={() => move(index, 1)}
-                    className="rounded border border-border px-2 py-1 text-xs disabled:opacity-35"
+                    className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
                   >
                     ↓
                   </button>
@@ -192,7 +192,7 @@ export default function PdfMergePage() {
                     aria-label="Remove"
                     disabled={busy}
                     onClick={() => remove(index)}
-                    className="rounded border border-border px-2 py-1 text-xs text-danger disabled:opacity-35"
+                    className="bevel-out px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
                   >
                     ✕
                   </button>
@@ -211,13 +211,13 @@ export default function PdfMergePage() {
         type="button"
         onClick={run}
         disabled={entries.length < 2 || busy}
-        className="mt-6 w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+        className="mt-6 w-full btn-95 bevel-out font-bold"
       >
         {busy ? status || "Merging…" : "Merge and download"}
       </button>
 
       {error ? (
-        <p className="mt-4 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

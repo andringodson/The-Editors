@@ -54,7 +54,7 @@ export default function LoginPage() {
       </p>
 
       {sent ? (
-        <p className="mt-6 rounded-[var(--radius-base)] border border-success/40 bg-success/5 px-4 py-3 text-sm text-success">
+        <p className="mt-6 bevel-out bg-surface px-4 py-3 text-sm font-bold text-success">
           Check your inbox for a sign-in link.
         </p>
       ) : (
@@ -69,12 +69,12 @@ export default function LoginPage() {
             value={email}
             disabled={busy}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-[var(--radius-base)] border border-border bg-surface px-3 py-2"
+            className="w-full bevel-field px-3 py-2"
           />
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-[var(--radius-base)] bg-accent px-5 py-2.5 font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-45"
+            className="w-full btn-95 bevel-out font-bold"
           >
             {busy ? "Sending…" : "Email me a link"}
           </button>

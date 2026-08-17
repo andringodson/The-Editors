@@ -83,14 +83,20 @@ export default function FileDrop({
           setDragging(false);
           handleFiles(event.dataTransfer.files);
         }}
+        /*
+         * A sunken well, the way a Win95 drop target would have looked. The
+         * dashed outline sits inside the bevel rather than replacing it, so the
+         * "drop here" affordance survives without breaking the chrome.
+         */
         className={[
-          "rounded-[var(--radius-base)] border-2 border-dashed p-8 text-center transition-colors",
+          "p-8 text-center outline-2 -outline-offset-8 outline-dashed transition-colors",
+          "bevel-in",
           disabled
-            ? "cursor-not-allowed border-border opacity-60"
+            ? "cursor-not-allowed opacity-60 outline-transparent"
             : "cursor-pointer",
           isDragging
-            ? "border-accent bg-accent-subtle"
-            : "border-border-strong bg-surface hover:border-accent",
+            ? "bg-accent-subtle outline-accent"
+            : "outline-border",
         ].join(" ")}
         onClick={() => !disabled && inputRef.current?.click()}
       >
@@ -117,7 +123,7 @@ export default function FileDrop({
       {rejection ? (
         <p
           role="alert"
-          className="mt-3 rounded-[var(--radius-base)] border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-danger"
+          className="mt-3 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger"
         >
           {rejection}
         </p>

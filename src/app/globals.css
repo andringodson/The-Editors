@@ -1,41 +1,84 @@
 @import "tailwindcss";
 
 /*
- * Neutral base palette. Every colour is a token so the whole site can be
- * re-skinned from this block once the real design lands — no component needs
- * touching. Light is defined on :root; dark only overrides what changes.
+ * Windows 95 design language.
+ *
+ * The palette and bevel geometry are the genuine article — #c0c0c0 face, white
+ * highlight, #808080 shadow, black dark-shadow, navy title bars, teal desktop.
+ *
+ * What is deliberately NOT authentic:
+ *
+ *   - Base font is 15px, not 13px. Period-accurate type is below the modern
+ *     legibility floor and this is a tool people use on phones.
+ *   - Text stays selectable. Real Win95 chrome was unselectable; here people
+ *     need to copy dimensions and file sizes out of the UI.
+ *   - Focus rings are visible and modern. The 90s dotted outline is nearly
+ *     invisible against a grey face.
+ *   - Hit targets grow to 44px on touch. Authentic 16px buttons are unusable
+ *     with a thumb.
+ *
+ * Accuracy is the goal right up to the point where it costs someone the task
+ * they came to do.
  */
 
 :root {
-  --background: #fbfbfa;
-  --surface: #ffffff;
-  --surface-raised: #ffffff;
-  --foreground: #17171a;
-  --muted: #6b6b76;
-  --border: #e4e4e7;
-  --border-strong: #d1d1d6;
-  --accent: #2563eb;
+  /* Chrome — straight from the era. */
+  --face: #c0c0c0;
+  --face-light: #dfdfdf;
+  --hi: #ffffff;
+  --sh: #808080;
+  --dksh: #000000;
+  --title: #000082;
+  --title2: #1084d0;
+  --desktop: #0a8a8a;
+
+  /* Semantic mapping onto the chrome palette. */
+  --background: var(--desktop);
+  --surface: var(--face);
+  --surface-raised: var(--face-light);
+  --foreground: #000000;
+  /* #4a4a4a on #c0c0c0 clears 4.5:1; the authentic #808080 does not. */
+  --muted: #4a4a4a;
+  --border: var(--sh);
+  --border-strong: var(--dksh);
+  --accent: var(--title);
   --accent-foreground: #ffffff;
-  --accent-subtle: #eff4ff;
-  --success: #15803d;
-  --danger: #dc2626;
-  --radius: 0.625rem;
+  --accent-subtle: #b8c4e0;
+  --success: #006000;
+  --danger: #a80000;
+
+  /* Square corners. Rounding a Win95 window is the one thing that reads wrong. */
+  --radius: 0px;
 }
 
+/*
+ * "Night" skin. Win95 had no dark mode, so this is an invented dark console
+ * rather than a period artefact — but the app already supported a dark theme
+ * and silently dropping it would regress anyone who relies on it.
+ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b0b0d;
-    --surface: #141417;
-    --surface-raised: #1b1b1f;
-    --foreground: #f2f2f3;
-    --muted: #9a9aa4;
-    --border: #27272b;
-    --border-strong: #35353b;
-    --accent: #60a5fa;
-    --accent-foreground: #0b0b0d;
-    --accent-subtle: #16233a;
+    --face: #3a3a3a;
+    --face-light: #4a4a4a;
+    --hi: #6e6e6e;
+    --sh: #1c1c1c;
+    --dksh: #000000;
+    --title: #001a5c;
+    --title2: #0a5a92;
+    --desktop: #05494a;
+
+    --background: var(--desktop);
+    --surface: var(--face);
+    --surface-raised: var(--face-light);
+    --foreground: #f0f0f0;
+    --muted: #c2c2c2;
+    --border: var(--sh);
+    --border-strong: #000000;
+    --accent: #3a6ea5;
+    --accent-foreground: #ffffff;
+    --accent-subtle: #2a3b52;
     --success: #4ade80;
-    --danger: #f87171;
+    --danger: #ff6b6b;
   }
 }
 
@@ -52,18 +95,232 @@
   --color-accent-subtle: var(--accent-subtle);
   --color-success: var(--success);
   --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-face: var(--face);
+  --color-title: var(--title);
+  --color-title2: var(--title2);
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-pixel);
+  --font-mono: var(--font-terminal);
   --radius-base: var(--radius);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+html {
+  background: var(--desktop);
 }
 
-/* Respect the OS setting for users who get motion sick. */
+body {
+  background: var(--desktop);
+  color: var(--foreground);
+  font-family: var(--font-ui), Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
+  /* 15px: the smallest size that stays legible on a phone. */
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/*
+ * Page titles carry the era's voice; everything below them stays in Inter.
+ * Pixel type is characterful at 30px and punishing at 15px, so it is confined
+ * to h1 rather than let loose on the hierarchy.
+ */
+h1 {
+  font-family: var(--font-pixel), var(--font-ui), sans-serif;
+  /* tracking-tight fights a pixel face — the glyphs already sit close. */
+  letter-spacing: 0;
+  font-weight: 700;
+  /*
+   * Ligatures OFF, and not for taste: Pixelify Sans renders the "fi" ligature
+   * as a glyph that reads as a capital A at display size, so "files" came out
+   * as "Ales" in the headline. Pixel faces have too few pixels to distinguish
+   * a ligature from a different letter.
+   */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Bevels — the whole visual language in four box-shadows.
+   Two rings: the outer pair are highlight/dark-shadow, the inner pair are the
+   softer light/shadow greys. Reversing them inverts the depth.
+   --------------------------------------------------------------------------- */
+
+.bevel-out {
+  box-shadow:
+    inset -1px -1px 0 0 var(--dksh),
+    inset 1px 1px 0 0 var(--hi),
+    inset -2px -2px 0 0 var(--sh),
+    inset 2px 2px 0 0 var(--face-light);
+}
+
+.bevel-in {
+  box-shadow:
+    inset -1px -1px 0 0 var(--hi),
+    inset 1px 1px 0 0 var(--dksh),
+    inset -2px -2px 0 0 var(--face-light),
+    inset 2px 2px 0 0 var(--sh);
+}
+
+/* Shallow inset for text fields and list wells. */
+.bevel-field {
+  box-shadow:
+    inset -1px -1px 0 0 var(--hi),
+    inset 1px 1px 0 0 var(--sh);
+  background: var(--hi);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bevel-field {
+    background: #262626;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Window chrome
+   --------------------------------------------------------------------------- */
+
+.win {
+  background: var(--face);
+  padding: 3px;
+}
+
+.win-title {
+  background: linear-gradient(90deg, var(--title), var(--title2));
+  color: #ffffff;
+  font-weight: 700;
+  padding: 3px 4px 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* The one place suppressing selection is right — it is chrome, not content. */
+  user-select: none;
+}
+
+/* Fake window controls. Decorative only, hidden from assistive tech. */
+.win-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.win-control {
+  width: 18px;
+  height: 16px;
+  background: var(--face);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 700;
+  color: #000;
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+   --------------------------------------------------------------------------- */
+
+.btn-95 {
+  background: var(--face);
+  color: var(--foreground);
+  padding: 6px 14px;
+  font-weight: 400;
+  /* Touch-friendly, which the originals emphatically were not. */
+  min-height: 44px;
+}
+
+.btn-95:active:not(:disabled) {
+  /* Content shifts a pixel down-right, exactly as it did. */
+  padding: 7px 13px 5px 15px;
+}
+
+.btn-95:disabled {
+  color: var(--sh);
+  text-shadow: 1px 1px 0 var(--hi);
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-95:disabled {
+    text-shadow: none;
+    color: #7a7a7a;
+  }
+}
+
+/*
+ * Focus: modern and obvious. The period-correct 1px dotted outline all but
+ * disappears on a grey face, and keyboard users are not a retro flourish.
+ */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--title2);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: #6cb6ff;
+  }
+}
+
+/* Native controls, dressed down to match. */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+select,
+textarea {
+  background: var(--hi);
+  color: #000;
+  border: none;
+  padding: 7px 8px;
+  font-family: inherit;
+  font-size: inherit;
+  min-height: 44px;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  select,
+  textarea {
+    background: #262626;
+    color: var(--foreground);
+  }
+}
+
+input[type="range"] {
+  accent-color: var(--title);
+  min-height: 44px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--title);
+  width: 18px;
+  height: 18px;
+}
+
+::selection {
+  background: var(--title);
+  color: #ffffff;
+}
+
+/* Chunky period scrollbars, without breaking anything that lacks support. */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--face-light);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--face);
+    box-shadow:
+      inset -1px -1px 0 0 var(--dksh),
+      inset 1px 1px 0 0 var(--hi),
+      inset -2px -2px 0 0 var(--sh),
+      inset 2px 2px 0 0 var(--face-light);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

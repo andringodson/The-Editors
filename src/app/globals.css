@@ -28,9 +28,11 @@
   --hi: #ffffff;
   --sh: #808080;
   --dksh: #000000;
-  --title: #000082;
-  --title2: #1084d0;
-  --desktop: #0a8a8a;
+  --title: #3b1d8f;
+  --title2: #8b5cf6;
+  /* True black, not near-black: on OLED these pixels switch off entirely, which
+     is both the deeper look and measurably less battery. */
+  --desktop: #000000;
 
   /* Semantic mapping onto the chrome palette. */
   --background: var(--desktop);
@@ -63,9 +65,9 @@
     --hi: #6e6e6e;
     --sh: #1c1c1c;
     --dksh: #000000;
-    --title: #001a5c;
-    --title2: #0a5a92;
-    --desktop: #05494a;
+    --title: #2a1065;
+    --title2: #7c3aed;
+    --desktop: #000000;
 
     --background: var(--desktop);
     --surface: var(--face);
@@ -109,12 +111,91 @@ html {
 }
 
 body {
-  background: var(--desktop);
+  /* Transparent, not black: an opaque body would paint over the fixed
+     .fluid-bg layer sitting at z-index -1. The base colour lives on html. */
+  background: transparent;
   color: var(--foreground);
   font-family: var(--font-ui), Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
   /* 15px: the smallest size that stays legible on a phone. */
   font-size: 15px;
   line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Fluid backdrop
+
+   Violet light pooling on OLED black. Three layers: a glow that trails the
+   pointer, two blobs drifting on long loops, and true black underneath.
+
+   Everything animates transform and opacity only, so it stays on the GPU's
+   compositor thread and never triggers layout or paint. That matters more here
+   than on a normal site: the main thread is busy encoding images.
+   --------------------------------------------------------------------------- */
+
+.fluid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: #000000;
+}
+
+/* The pointer-following pool. Falls back to a sensible position before the
+   first pointer event, and on touch devices that never send one. */
+.fluid-bg::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      50vmax 50vmax at var(--mx, 50%) var(--my, 30%),
+      rgba(139, 92, 246, 0.45),
+      rgba(139, 92, 246, 0) 62%
+    ),
+    radial-gradient(
+      32vmax 32vmax at var(--mx, 50%) var(--my, 30%),
+      rgba(217, 70, 239, 0.24),
+      rgba(217, 70, 239, 0) 55%
+    );
+}
+
+/* Slow drifting blobs, independent of the pointer, so the background is alive
+   even when nothing is moving. */
+.fluid-bg::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(
+      40vmax 32vmax at 18% 80%,
+      rgba(109, 40, 217, 0.50),
+      rgba(109, 40, 217, 0) 60%
+    ),
+    radial-gradient(
+      34vmax 36vmax at 85% 15%,
+      rgba(124, 58, 237, 0.42),
+      rgba(124, 58, 237, 0) 58%
+    ),
+    radial-gradient(
+      28vmax 28vmax at 68% 92%,
+      rgba(192, 38, 211, 0.30),
+      rgba(192, 38, 211, 0) 55%
+    );
+  animation: drift 42s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -2.5%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2.5%, 2%, 0) scale(1.03);
+  }
 }
 
 /*

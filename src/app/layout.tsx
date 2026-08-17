@@ -3,6 +3,7 @@ import { Inter, Pixelify_Sans, VT323 } from "next/font/google";
 import Link from "next/link";
 import AdScript from "@/components/AdScript";
 import ConsentBanner from "@/components/ConsentBanner";
+import FluidBackground from "@/components/FluidBackground";
 import ServiceWorker from "@/components/ServiceWorker";
 import SiteHeader from "@/components/SiteHeader";
 import Taskbar from "@/components/Taskbar";
@@ -57,10 +58,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0a8a8a" },
-    { media: "(prefers-color-scheme: dark)", color: "#05494a" },
-  ],
+  // Matches the OLED base so the browser chrome disappears into the page.
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
   // Never block pinch-zoom: people crop and inspect photos on phones.
@@ -74,13 +73,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${ui.variable} ${pixel.variable} ${terminal.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <FluidBackground />
         <ServiceWorker />
         <AdScript />
 
         {/* The desktop. Padding shrinks to nothing on phones, where a framed
             window inside a viewport-sized screen wastes real estate. */}
-        <div className="flex flex-1 flex-col p-0 pb-12 sm:p-4 sm:pb-16">
-          <div className="win bevel-out mx-auto flex w-full max-w-5xl flex-1 flex-col">
+        {/* Generous desktop padding on larger screens so the backdrop is
+            actually visible around the window — a floating window is the whole
+            point of the metaphor. Phones get none; there the window is the
+            screen. */}
+        <div className="flex flex-1 flex-col p-0 pb-14 sm:p-6 sm:pb-20 lg:p-10 lg:pb-24">
+          <div className="win bevel-out mx-auto flex w-full max-w-5xl flex-col">
             <SiteHeader />
             <main className="flex-1 bg-surface">{children}</main>
 

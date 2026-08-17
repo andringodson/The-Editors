@@ -198,11 +198,33 @@ Adding a tool means adding an entry to `src/lib/tools.ts` and a page under
 ## Design
 
 A Windows 95 interface language, adapted from
-[robbyyeager.com](https://robbyyeager.com/). The palette and bevel geometry are
-the genuine article — `#c0c0c0` face, white highlight, `#808080` shadow, black
-dark-shadow, navy title bars, `#0a8a8a` desktop — and the whole look is four
-`box-shadow` rings (`.bevel-out`, `.bevel-in`, `.bevel-field`) rather than
-images.
+[robbyyeager.com](https://robbyyeager.com/), floating on a modern fluid
+backdrop. The chrome is the genuine article — `#c0c0c0` face, white highlight,
+`#808080` shadow, black dark-shadow — and the whole look is four `box-shadow`
+rings (`.bevel-out`, `.bevel-in`, `.bevel-field`) rather than images.
+
+### The backdrop
+
+Violet light pooling on true `#000000`. True black rather than near-black
+because OLED panels switch those pixels off entirely — deeper look, less
+battery.
+
+**It is CSS gradients, not WebGL or canvas, and that is a deliberate
+constraint.** This site's real work is canvas and WASM image encoding; a shader
+background would compete for the exact GPU and CPU the compressor needs, and a
+decorative layer must never make the tool slower. So the visuals are layered
+radial gradients that the compositor handles for free, and the only JavaScript
+publishes two custom properties with the pointer position.
+
+Two things to preserve if `FluidBackground.tsx` is ever edited:
+
+- The rAF loop **cancels itself once the glow catches up**, so an idle tab costs
+  nothing. It is not a permanent animation frame.
+- The 6%-per-frame easing is what makes it read as fluid — the glow lags the
+  cursor rather than snapping to it.
+
+Under `prefers-reduced-motion` the pointer tracking never starts and the drift
+animation is disabled, leaving a static violet field.
 
 Everything lives in `src/app/globals.css`. No component holds a hard-coded
 colour.

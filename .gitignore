@@ -48,3 +48,7 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /.playwright/
+
+# converter service build output
+/services/*/dist/
+/services/*/node_modules/

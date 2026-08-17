@@ -48,3 +48,28 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  converter:
+    name: Conversion service
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/converter
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/converter/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+      # A Dockerfile that only breaks at deploy time is a Dockerfile nobody
+      # trusts. Building it here catches that on the commit that caused it.
+      - name: Build image
+        run: docker build -t editors-converter .

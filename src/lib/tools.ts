@@ -13,8 +13,21 @@ export interface ToolDefinition {
   blurb: string;
   category: ToolCategory;
   status: ToolStatus;
-  /** Runs fully on-device. False means it needs the (future) server path. */
+  /** Runs fully on-device. False means it depends on the conversion service. */
   clientSide: boolean;
+}
+
+/**
+ * A server-dependent tool is only genuinely available when the conversion
+ * service is wired up, so availability is resolved at render time rather than
+ * baked into the registry.
+ */
+export function effectiveStatus(
+  tool: ToolDefinition,
+  converterConfigured: boolean,
+): ToolStatus {
+  if (!tool.clientSide && !converterConfigured) return "soon";
+  return tool.status;
 }
 
 export const CATEGORY_LABELS: Record<ToolCategory, string> = {
@@ -95,7 +108,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "Office to PDF",
     blurb: "PowerPoint, Word and Excel into PDF. The one job a browser can't do.",
     category: "convert",
-    status: "soon",
+    status: "live",
     clientSide: false,
   },
 ];

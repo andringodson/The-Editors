@@ -88,6 +88,33 @@ test.describe("Upscale", () => {
   });
 });
 
+test.describe("Office to PDF", () => {
+  // CI runs without NEXT_PUBLIC_CONVERTER_URL, which is the case worth pinning:
+  // a server-dependent tool must degrade to an explanation, never a broken
+  // upload form or a crash.
+  test("explains itself when the converter is not connected", async ({ page }) => {
+    await page.goto("/tools/office-to-pdf");
+
+    await expect(
+      page.getByRole("heading", { name: "Office to PDF" }),
+    ).toBeVisible();
+    await expect(page.getByText(/not connected to this deployment/i)).toBeVisible();
+    await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  });
+
+  test("is marked unavailable on the landing page", async ({ page }) => {
+    await page.goto("/");
+
+    const card = page.locator("li", { hasText: "Office to PDF" });
+    await expect(card.getByText("Soon")).toBeVisible();
+  });
+
+  test("refuses to mint a token without a signing secret", async ({ request }) => {
+    const response = await request.post("/api/convert-token");
+    expect(response.status()).toBe(503);
+  });
+});
+
 test.describe("Crop", () => {
   test("crops the dragged region", async ({ page }) => {
     await page.goto("/tools/crop");

@@ -41,7 +41,22 @@ Seven tools working, all client-side:
 | **Merge PDFs** | Any number of files, reorderable, with live page counts |
 | **Images to PDF** | Photos or scans into one A4 or fit-to-image document |
 
-Still to come: Office→PDF, which needs the server path.
+Plus one that is not:
+
+| Tool | What it does |
+|---|---|
+| **Office to PDF** | PPT/DOC/XLS → PDF via LibreOffice in a container |
+
+Office→PDF needs a server, so it is optional and self-announcing: with no
+`NEXT_PUBLIC_CONVERTER_URL` set it reports itself unavailable on its own page
+and shows as "Soon" on the landing grid, while every other tool is unaffected.
+See [`services/converter/`](services/converter/) for the service and its
+deployment notes.
+
+The file goes straight from the browser to that service — never through Vercel,
+which caps request bodies at about 4.5 MB. Access is gated by a five-minute HMAC
+token minted at `/api/convert-token`, so the endpoint is not free CPU for
+whoever finds it, without putting a login in front of a first-time user.
 
 ## Tests
 

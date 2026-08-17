@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { CATEGORY_LABELS, TOOLS, type ToolCategory } from "@/lib/tools";
+import { isConverterConfigured } from "@/lib/converter";
+import {
+  CATEGORY_LABELS,
+  TOOLS,
+  effectiveStatus,
+  type ToolCategory,
+} from "@/lib/tools";
 
 const CATEGORY_ORDER: ToolCategory[] = ["image", "pdf", "convert"];
 
@@ -43,11 +49,12 @@ export default function Home() {
             </h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {tools.map((tool) => {
+                const status = effectiveStatus(tool, isConverterConfigured);
                 const card = (
                   <>
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-medium">{tool.name}</h3>
-                      {tool.status === "soon" ? (
+                      {status === "soon" ? (
                         <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
                           Soon
                         </span>
@@ -61,7 +68,7 @@ export default function Home() {
 
                 return (
                   <li key={tool.id}>
-                    {tool.status === "live" ? (
+                    {status === "live" ? (
                       <Link
                         href={`/tools/${tool.slug}`}
                         className="block h-full rounded-[var(--radius-base)] border border-border bg-surface p-4 transition-colors hover:border-accent"

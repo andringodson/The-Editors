@@ -59,7 +59,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "Images to PDF",
     blurb: "Turn phone photos or scans into one tidy A4 document.",
     category: "pdf",
-    status: "soon",
+    status: "live",
     clientSide: true,
   },
   {
@@ -68,7 +68,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "Crop & straighten",
     blurb: "Freehand or fixed-ratio cropping, with rotation to level a scan.",
     category: "image",
-    status: "soon",
+    status: "live",
     clientSide: true,
   },
   {
@@ -77,7 +77,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "Upscale to 4K",
     blurb: "Enlarge to 4K with high-quality resampling.",
     category: "image",
-    status: "soon",
+    status: "live",
     clientSide: true,
   },
   {
@@ -86,7 +86,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "Change format",
     blurb: "JPG, PNG, WebP and AVIF, converted both ways.",
     category: "convert",
-    status: "soon",
+    status: "live",
     clientSide: true,
   },
   {

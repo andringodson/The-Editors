@@ -29,16 +29,32 @@ stays free to run.
 
 ## Status
 
-Working today:
+Seven tools working, all client-side:
 
-- **Compress to a size** — binary-searches quality, then dimensions, to land
-  under a byte budget you specify
-- **Passport & stamp photos** — 7 official presets with zoom/position controls,
-  rendered at 200/300/600 DPI, optionally squeezed under portal upload limits
-- **Merge PDFs** — any number of files, reorderable, with page counts
+| Tool | What it does |
+|---|---|
+| **Compress to a size** | Binary-searches quality, then dimensions, to land under a byte budget you name |
+| **Passport & stamp photos** | 7 official presets, 200/300/600 DPI, optional squeeze under portal limits |
+| **Crop & straighten** | Drag-select with ratio locks, plus tilt correction and 90° rotation |
+| **Upscale to 4K** | Resample the longest edge to HD/2K/4K/8K |
+| **Change format** | JPEG ⇄ PNG ⇄ WebP, with AVIF and HEIC accepted as input |
+| **Merge PDFs** | Any number of files, reorderable, with live page counts |
+| **Images to PDF** | Photos or scans into one A4 or fit-to-image document |
 
-Scaffolded and next up: images→PDF, crop & straighten, 4K upscale, format
-conversion. Office→PDF comes with the server path.
+Still to come: Office→PDF, which needs the server path.
+
+## Tests
+
+```bash
+npm run test:e2e
+```
+
+14 end-to-end tests drive headless Chromium against a production build. They
+assert on **real output bytes**, not UI text — compressed files are read off
+disk and measured against the target, PNG dimensions are parsed out of the IHDR
+chunk, and merged PDFs are loaded back with pdf-lib to count pages. A green
+type-check tells you nothing about whether canvas actually encoded anything;
+these tests do.
 
 ## Running locally
 

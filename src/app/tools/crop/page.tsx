@@ -34,6 +34,10 @@ export default function CropPage() {
   const [ratioId, setRatioId] = useState<string>("free");
   const [angle, setAngle] = useState(0);
   const [selection, setSelection] = useState<Selection | null>(null);
+  // Derived from `selection` at drag time rather than during render: mapping to
+  // source pixels needs the surface's measured size, and reading a ref while
+  // rendering is unsafe under concurrent React.
+  const [sourceRect, setSourceRect] = useState<CropRect | null>(null);
   const [busy, setBusy] = useState(false);
   const [output, setOutput] = useState<Blob | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +70,7 @@ export default function CropPage() {
     setPreviewUrl(url);
     setNatural({ width: bitmap.width, height: bitmap.height });
     setSelection(null);
+    setSourceRect(null);
     setOutput(null);
   }, []);
 
@@ -113,6 +118,7 @@ export default function CropPage() {
     event.currentTarget.setPointerCapture(event.pointerId);
     dragStart.current = point;
     setSelection({ x: point.x, y: point.y, width: 0, height: 0 });
+    setSourceRect(null);
     setOutput(null);
   }
 
@@ -133,39 +139,42 @@ export default function CropPage() {
       height = Math.sign(height || 1) * (magnitude / ratio);
     }
 
-    setSelection({
+    const next: Selection = {
       x: width < 0 ? start.x + width : start.x,
       y: height < 0 ? start.y + height : start.y,
       width: Math.abs(width),
       height: Math.abs(height),
-    });
+    };
+
+    setSelection(next);
+    setSourceRect(mapToSource(next));
   }
 
   function onPointerUp() {
     dragStart.current = null;
   }
 
-  /** Map the on-screen selection back onto the full-resolution bitmap. */
-  function toSourceRect(): CropRect | null {
+  /** Map an on-screen selection back onto the full-resolution bitmap. */
+  function mapToSource(sel: Selection): CropRect | null {
     const surface = surfaceRef.current;
-    if (!surface || !selection || !natural) return null;
-    if (selection.width < 4 || selection.height < 4) return null;
+    if (!surface || !natural) return null;
+    if (sel.width < 4 || sel.height < 4) return null;
 
     const rect = surface.getBoundingClientRect();
     const scaleX = natural.width / rect.width;
     const scaleY = natural.height / rect.height;
 
     return {
-      x: Math.round(selection.x * scaleX),
-      y: Math.round(selection.y * scaleY),
-      width: Math.round(selection.width * scaleX),
-      height: Math.round(selection.height * scaleY),
+      x: Math.round(sel.x * scaleX),
+      y: Math.round(sel.y * scaleY),
+      width: Math.round(sel.width * scaleX),
+      height: Math.round(sel.height * scaleY),
     };
   }
 
   async function run() {
     const bitmap = bitmapRef.current;
-    const rect = toSourceRect();
+    const rect = sourceRect;
     if (!bitmap || !file) return;
     if (!rect) {
       setError("Drag a box on the image to choose what to keep.");
@@ -195,8 +204,6 @@ export default function CropPage() {
     link.click();
     URL.revokeObjectURL(link.href);
   }
-
-  const sourceRect = toSourceRect();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -228,6 +235,7 @@ export default function CropPage() {
                 onClick={() => {
                   setRatioId(item.id);
                   setSelection(null);
+                  setSourceRect(null);
                 }}
                 className={[
                   "rounded-md border px-2.5 py-1 text-xs transition-colors",

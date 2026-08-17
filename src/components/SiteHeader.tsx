@@ -31,6 +31,12 @@ export default async function SiteHeader() {
           >
             PDF
           </Link>
+          <Link
+            href="/pricing"
+            className="rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-accent-subtle hover:text-foreground"
+          >
+            Pricing
+          </Link>
 
           {isSupabaseConfigured ? (
             user ? (

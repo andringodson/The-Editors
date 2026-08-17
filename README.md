@@ -58,6 +58,45 @@ which caps request bodies at about 4.5 MB. Access is gated by a five-minute HMAC
 token minted at `/api/convert-token`, so the endpoint is not free CPU for
 whoever finds it, without putting a login in front of a first-time user.
 
+## Pricing
+
+The rule the plan model is built around: **never gate the core promise.**
+"Compress this to 200 KB, privately, for free" is why anyone shows up, and
+putting it behind a wall would trade the product for a little revenue.
+
+So Free keeps every single-file browser tool unlimited — they cost us nothing,
+because the user's own CPU does the work. Pro sells the two things that
+genuinely have a cost or a ceiling:
+
+| | Free | Pro — $4/mo |
+|---|---|---|
+| Compress, passport, crop, upscale, convert | Unlimited | Unlimited |
+| Batch merge / images→PDF | 3 files | 100 files |
+| Office→PDF | 3 a day | 100 a day |
+| Saved presets | — | ✓ |
+
+Two enforcement notes that matter:
+
+- **Batch caps are UI affordances, not security.** Bypassing them costs us
+  nothing since the work is local. They keep the code honest about intent
+  without pretending to be a boundary.
+- **The Office→PDF quota is enforced server-side** at `/api/convert-token` —
+  the one chokepoint that cannot be skipped, because the converter rejects any
+  request without a token. It is the only feature that spends our money, so it
+  is the only one with a real lock. It also requires an account: there is no
+  reliable way to meter an anonymous visitor, and an unmetered paid resource is
+  an invitation.
+
+`schema.sql` revokes the `UPDATE` grant on `profiles.plan` from `authenticated`
+and re-grants only `display_name`. Without that, any user could set themselves
+to Pro with a single API call — RLS alone cannot restrict columns.
+
+**On tax:** Stripe leaves sales tax to you, which for a worldwide consumer
+product means registering for VAT/GST across a growing list of jurisdictions. A
+merchant of record (Paddle, Lemon Squeezy) absorbs that for a higher cut and is
+usually the saner choice for a solo developer. Swapping means replacing
+`src/lib/stripe.ts` and the two API routes — nothing else knows Stripe exists.
+
 ## Mobile and tablet
 
 The app is an installable PWA and works **fully offline**.

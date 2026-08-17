@@ -54,6 +54,26 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- ---------------------------------------------------------------------------
+-- Billing columns. Additive and idempotent, so this file stays re-runnable.
+-- ---------------------------------------------------------------------------
+
+alter table public.profiles
+  add column if not exists stripe_customer_id text unique,
+  add column if not exists stripe_subscription_id text;
+
+create index if not exists profiles_stripe_customer_id_idx
+  on public.profiles (stripe_customer_id)
+  where stripe_customer_id is not null;
+
+-- CRITICAL: the update policy above lets users edit their own row, which would
+-- otherwise let anyone set plan = 'pro' with one API call. RLS cannot restrict
+-- individual columns, so column-level grants do it instead: users may change
+-- their display name and nothing else. Only the webhook, using the service-role
+-- key, can move someone between plans.
+revoke update on public.profiles from authenticated;
+grant update (display_name) on public.profiles to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- Tool runs: anonymous telemetry driving what we build next.
 --
 -- Deliberately absent: filenames, file contents, IP addresses. Sizes and

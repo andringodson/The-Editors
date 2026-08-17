@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import BatchLimitNotice from "@/components/BatchLimitNotice";
 import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { getPageCount, mergePdfs } from "@/lib/pdf/operations";
+import { usePlan } from "@/lib/use-plan";
 
 interface Entry {
   file: File;
@@ -18,6 +20,11 @@ export default function PdfMergePage() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [overflow, setOverflow] = useState<{ limit: number; attempted: number } | null>(
+    null,
+  );
+
+  const { plan } = usePlan();
 
   async function addFiles(files: File[]) {
     const pdfs = files.filter(
@@ -30,7 +37,20 @@ export default function PdfMergePage() {
     }
 
     setError(null);
-    const added: Entry[] = pdfs.map((file) => ({ file, pages: null }));
+
+    // Take what fits under the plan's cap rather than rejecting the whole drop —
+    // losing four files because the fifth was one too many is hostile.
+    const limit = plan.limits.batchFiles;
+    const room = Math.max(0, limit - entries.length);
+    const accepted = pdfs.slice(0, room);
+
+    setOverflow(
+      pdfs.length > room ? { limit, attempted: entries.length + pdfs.length } : null,
+    );
+
+    if (accepted.length === 0) return;
+
+    const added: Entry[] = accepted.map((file) => ({ file, pages: null }));
     setEntries((current) => [...current, ...added]);
 
     // Count pages in the background so the list stays responsive; a corrupt or
@@ -123,6 +143,9 @@ export default function PdfMergePage() {
           disabled={busy}
           onFiles={(files) => void addFiles(files)}
         />
+        {overflow ? (
+          <BatchLimitNotice limit={overflow.limit} attempted={overflow.attempted} />
+        ) : null}
       </div>
 
       {entries.length > 0 ? (

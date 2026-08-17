@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import BatchLimitNotice from "@/components/BatchLimitNotice";
 import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { imagesToPdf } from "@/lib/pdf/operations";
+import { usePlan } from "@/lib/use-plan";
 
 type PageSize = "a4" | "fit";
 
@@ -14,6 +16,11 @@ export default function ImagesToPdfPage() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [overflow, setOverflow] = useState<{ limit: number; attempted: number } | null>(
+    null,
+  );
+
+  const { plan } = usePlan();
 
   function addFiles(incoming: File[]) {
     const images = incoming.filter((file) => file.type.startsWith("image/"));
@@ -22,7 +29,16 @@ export default function ImagesToPdfPage() {
       return;
     }
     setError(null);
-    setFiles((current) => [...current, ...images]);
+
+    // Keep what fits rather than rejecting the whole drop.
+    const limit = plan.limits.batchFiles;
+    const room = Math.max(0, limit - files.length);
+
+    setOverflow(
+      images.length > room ? { limit, attempted: files.length + images.length } : null,
+    );
+
+    setFiles((current) => [...current, ...images.slice(0, room)]);
   }
 
   function move(index: number, direction: -1 | 1) {
@@ -79,6 +95,9 @@ export default function ImagesToPdfPage() {
           disabled={busy}
           onFiles={addFiles}
         />
+        {overflow ? (
+          <BatchLimitNotice limit={overflow.limit} attempted={overflow.attempted} />
+        ) : null}
       </div>
 
       <fieldset className="mt-6">

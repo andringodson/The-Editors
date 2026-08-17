@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The Editors">
+  <!--
+    Placeholder mark: two overlapping crop corners, standing in for the crop /
+    frame idea that runs through the tools. Replace with the real icon set when
+    the design lands - PNG at 192 and 512 is the safest cross-platform pair.
+  -->
+  <rect width="512" height="512" rx="112" fill="#2563eb"/>
+  <g fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M168 128v216a24 24 0 0 0 24 24h216"/>
+    <path d="M128 168h32"/>
+    <path d="M344 384v-32"/>
+    <path d="M232 200h112a24 24 0 0 1 24 24v112" opacity="0.55"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The Editors">
+  <!--
+    Maskable variant: the same mark scaled into the safe zone (the inner 80%),
+    so platforms that crop to a circle or squircle never clip it.
+  -->
+  <rect width="512" height="512" fill="#2563eb"/>
+  <g transform="translate(51.2 51.2) scale(0.8)" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M168 128v216a24 24 0 0 0 24 24h216"/>
+    <path d="M128 168h32"/>
+    <path d="M344 384v-32"/>
+    <path d="M232 200h112a24 24 0 0 1 24 24v112" opacity="0.55"/>
+  </g>
+</svg>

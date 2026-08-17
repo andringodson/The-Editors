@@ -58,6 +58,25 @@ which caps request bodies at about 4.5 MB. Access is gated by a five-minute HMAC
 token minted at `/api/convert-token`, so the endpoint is not free CPU for
 whoever finds it, without putting a login in front of a first-time user.
 
+## Mobile and tablet
+
+The app is an installable PWA and works **fully offline**.
+
+That falls out of the architecture rather than being bolted on: since the seven
+browser tools are pure client-side computation, the only thing between them and
+offline use was having the HTML and JS on disk. The service worker puts it
+there. Install it from a phone or tablet and cropping, compressing and merging
+all work in aeroplane mode — only Office→PDF needs a connection, and the offline
+page says so.
+
+This is also the right first step toward store apps. A wrapped or native shell
+later gets a codebase that already assumes no network.
+
+**The icons are placeholders.** `public/icon.svg` and `public/icon-maskable.svg`
+are a plain geometric mark. Replace them when the real set arrives — PNG at 192
+and 512 px is the safest cross-platform pair, and keep a `maskable` variant with
+the artwork inside the inner 80% so Android does not clip it.
+
 ## Tests
 
 ```bash

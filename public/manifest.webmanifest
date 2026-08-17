@@ -1,0 +1,40 @@
+{
+  "name": "The Editors",
+  "short_name": "Editors",
+  "description": "Compress to an exact size, make passport photos, merge PDFs. Runs on your device.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fbfbfa",
+  "theme_color": "#2563eb",
+  "categories": ["productivity", "utilities", "photo"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Compress an image",
+      "url": "/tools/compress"
+    },
+    {
+      "name": "Passport photo",
+      "url": "/tools/passport"
+    },
+    {
+      "name": "Merge PDFs",
+      "url": "/tools/pdf-merge"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import FluidBackground from "@/components/FluidBackground";
 import ServiceWorker from "@/components/ServiceWorker";
 import SiteHeader from "@/components/SiteHeader";
 import Taskbar from "@/components/Taskbar";
+import { siteName, siteTagline, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 /*
@@ -42,12 +43,24 @@ const terminal = VT323({
 });
 
 export const metadata: Metadata = {
+  // Required for the relative canonical and openGraph URLs in each tool's
+  // route layout to resolve into absolute ones.
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "The Editors — image and document tools that run in your browser",
-    template: "%s — The Editors",
+    default: `${siteName} — ${siteTagline}`,
+    template: `%s — ${siteName}`,
   },
   description:
     "Compress to an exact file size, make passport photos, merge PDFs and convert formats. Everything runs on your device; your files are never uploaded.",
+  applicationName: siteName,
+  alternates: { canonical: "/" },
+  openGraph: {
+    siteName,
+    type: "website",
+    locale: "en",
+    url: "/",
+  },
+  twitter: { card: "summary_large_image" },
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
   appleWebApp: {

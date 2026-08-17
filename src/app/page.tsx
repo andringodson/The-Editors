@@ -77,7 +77,10 @@ export default function Home() {
                         {card}
                       </Link>
                     ) : (
-                      <div className="h-full bevel-out bg-surface p-4 opacity-65">
+                      /* Recessed rather than faded. Dimming with opacity drags
+                         the muted text below 4.5:1 — the inset bevel signals
+                         "not available" without touching the contrast. */
+                      <div className="h-full bevel-in bg-surface p-4">
                         {card}
                       </div>
                     )}

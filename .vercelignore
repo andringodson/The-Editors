@@ -1,0 +1,17 @@
+# Nothing here is needed to build or run the web app, and every excluded file
+# is one less thing to upload on each deploy.
+
+# The conversion service deploys separately as a container — see
+# services/converter/README.md. Vercel cannot run LibreOffice anyway.
+services/
+
+# Tests run in CI, never in the deployment.
+e2e/
+playwright.config.ts
+playwright-report/
+test-results/
+
+# Database schema is applied through Supabase, not shipped.
+supabase/
+
+.github/

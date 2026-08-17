@@ -1,17 +1,21 @@
 # Nothing here is needed to build or run the web app, and every excluded file
 # is one less thing to upload on each deploy.
+#
+# Every pattern is root-anchored with a leading slash. Without it, `supabase/`
+# would also match `src/lib/supabase/` — these patterns match at any depth,
+# exactly like .gitignore.
 
 # The conversion service deploys separately as a container — see
 # services/converter/README.md. Vercel cannot run LibreOffice anyway.
-services/
+/services/
 
 # Tests run in CI, never in the deployment.
-e2e/
-playwright.config.ts
-playwright-report/
-test-results/
+/e2e/
+/playwright.config.ts
+/playwright-report/
+/test-results/
 
 # Database schema is applied through Supabase, not shipped.
-supabase/
+/supabase/
 
-.github/
+/.github/

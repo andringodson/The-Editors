@@ -52,3 +52,5 @@ next-env.d.ts
 # converter service build output
 /services/*/dist/
 /services/*/node_modules/
+.vercel
+.env*

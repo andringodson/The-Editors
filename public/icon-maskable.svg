@@ -1,13 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The Editors">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" shape-rendering="crispEdges" role="img" aria-label="The Editors">
   <!--
-    Maskable variant: the same mark scaled into the safe zone (the inner 80%),
-    so platforms that crop to a circle or squircle never clip it.
+    Maskable variant.
+
+    Same 16×16 art centred inside a 20×20 field, so the mark occupies the inner
+    80% — the safe zone every platform keeps when it crops to a circle or
+    squircle. The teal bleeds to the edges and is the only part that gets cut.
   -->
-  <rect width="512" height="512" fill="#2563eb"/>
-  <g transform="translate(51.2 51.2) scale(0.8)" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M168 128v216a24 24 0 0 0 24 24h216"/>
-    <path d="M128 168h32"/>
-    <path d="M344 384v-32"/>
-    <path d="M232 200h112a24 24 0 0 1 24 24v112" opacity="0.55"/>
+
+  <rect x="0" y="0" width="20" height="20" fill="#0a8a8a"/>
+
+  <g transform="translate(2 2)">
+    <rect x="0" y="0" width="16" height="16" fill="#000000"/>
+    <rect x="1" y="1" width="14" height="14" fill="#c0c0c0"/>
+    <rect x="1" y="1" width="13" height="1" fill="#ffffff"/>
+    <rect x="1" y="1" width="1" height="13" fill="#ffffff"/>
+    <rect x="14" y="2" width="1" height="13" fill="#808080"/>
+    <rect x="2" y="14" width="13" height="1" fill="#808080"/>
+
+    <rect x="2" y="2" width="12" height="3" fill="#000082"/>
+    <rect x="11" y="3" width="1" height="1" fill="#c0c0c0"/>
+    <rect x="12" y="3" width="1" height="1" fill="#c0c0c0"/>
+
+    <rect x="2" y="6" width="12" height="8" fill="#ffffff"/>
+    <rect x="10" y="7" width="2" height="2" fill="#ffc000"/>
+
+    <rect x="7" y="9" width="2" height="1" fill="#0a8a8a"/>
+    <rect x="6" y="10" width="4" height="1" fill="#0a8a8a"/>
+    <rect x="5" y="11" width="6" height="1" fill="#0a8a8a"/>
+    <rect x="3" y="12" width="10" height="2" fill="#0a8a8a"/>
   </g>
 </svg>

@@ -121,10 +121,16 @@ page says so.
 This is also the right first step toward store apps. A wrapped or native shell
 later gets a codebase that already assumes no network.
 
-**The icons are placeholders.** `public/icon.svg` and `public/icon-maskable.svg`
-are a plain geometric mark. Replace them when the real set arrives — PNG at 192
-and 512 px is the safest cross-platform pair, and keep a `maskable` variant with
-the artwork inside the inner 80% so Android does not clip it.
+Icons are pixel art matching the interface: a Win95 window holding a picture,
+drawn on a 16×16 grid and scaled by `viewBox` rather than designed large and
+shrunk, so every edge lands on a whole pixel at any size. `shape-rendering:
+crispEdges` stops the browser antialiasing the blocks into mush in a favicon.
+
+`icon-maskable.svg` centres the same art in the inner 80% so Android's circular
+crop never clips it — only the teal bleeds off.
+
+If you later want raster fallbacks for older platforms, export these at 192 and
+512 px; SVG covers everything current.
 
 ## Tests
 

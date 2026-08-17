@@ -1,14 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The Editors">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="The Editors">
   <!--
-    Placeholder mark: two overlapping crop corners, standing in for the crop /
-    frame idea that runs through the tools. Replace with the real icon set when
-    the design lands - PNG at 192 and 512 is the safest cross-platform pair.
+    Pixel art on a 16×16 grid: a Win95 window holding a picture.
+
+    Drawn at 16px and scaled by viewBox rather than designed at 512 and shrunk,
+    so every edge lands on a whole pixel at any size. shape-rendering=crispEdges
+    stops the browser antialiasing the blocks into mush at small sizes, which is
+    what makes pixel art look muddy in a favicon.
   -->
-  <rect width="512" height="512" rx="112" fill="#2563eb"/>
-  <g fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M168 128v216a24 24 0 0 0 24 24h216"/>
-    <path d="M128 168h32"/>
-    <path d="M344 384v-32"/>
-    <path d="M232 200h112a24 24 0 0 1 24 24v112" opacity="0.55"/>
-  </g>
+
+  <!-- Frame -->
+  <rect x="0" y="0" width="16" height="16" fill="#000000"/>
+  <rect x="1" y="1" width="14" height="14" fill="#c0c0c0"/>
+  <rect x="1" y="1" width="13" height="1" fill="#ffffff"/>
+  <rect x="1" y="1" width="1" height="13" fill="#ffffff"/>
+  <rect x="14" y="2" width="1" height="13" fill="#808080"/>
+  <rect x="2" y="14" width="13" height="1" fill="#808080"/>
+
+  <!-- Title bar -->
+  <rect x="2" y="2" width="12" height="3" fill="#000082"/>
+  <rect x="11" y="3" width="1" height="1" fill="#c0c0c0"/>
+  <rect x="12" y="3" width="1" height="1" fill="#c0c0c0"/>
+
+  <!-- Canvas -->
+  <rect x="2" y="6" width="12" height="8" fill="#ffffff"/>
+
+  <!-- Sun -->
+  <rect x="10" y="7" width="2" height="2" fill="#ffc000"/>
+
+  <!-- Mountain -->
+  <rect x="7" y="9" width="2" height="1" fill="#0a8a8a"/>
+  <rect x="6" y="10" width="4" height="1" fill="#0a8a8a"/>
+  <rect x="5" y="11" width="6" height="1" fill="#0a8a8a"/>
+  <rect x="3" y="12" width="10" height="2" fill="#0a8a8a"/>
 </svg>

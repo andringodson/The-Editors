@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-52 tests drive headless Chromium against a production build: functional,
+55 tests drive headless Chromium against a production build: functional,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -270,10 +270,30 @@ rewritten, because the obvious client-side version loses all three:
   is simply there. Starting at `opacity: 0` would mean any failure hides the
   headline permanently.
 
+The cadence is the part worth reading the code for. A fixed interval per
+character does not read as typing — it reads as a progress bar made of letters.
+So the schedule gives every keystroke a jittered gap, a beat at the end of each
+word and a longer one at punctuation, all derived from a hash of the stroke
+index rather than `Math.random`, because a server render must produce identical
+markup every time.
+
+The caret follows from that. Each character lights its own for exactly the gap
+until the next arrives — `--caret-lit`, stamped inline beside the delay — so the
+caret holds through the between-word beats instead of blinking out in them. It
+waits, blinking, before the first keystroke, and it **stays** at the end of the
+line: a prompt does not tidy itself away, and the line looks unfinished without
+one. `steps(1, end)` means two style changes a second and no interpolation, so
+leaving it running costs nothing worth measuring.
+
 Characters are hidden from the accessibility tree and the `<h1>` is labelled
 with the same constant it types, since screen readers announce text split
-across spans erratically. `e2e/hero.spec.ts` asserts on the accessible name and
-on the raw HTML rather than on the animation.
+across spans erratically. `e2e/hero.spec.ts` asserts on the accessible name, on
+the raw HTML, and on the caret windows tiling the run with no gaps — never on
+the animation itself.
+
+Largest Contentful Paint is unaffected: the `<h1>` is the LCP element and
+Chrome times it from the block's paint, not from the per-character opacity, so
+it still lands at ~270ms.
 
 Under `prefers-reduced-motion` the effect is switched off outright rather than
 left to the global duration collapse — that rule zeroes durations but not

@@ -653,22 +653,27 @@ input[type="radio"] {
   }
 }
 
-/* The travelling caret: each character carries its own, lit only during that
-   character's slot. Consecutive slots run into one another, so what reads on
-   screen is a single block sliding along the line. `animation-delay: inherit`
-   picks up the inline delay from the character it belongs to, which keeps the
-   caret and the letter it precedes from ever drifting apart. */
+/* The travelling caret: each character carries its own, lit for exactly the gap
+   until the next character arrives — `--caret-lit`, stamped inline alongside
+   the delay. Sizing each window to its own gap rather than to a fixed duration
+   is what makes the caret continuous: it holds through the beat at the end of
+   a word instead of going dark in it, and consecutive windows butt up against
+   one another so what reads on screen is one block moving along the line.
+
+   `animation-delay: inherit` takes the delay from the character it belongs to,
+   so the caret and the letter it precedes can never drift apart. */
 .type-char::after {
   content: "";
   position: absolute;
   left: 100%;
+  margin-left: 0.08em;
   top: 0.14em;
   bottom: 0.16em;
   width: 0.5em;
   background: #a78bfa;
   box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
   opacity: 0;
-  animation: type-caret-lit calc(var(--type-step, 22ms) * 1.2) linear;
+  animation: type-caret-lit var(--caret-lit, 20ms) linear;
   animation-delay: inherit;
 }
 
@@ -679,13 +684,11 @@ input[type="radio"] {
   }
 }
 
-/* Where the caret comes to rest. Blinks three times and stops, rather than
-   forever — a permanent blink keeps a compositor layer alive for the life of
-   the page and pulls the eye away from the buttons underneath.
+/* The caret at either end of the line — waiting before the first keystroke, and
+   resting after the last.
 
-   Negative margin cancels its own advance width so it can overhang without
-   entering line-breaking calculations and pushing the last word onto a new
-   line. */
+   Negative margin cancels its own advance width, so it overhangs without
+   entering line-breaking calculations and pushing a word onto a new line. */
 .type-caret {
   display: inline-block;
   width: 0.5em;
@@ -695,7 +698,19 @@ input[type="radio"] {
   background: #a78bfa;
   box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
   opacity: 0;
-  animation: type-caret-blink 700ms steps(1, end) 3;
+}
+
+/* One blink, then the first character lands on top of it. Its duration is
+   LEAD_IN_MS in TypeOn.tsx; the two are a pair. */
+.type-caret--lead {
+  animation: type-caret-blink 600ms steps(1, end) 1;
+}
+
+/* Stays. A terminal prompt does not tidy itself away, and the line looks
+   unfinished without it. `steps(1, end)` means two style changes a second and
+   no interpolation, so the cost of leaving it running is negligible. */
+.type-caret--rest {
+  animation: type-caret-blink 1060ms steps(1, end) infinite;
 }
 
 @keyframes type-caret-blink {

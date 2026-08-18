@@ -226,6 +226,20 @@ Two things to preserve if `FluidBackground.tsx` is ever edited:
 Under `prefers-reduced-motion` the pointer tracking never starts and the drift
 animation is disabled, leaving a static violet field.
 
+### The landing page
+
+The window chrome stays period-grey, but the landing page's *contents* are the
+same violet field as the desktop behind it — so the frame reads as the OS and
+the page reads as the app running inside it, rather than the two ignoring each
+other.
+
+Its bevels are rebuilt from violet and black rather than reusing `.bevel-out`:
+the grey highlight/shadow pair is invisible against a dark field, so the same
+geometry needs different pigment. Secondary text is lightened to `#b9b1d6`,
+chosen to clear 4.5:1 against the *darkest* band of the gradient rather than the
+lightest — and the unavailable card is recessed rather than faded, because
+opacity drags text below contrast wherever it is applied.
+
 Everything lives in `src/app/globals.css`. No component holds a hard-coded
 colour.
 

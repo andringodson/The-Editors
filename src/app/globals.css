@@ -411,3 +411,92 @@ input[type="radio"] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Violet surface
+
+   Used by the landing page so the window's *contents* echo the desktop behind
+   it, while the grey chrome stays the frame. The metaphor still holds: a
+   period OS window, running a modern app.
+
+   Bevels here are rebuilt from violet and black rather than reusing
+   .bevel-out — the grey highlight/shadow pair is invisible against a dark
+   field, so the same geometry needs different pigment.
+   --------------------------------------------------------------------------- */
+
+.surface-violet {
+  background:
+    radial-gradient(
+      70% 55% at 50% 0%,
+      rgba(124, 58, 237, 0.22),
+      rgba(124, 58, 237, 0) 70%
+    ),
+    linear-gradient(180deg, #150a2e 0%, #0a0518 60%, #050110 100%);
+  color: #ece9f7;
+}
+
+/* Secondary text on the violet field. Lightened until it clears 4.5:1 against
+   the darkest band of the gradient, not just the lightest. */
+.surface-violet .text-muted {
+  color: #b9b1d6;
+}
+
+.card-violet {
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow:
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.7),
+    inset 1px 1px 0 0 rgba(167, 139, 250, 0.38),
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.45),
+    inset 2px 2px 0 0 rgba(167, 139, 250, 0.14);
+  transition: background-color 140ms ease;
+}
+
+.card-violet:hover {
+  background: rgba(167, 139, 250, 0.12);
+}
+
+/* Recessed variant for tools that are not available yet. Inset rather than
+   faded — dimming with opacity drags the text below contrast. */
+.card-violet-inset {
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow:
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.7),
+    inset -1px -1px 0 0 rgba(167, 139, 250, 0.20);
+}
+
+.btn-violet {
+  background: linear-gradient(180deg, #7c3aed, #5b21b6);
+  color: #ffffff;
+  box-shadow:
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.75),
+    inset 1px 1px 0 0 rgba(196, 181, 253, 0.65);
+  min-height: 44px;
+}
+
+.btn-violet:active {
+  box-shadow:
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.75),
+    inset -1px -1px 0 0 rgba(196, 181, 253, 0.45);
+}
+
+.btn-violet-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ece9f7;
+  box-shadow:
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.7),
+    inset 1px 1px 0 0 rgba(167, 139, 250, 0.4);
+  min-height: 44px;
+}
+
+.btn-violet-ghost:hover {
+  background: rgba(167, 139, 250, 0.16);
+}
+
+/* The pixel headline gets a soft violet bloom so it reads as lit by the
+   backdrop rather than pasted on top of it. */
+.headline-glow {
+  color: #ffffff;
+  text-shadow:
+    0 0 24px rgba(139, 92, 246, 0.55),
+    0 0 60px rgba(139, 92, 246, 0.28);
+}

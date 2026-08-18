@@ -500,3 +500,115 @@ input[type="radio"] {
     0 0 24px rgba(139, 92, 246, 0.55),
     0 0 60px rgba(139, 92, 246, 0.28);
 }
+
+/* ---------------------------------------------------------------------------
+   Violet surface — scoped control overrides
+
+   Once .surface-violet moved onto <main>, every tool page sits on the dark
+   field too. The Win95 controls were pigmented for a grey face, so each one
+   needs a dark counterpart: white highlights vanish on dark, and the grey-face
+   greens and reds fall below contrast.
+
+   Specificity is handled with compound selectors rather than !important —
+   `.surface-violet .bg-surface` (0,2,0) beats Tailwind's `.bg-surface` (0,1,0)
+   without starting an escalation war.
+   --------------------------------------------------------------------------- */
+
+.surface-violet .bg-surface,
+.surface-violet .bg-surface-raised {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Raised panels and buttons */
+.surface-violet .bevel-out {
+  box-shadow:
+    inset -1px -1px 0 0 rgba(0, 0, 0, 0.75),
+    inset 1px 1px 0 0 rgba(167, 139, 250, 0.38),
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.45),
+    inset 2px 2px 0 0 rgba(167, 139, 250, 0.12);
+}
+
+/* Recessed wells */
+.surface-violet .bevel-in {
+  box-shadow:
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.8),
+    inset -1px -1px 0 0 rgba(167, 139, 250, 0.28);
+}
+
+/* Text fields and the FileDrop well */
+.surface-violet .bevel-field {
+  background: rgba(0, 0, 0, 0.42);
+  box-shadow:
+    inset 1px 1px 0 0 rgba(0, 0, 0, 0.85),
+    inset -1px -1px 0 0 rgba(167, 139, 250, 0.3);
+}
+
+.surface-violet input[type="text"],
+.surface-violet input[type="number"],
+.surface-violet input[type="email"],
+.surface-violet select,
+.surface-violet textarea {
+  background: rgba(0, 0, 0, 0.42);
+  color: #ece9f7;
+}
+
+/* The native dropdown list renders in the OS palette, so its options need a
+   colour that is legible there rather than inheriting the dark field. */
+.surface-violet select option {
+  background: #1a1030;
+  color: #ece9f7;
+}
+
+.surface-violet input[type="range"],
+.surface-violet input[type="checkbox"],
+.surface-violet input[type="radio"] {
+  accent-color: #8b5cf6;
+}
+
+/* Buttons */
+.surface-violet .btn-95 {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ece9f7;
+}
+
+.surface-violet .btn-95:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.16);
+}
+
+.surface-violet .btn-95:disabled {
+  color: #8f86ab;
+  text-shadow: none;
+}
+
+/* The primary action on each tool reads as violet rather than another grey
+   slab, so the main affordance is findable at a glance. */
+.surface-violet .btn-95.font-bold:not(:disabled) {
+  background: linear-gradient(180deg, #7c3aed, #5b21b6);
+  color: #ffffff;
+}
+
+.surface-violet .btn-95.font-bold:not(:disabled):hover {
+  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+}
+
+/* Status colours: the grey-face green and red are far too dark on this field. */
+.surface-violet .text-danger {
+  color: #ff8f8f;
+}
+
+.surface-violet .text-success {
+  color: #7ee7a5;
+}
+
+/* FileDrop's dashed guide */
+.surface-violet .outline-border {
+  outline-color: rgba(167, 139, 250, 0.4);
+}
+
+.surface-violet .outline-accent {
+  outline-color: #a78bfa;
+}
+
+.surface-violet .bg-accent-subtle {
+  background-color: rgba(167, 139, 250, 0.16);
+}

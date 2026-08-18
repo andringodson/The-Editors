@@ -20,7 +20,7 @@ const CATEGORY_ORDER: ToolCategory[] = ["image", "pdf", "convert"];
  */
 export default function Home() {
   return (
-    <div className="surface-violet px-4 py-14 sm:px-8">
+    <div className="px-4 py-14 sm:px-8">
       <section className="mx-auto max-w-4xl">
         <h1 className="headline-glow text-4xl leading-tight text-balance sm:text-5xl">
           Image and document tools that never upload your files

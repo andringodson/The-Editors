@@ -99,7 +99,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="flex flex-1 flex-col p-0 pb-14 sm:p-6 sm:pb-20 lg:p-10 lg:pb-24">
           <div className="win bevel-out mx-auto flex w-full max-w-5xl flex-col">
             <SiteHeader />
-            <main className="flex-1 bg-surface">{children}</main>
+            <main className="surface-violet flex-1">{children}</main>
 
             <footer className="mt-1 flex flex-wrap items-center justify-between gap-2 px-1 py-1 text-xs">
               <span className="bevel-in px-2 py-1 text-muted">

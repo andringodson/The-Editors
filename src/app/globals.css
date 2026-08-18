@@ -628,11 +628,14 @@ input[type="radio"] {
    headline the moment anything goes wrong.
    --------------------------------------------------------------------------- */
 
-/* Caret thickness, shared by the travelling caret and the two blinking ones so
-   they cannot drift apart. The block caret is a Win95 nod, but at headline size
-   a full half-em reads as a blob rather than a cursor. */
+/* Caret width, shared by the travelling caret and the two blinking ones so they
+   cannot drift apart. Width only — the height stays a full 0.72em, so the caret
+   still spans the line the way a text cursor does.
+
+   Roughly the stroke width of Pixelify Sans at headline size, which is what
+   makes it read as part of the type rather than a block sitting next to it. */
 :root {
-  --caret-w: 0.25em;
+  --caret-w: 0.13em;
 }
 
 .type-word {
@@ -678,7 +681,7 @@ input[type="radio"] {
   bottom: 0.16em;
   width: var(--caret-w);
   background: #a78bfa;
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
   opacity: 0;
   animation: type-caret-lit var(--caret-lit, 20ms) linear;
   animation-delay: inherit;
@@ -705,7 +708,7 @@ input[type="radio"] {
   margin-left: 0.08em;
   margin-right: calc(-0.08em - var(--caret-w));
   background: #a78bfa;
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
   opacity: 0;
 }
 

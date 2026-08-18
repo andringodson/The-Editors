@@ -285,10 +285,13 @@ line: a prompt does not tidy itself away, and the line looks unfinished without
 one. `steps(1, end)` means two style changes a second and no interpolation, so
 leaving it running costs nothing worth measuring.
 
-Its thickness is a single token, `--caret-w`, shared by all three carets — the
+Its width is a single token, `--caret-w`, shared by all three carets — the
 travelling one and the two blinking ones — so they cannot drift apart, and the
 negative margin that cancels the caret's advance width is derived from it
-rather than written out beside it.
+rather than written out beside it. Width only: the height stays a full `0.72em`
+so the caret spans the line the way a text cursor does, and the width is set to
+roughly the stroke width of Pixelify Sans at headline size, which is what makes
+it read as part of the type rather than a block beside it.
 
 Characters are hidden from the accessibility tree and the `<h1>` is labelled
 with the same constant it types, since screen readers announce text split

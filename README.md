@@ -138,8 +138,10 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-14 end-to-end tests drive headless Chromium against a production build. They
-assert on **real output bytes**, not UI text — compressed files are read off
+48 tests drive headless Chromium against a production build: functional,
+accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
+
+The functional ones assert on **real output bytes**, not UI text — compressed files are read off
 disk and measured against the target, PNG dimensions are parsed out of the IHDR
 chunk, and merged PDFs are loaded back with pdf-lib to count pages. A green
 type-check tells you nothing about whether canvas actually encoded anything;

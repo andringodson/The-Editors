@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-48 tests drive headless Chromium against a production build: functional,
+52 tests drive headless Chromium against a production build: functional,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -251,6 +251,33 @@ without starting an escalation war.
 
 Everything lives in `src/app/globals.css`. No component holds a hard-coded
 colour.
+
+### The typed headline
+
+The hero headline types itself on, and `TypeOn` is a **server** component —
+the whole effect is one CSS rule plus an `animation-delay` stamped on each
+character at render. Three properties are worth keeping if it is ever
+rewritten, because the obvious client-side version loses all three:
+
+- **The sentence ships in the HTML.** A component that starts empty and appends
+  characters serves an empty `<h1>` to crawlers, on a site whose only revenue
+  channel is organic search.
+- **Characters reveal with opacity, never by growing a box.** The final layout
+  is settled from the first frame, so `text-wrap: balance` does not resettle
+  and the hero contributes no layout shift.
+- **The base state is the visible one.** The animation's `from` is the hidden
+  state, held by `backwards` fill, so if the animation never runs the headline
+  is simply there. Starting at `opacity: 0` would mean any failure hides the
+  headline permanently.
+
+Characters are hidden from the accessibility tree and the `<h1>` is labelled
+with the same constant it types, since screen readers announce text split
+across spans erratically. `e2e/hero.spec.ts` asserts on the accessible name and
+on the raw HTML rather than on the animation.
+
+Under `prefers-reduced-motion` the effect is switched off outright rather than
+left to the global duration collapse — that rule zeroes durations but not
+delays, which would strobe the caret.
 
 **Where it deliberately breaks with the era**, because authenticity stops being
 a virtue the moment it costs someone the task they came for:

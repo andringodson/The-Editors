@@ -612,3 +612,129 @@ input[type="radio"] {
 .surface-violet .bg-accent-subtle {
   background-color: rgba(167, 139, 250, 0.16);
 }
+
+
+/* ---------------------------------------------------------------------------
+   Type-on
+
+   The hero headline types itself in. No JavaScript is involved: `TypeOn`
+   renders the sentence split across spans on the server and stamps an
+   `animation-delay` on each character.
+
+   The base state is *visible* and the animation's `from` is the hidden one,
+   held there by `backwards` fill. That ordering matters — if the animation
+   never runs, for any reason at all, the headline is simply on screen. The
+   naive inverse (start at `opacity: 0`, animate to 1) leaves an invisible
+   headline the moment anything goes wrong.
+   --------------------------------------------------------------------------- */
+
+.type-word {
+  /* Keeps line breaking at the spaces between words rather than between the
+     individual character spans, which would hyphenate mid-word. */
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.type-char {
+  display: inline-block;
+  position: relative;
+  animation: type-char-in 320ms ease-out backwards;
+}
+
+@keyframes type-char-in {
+  from {
+    opacity: 0;
+    /* A hair of lift, so a character arrives rather than blinking on. */
+    transform: translateY(0.08em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The travelling caret: each character carries its own, lit only during that
+   character's slot. Consecutive slots run into one another, so what reads on
+   screen is a single block sliding along the line. `animation-delay: inherit`
+   picks up the inline delay from the character it belongs to, which keeps the
+   caret and the letter it precedes from ever drifting apart. */
+.type-char::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 0.14em;
+  bottom: 0.16em;
+  width: 0.5em;
+  background: #a78bfa;
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
+  opacity: 0;
+  animation: type-caret-lit calc(var(--type-step, 22ms) * 1.2) linear;
+  animation-delay: inherit;
+}
+
+@keyframes type-caret-lit {
+  0%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Where the caret comes to rest. Blinks three times and stops, rather than
+   forever — a permanent blink keeps a compositor layer alive for the life of
+   the page and pulls the eye away from the buttons underneath.
+
+   Negative margin cancels its own advance width so it can overhang without
+   entering line-breaking calculations and pushing the last word onto a new
+   line. */
+.type-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.72em;
+  margin-left: 0.08em;
+  margin-right: -0.58em;
+  background: #a78bfa;
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
+  opacity: 0;
+  animation: type-caret-blink 700ms steps(1, end) 3;
+}
+
+@keyframes type-caret-blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Everything that follows the headline arrives on the same clock — see the
+   delays in `page.tsx`, which are derived from the typing duration. */
+.rise-in {
+  animation: rise-in 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The blanket rule above collapses durations but leaves delays intact, which
+     would strobe the carets. Switch the effect off outright: the base styles
+     are the finished state, so the hero just renders. */
+  .type-char,
+  .rise-in {
+    animation: none;
+  }
+
+  .type-char::after,
+  .type-caret {
+    display: none;
+  }
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
+import TypeOn, { typeOnDuration } from "@/components/TypeOn";
 import { isConverterConfigured } from "@/lib/converter";
 import {
   CATEGORY_LABELS,
@@ -9,6 +10,26 @@ import {
 } from "@/lib/tools";
 
 const CATEGORY_ORDER: ToolCategory[] = ["image", "pdf", "convert"];
+
+/*
+ * One constant, two jobs: the string the headline types out, and the heading's
+ * accessible name. They cannot drift apart.
+ */
+const HEADLINE = "Image and document tools that never upload your files";
+
+/*
+ * Everything below the headline arrives on the headline's own clock rather than
+ * on hand-tuned numbers, so rewriting the copy re-times the hero for free.
+ *
+ * The body starts at just past halfway and the buttons land marginally early:
+ * a strictly sequential stagger reads as waiting, whereas a slight overlap
+ * reads as one movement. Nothing here gates interaction — the CTA is clickable
+ * from the first frame; only its paint is delayed.
+ */
+const TYPED_MS = typeOnDuration(HEADLINE);
+const BODY_DELAY = Math.round(TYPED_MS * 0.55);
+const CTA_DELAY = TYPED_MS - 80;
+const CHIP_DELAY = TYPED_MS + 120;
 
 /**
  * Landing page.
@@ -22,17 +43,29 @@ export default function Home() {
   return (
     <div className="px-4 py-14 sm:px-8">
       <section className="mx-auto max-w-4xl">
-        <h1 className="headline-glow text-4xl leading-tight text-balance sm:text-5xl">
-          Image and document tools that never upload your files
+        {/* The characters are hidden from the accessibility tree and the name
+            supplied here instead — screen readers announce text split across
+            spans erratically. */}
+        <h1
+          className="headline-glow text-4xl leading-tight text-balance sm:text-5xl"
+          aria-label={HEADLINE}
+        >
+          <TypeOn text={HEADLINE} />
         </h1>
-        <p className="mt-5 max-w-2xl text-lg text-muted text-pretty">
+        <p
+          className="rise-in mt-5 max-w-2xl text-lg text-muted text-pretty"
+          style={{ animationDelay: `${BODY_DELAY}ms` }}
+        >
           Compress to an exact size, size a passport photo to the millimetre,
           merge PDFs. Everything runs inside your browser — nothing is sent to a
           server, so it works offline and finishes as fast as your machine can
           go.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div
+          className="rise-in mt-8 flex flex-wrap gap-3"
+          style={{ animationDelay: `${CTA_DELAY}ms` }}
+        >
           <Link
             href="/tools/compress"
             className="btn-violet inline-flex items-center px-6 py-3 font-bold no-underline"
@@ -48,10 +81,11 @@ export default function Home() {
         </div>
 
         <ul className="mt-8 flex flex-wrap gap-2 text-xs">
-          {["Free", "No upload", "No account", "Works offline"].map((chip) => (
+          {["Free", "No upload", "No account", "Works offline"].map((chip, i) => (
             <li
               key={chip}
-              className="card-violet px-3 py-1.5 text-muted"
+              className="rise-in card-violet px-3 py-1.5 text-muted"
+              style={{ animationDelay: `${CHIP_DELAY + i * 70}ms` }}
             >
               {chip}
             </li>

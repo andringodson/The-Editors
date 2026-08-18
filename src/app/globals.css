@@ -628,6 +628,13 @@ input[type="radio"] {
    headline the moment anything goes wrong.
    --------------------------------------------------------------------------- */
 
+/* Caret thickness, shared by the travelling caret and the two blinking ones so
+   they cannot drift apart. The block caret is a Win95 nod, but at headline size
+   a full half-em reads as a blob rather than a cursor. */
+:root {
+  --caret-w: 0.25em;
+}
+
 .type-word {
   /* Keeps line breaking at the spaces between words rather than between the
      individual character spans, which would hyphenate mid-word. */
@@ -669,9 +676,9 @@ input[type="radio"] {
   margin-left: 0.08em;
   top: 0.14em;
   bottom: 0.16em;
-  width: 0.5em;
+  width: var(--caret-w);
   background: #a78bfa;
-  box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 14px rgba(167, 139, 250, 0.75);
   opacity: 0;
   animation: type-caret-lit var(--caret-lit, 20ms) linear;
   animation-delay: inherit;
@@ -688,15 +695,17 @@ input[type="radio"] {
    resting after the last.
 
    Negative margin cancels its own advance width, so it overhangs without
-   entering line-breaking calculations and pushing a word onto a new line. */
+   entering line-breaking calculations and pushing a word onto a new line. It is
+   derived from the width rather than written out, so changing the thickness
+   cannot leave the two disagreeing and nudge the line. */
 .type-caret {
   display: inline-block;
-  width: 0.5em;
+  width: var(--caret-w);
   height: 0.72em;
   margin-left: 0.08em;
-  margin-right: -0.58em;
+  margin-right: calc(-0.08em - var(--caret-w));
   background: #a78bfa;
-  box-shadow: 0 0 18px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 14px rgba(167, 139, 250, 0.75);
   opacity: 0;
 }
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Merge PDF Files",
   description:
     "Combine any number of PDFs into one, reordering them first. Page counts are shown as you add files, and encrypted or damaged files are flagged before you merge.",
-  keywords: ["merge pdf","combine pdf files","join pdf"],
+  keywords: ["merge pdf", "combine pdf files", "join pdf"],
   alternates: { canonical: "/tools/pdf-merge" },
   openGraph: {
     title: "Merge PDF Files — The Editors",

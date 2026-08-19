@@ -6,6 +6,7 @@ import { trackRun } from "@/lib/analytics";
 import { cropBitmap, decodeImage } from "@/lib/image/canvas";
 import { compressToTarget, formatBytes } from "@/lib/image/compress";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 import {
   DPI_OPTIONS,
   PHOTO_PRESETS,
@@ -23,7 +24,9 @@ export default function PassportPage() {
   const [offsetY, setOffsetY] = useState(0.5);
   const [enforceSize, setEnforceSize] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [output, setOutput] = useState<{ blob: Blob; url: string } | null>(null);
+  const [output, setOutput] = useState<{ blob: Blob; url: string } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const bitmapRef = useRef<ImageBitmap | null>(null);
@@ -115,7 +118,9 @@ export default function PassportPage() {
       outputUrlRef.current = url;
       setOutput({ blob, url });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not build the photo");
+      setError(
+        cause instanceof Error ? cause.message : "Could not build the photo",
+      );
     } finally {
       setBusy(false);
     }
@@ -130,11 +135,11 @@ export default function PassportPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("passport")}`}
+    >
       <ToolMeta slug="passport" />
-      <h1 className="headline-sm">
-        Passport &amp; stamp photos
-      </h1>
+      <h1 className="headline-sm">Passport &amp; stamp photos</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Exact millimetre dimensions, rendered at print resolution — and squeezed
         under the portal&apos;s upload limit when there is one.
@@ -144,7 +149,9 @@ export default function PassportPage() {
         <FileDrop
           accept="image/*"
           label={file ? file.name : "Drop a photo, or click to choose"}
-          hint={file ? formatBytes(file.size) : "A straight-on portrait works best"}
+          hint={
+            file ? formatBytes(file.size) : "A straight-on portrait works best"
+          }
           disabled={busy}
           onFiles={(files) => void loadFile(files[0])}
         />
@@ -194,7 +201,11 @@ export default function PassportPage() {
       </div>
 
       <p className="mt-3 text-sm text-muted">
-        Output: <span className="tabular-nums">{pixels.width}×{pixels.height}</span> pixels
+        Output:{" "}
+        <span className="tabular-nums">
+          {pixels.width}×{pixels.height}
+        </span>{" "}
+        pixels
         {preset.note ? ` · ${preset.note}` : ""}
       </p>
 
@@ -251,7 +262,8 @@ export default function PassportPage() {
             onChange={(event) => setEnforceSize(event.target.checked)}
             className="size-4"
           />
-          Keep under {formatBytes(preset.suggestedMaxBytes)} (typical portal limit)
+          Keep under {formatBytes(preset.suggestedMaxBytes)} (typical portal
+          limit)
         </label>
       ) : null}
 

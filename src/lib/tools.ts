@@ -142,3 +142,23 @@ export const ORDERED_TOOLS: ToolDefinition[] = CATEGORY_ORDER.flatMap(
 export function toolOrdinal(tool: ToolDefinition): string {
   return String(ORDERED_TOOLS.indexOf(tool) + 1).padStart(2, "0");
 }
+
+/**
+ * The class that gives a tool its colour.
+ *
+ * Every tool carries a hue, and it is the same hue everywhere the tool appears:
+ * its cell on the landing grid, and its whole page — hairlines, buttons, focus
+ * ring, caret and all. Colour becomes a way to know where you are rather than
+ * decoration.
+ *
+ * Keyed off the ordinal rather than a field on each tool, so adding a tool
+ * picks up a colour without anyone having to choose one. The hues themselves
+ * live in `globals.css` beside the rules that consume them.
+ */
+export function toolTint(slugOrTool: string | ToolDefinition): string {
+  const tool =
+    typeof slugOrTool === "string"
+      ? TOOLS.find((candidate) => candidate.slug === slugOrTool)
+      : slugOrTool;
+  return tool ? `tint tint-${toolOrdinal(tool)}` : "tint";
+}

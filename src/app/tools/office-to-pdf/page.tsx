@@ -5,6 +5,7 @@ import FileDrop from "@/components/FileDrop";
 import { recordToolRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 import {
   MAX_OFFICE_BYTES,
   OFFICE_ACCEPT,
@@ -30,7 +31,9 @@ export default function OfficeToPdfPage() {
     try {
       // The token proves the request came from this app recently. It is not a
       // login — see services/converter/src/token.ts for why.
-      const tokenResponse = await fetch("/api/convert-token", { method: "POST" });
+      const tokenResponse = await fetch("/api/convert-token", {
+        method: "POST",
+      });
       if (!tokenResponse.ok) {
         throw new Error("Conversion is not available right now");
       }
@@ -90,8 +93,10 @@ export default function OfficeToPdfPage() {
 
   if (!isConverterConfigured) {
     return (
-      <div className="shell-narrow bleed py-[var(--space-l)]">
-      <ToolMeta slug="office-to-pdf" />
+      <div
+        className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("office-to-pdf")}`}
+      >
+        <ToolMeta slug="office-to-pdf" />
         <h1 className="headline-sm">Office to PDF</h1>
         <p className="mt-3 text-muted text-pretty">
           This is the one tool that cannot run in your browser — converting
@@ -106,7 +111,9 @@ export default function OfficeToPdfPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("office-to-pdf")}`}
+    >
       <ToolMeta slug="office-to-pdf" />
       <h1 className="headline-sm">Office to PDF</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">

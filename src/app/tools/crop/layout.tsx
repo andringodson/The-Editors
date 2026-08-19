@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Crop and Straighten an Image",
   description:
     "Crop freehand or to a fixed ratio, and straighten a tilted scan before you cut. Works on phones and tablets. Your image never leaves the device.",
-  keywords: ["crop image online","straighten scanned photo","crop to square"],
+  keywords: ["crop image online", "straighten scanned photo", "crop to square"],
   alternates: { canonical: "/tools/crop" },
   openGraph: {
     title: "Crop and Straighten an Image — The Editors",

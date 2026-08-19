@@ -26,8 +26,12 @@ export default async function AccountPage() {
   return (
     <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
-        <span>Account <span className="sep">/</span> optional</span>
-        <span>Telemetry <span className="sep">/</span> no filenames</span>
+        <span>
+          Account <span className="sep">/</span> optional
+        </span>
+        <span>
+          Telemetry <span className="sep">/</span> no filenames
+        </span>
       </div>
       <h1 className="headline-sm">Account</h1>
       <p className="mt-2 text-muted">{user.email}</p>
@@ -59,10 +63,7 @@ export default async function AccountPage() {
       )}
 
       <form action="/auth/signout" method="post" className="mt-10">
-        <button
-          type="submit"
-          className="btn text-sm hover:text-danger"
-        >
+        <button type="submit" className="btn text-sm hover:text-danger">
           Sign out
         </button>
       </form>

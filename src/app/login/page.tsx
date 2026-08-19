@@ -36,10 +36,14 @@ export default function LoginPage() {
   if (!supabase) {
     return (
       <div className="shell bleed py-[var(--space-l)] text-center">
-      <div className="eyebrow">
-        <span>Sign in <span className="sep">/</span> optional</span>
-        <span>Magic link <span className="sep">/</span> no password</span>
-      </div>
+        <div className="eyebrow">
+          <span>
+            Sign in <span className="sep">/</span> optional
+          </span>
+          <span>
+            Magic link <span className="sep">/</span> no password
+          </span>
+        </div>
         <h1 className="headline-sm">Sign-in unavailable</h1>
         <p className="mt-2 text-muted">
           Supabase is not configured for this deployment. Every tool still works
@@ -52,8 +56,12 @@ export default function LoginPage() {
   return (
     <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
-        <span>Sign in <span className="sep">/</span> optional</span>
-        <span>Magic link <span className="sep">/</span> no password</span>
+        <span>
+          Sign in <span className="sep">/</span> optional
+        </span>
+        <span>
+          Magic link <span className="sep">/</span> no password
+        </span>
       </div>
       <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
       <p className="mt-[var(--space-2xs)] text-muted text-pretty">
@@ -89,9 +97,7 @@ export default function LoginPage() {
         </form>
       )}
 
-      {error ? (
-        <p className="mt-4 text-sm text-danger">{error}</p>
-      ) : null}
+      {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
     </div>
   );
 }

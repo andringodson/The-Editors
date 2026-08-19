@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 import {
   compressToTarget,
   formatBytes,
@@ -97,11 +98,11 @@ export default function CompressPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("compress")}`}
+    >
       <ToolMeta slug="compress" />
-      <h1 className="headline-sm">
-        Compress to a size
-      </h1>
+      <h1 className="headline-sm">Compress to a size</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Most compressors give you a quality slider and let you guess. Give this
         one a number and it searches for the best-looking image that fits under
@@ -129,10 +130,7 @@ export default function CompressPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div>
-          <label
-            htmlFor="target"
-            className="label mb-[var(--space-3xs)] block"
-          >
+          <label htmlFor="target" className="label mb-[var(--space-3xs)] block">
             Target size
           </label>
           <div className="mt-1.5 flex gap-2">
@@ -170,7 +168,9 @@ export default function CompressPage() {
             className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             <option value="image/jpeg">JPEG — best for photographs</option>
-            <option value="image/webp">WebP — smaller, best for flat art</option>
+            <option value="image/webp">
+              WebP — smaller, best for flat art
+            </option>
           </select>
         </div>
       </div>

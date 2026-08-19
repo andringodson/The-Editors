@@ -6,6 +6,7 @@ import { trackRun } from "@/lib/analytics";
 import { decodeImage, renderBitmap, type EncodeMime } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 
 const FORMATS: { value: EncodeMime; label: string; lossy: boolean }[] = [
   { value: "image/jpeg", label: "JPEG", lossy: true },
@@ -68,19 +69,26 @@ export default function FormatPage() {
     output && file ? ((output.size - file.size) / file.size) * 100 : null;
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("format")}`}
+    >
       <ToolMeta slug="format" />
       <h1 className="headline-sm">Change format</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
-        Convert between JPEG, PNG and WebP. Your browser reads AVIF and HEIC too,
-        so those work as inputs even though they are not offered as outputs.
+        Convert between JPEG, PNG and WebP. Your browser reads AVIF and HEIC
+        too, so those work as inputs even though they are not offered as
+        outputs.
       </p>
 
       <div className="mt-8">
         <FileDrop
           accept="image/*"
           label={file ? file.name : "Drop an image, or click to choose"}
-          hint={file ? `${formatBytes(file.size)} · ${file.type || "unknown"}` : undefined}
+          hint={
+            file
+              ? `${formatBytes(file.size)} · ${file.type || "unknown"}`
+              : undefined
+          }
           disabled={busy}
           onFiles={(files) => void loadFile(files[0])}
         />
@@ -111,7 +119,8 @@ export default function FormatPage() {
       {isLossy ? (
         <label className="mt-5 block text-sm">
           <span className="font-medium">
-            Quality — <span className="tabular-nums">{Math.round(quality * 100)}%</span>
+            Quality —{" "}
+            <span className="tabular-nums">{Math.round(quality * 100)}%</span>
           </span>
           <input
             type="range"

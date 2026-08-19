@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   title: "Upscale an Image to 4K",
   description:
     "Enlarge a photo to Full HD, 2K, 4K or 8K with high-quality resampling. Free, unlimited, and processed entirely in your browser.",
-  keywords: ["upscale image to 4k","enlarge photo","increase image resolution"],
+  keywords: [
+    "upscale image to 4k",
+    "enlarge photo",
+    "increase image resolution",
+  ],
   alternates: { canonical: "/tools/upscale" },
   openGraph: {
     title: "Upscale an Image to 4K — The Editors",

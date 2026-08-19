@@ -11,6 +11,7 @@ import {
 } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 
 const RATIOS = [
   { id: "free", label: "Free", value: null },
@@ -31,7 +32,10 @@ interface Selection {
 export default function CropPage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [natural, setNatural] = useState<{ width: number; height: number } | null>(null);
+  const [natural, setNatural] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
   const [ratioId, setRatioId] = useState<string>("free");
   const [angle, setAngle] = useState(0);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -216,7 +220,9 @@ export default function CropPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("crop")}`}
+    >
       <ToolMeta slug="crop" />
       <h1 className="headline-sm">Crop &amp; straighten</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">

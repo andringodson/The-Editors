@@ -235,6 +235,37 @@ page, that the headline never shrinks as the viewport grows, and that no single
 40px step changes it by more than 3px — that last one is what fails if a
 media-query font size is ever reintroduced.
 
+### Colour
+
+Every tool carries its own hue, and it is the same hue everywhere that tool
+appears: its cell on the landing grid, and its whole page — hairlines, panel
+headers, drop guide, buttons, focus ring and caret. Colour is a way to know
+where you are rather than decoration.
+
+The mechanism is one custom property. `--line`, `--line-strong` and
+`--accent-dim` are **mixed from `--accent`** rather than written out:
+
+```css
+--line: color-mix(in oklab, var(--accent) 34%, transparent);
+```
+
+So a subtree recolours its entire grid by redeclaring a single property.
+`.tint-01` … `.tint-10` set that property; `toolTint()` in the registry hands
+out the class, keyed off the ordinal so adding a tool picks up a colour without
+anyone choosing one.
+
+One trap worth knowing about, because it looks like a bug in the browser: a
+custom property that references another is substituted **on the element that
+declares it**. `:root`'s `--line` keeps `:root`'s violet no matter what a
+descendant sets `--accent` to. That is why `.tint` redeclares all three
+derivatives rather than relying on inheritance.
+
+The hues are held at close to equal lightness so eight of them read as one
+system rather than as eight unrelated colours — the same reason a categorical
+chart palette varies hue and holds lightness steady. Each clears 4.5:1 as text
+on the panel fill, and the axe scan across all twelve pages is what keeps that
+true as the palette changes.
+
 ### The hairline grid
 
 `.cells` is the core device, and it does one thing worth knowing about: the

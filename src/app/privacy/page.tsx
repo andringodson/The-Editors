@@ -8,8 +8,12 @@ export default function PrivacyPage() {
   return (
     <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
-        <span>Privacy <span className="sep">/</span> advertising</span>
-        <span>Plain english <span className="sep">/</span> no lawyers</span>
+        <span>
+          Privacy <span className="sep">/</span> advertising
+        </span>
+        <span>
+          Plain english <span className="sep">/</span> no lawyers
+        </span>
       </div>
       <h1 className="headline-sm">Privacy &amp; ads</h1>
       <p className="mt-3 text-muted text-pretty">
@@ -29,7 +33,9 @@ export default function PrivacyPage() {
           disconnecting from the internet: the tools keep working.
         </p>
         <p className="mt-3 text-muted text-pretty">
-          <strong className="text-foreground">Office→PDF is the exception.</strong>{" "}
+          <strong className="text-foreground">
+            Office→PDF is the exception.
+          </strong>{" "}
           Converting PowerPoint, Word and Excel needs LibreOffice, which cannot
           run in a browser, so that file is sent to our converter. It is deleted
           as soon as the PDF comes back — nothing is written to disk beyond the
@@ -46,8 +52,11 @@ export default function PrivacyPage() {
           Google&apos;s policy, and we do not receive or control it.
         </p>
         <p className="mt-3 text-muted text-pretty">
-          Ads are <strong className="text-foreground">non-personalised by default</strong>.
-          Unless you have explicitly agreed, they are chosen from the page you
+          Ads are{" "}
+          <strong className="text-foreground">
+            non-personalised by default
+          </strong>
+          . Unless you have explicitly agreed, they are chosen from the page you
           are on rather than a profile of you. You were asked once; you can
           change your mind by clearing this site&apos;s data in your browser.
         </p>

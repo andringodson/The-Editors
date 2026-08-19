@@ -8,6 +8,7 @@ import { formatBytes } from "@/lib/image/compress";
 import { imagesToPdf } from "@/lib/pdf/operations";
 import { BATCH_FILE_LIMIT } from "@/lib/quotas";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 
 type PageSize = "a4" | "fit";
 
@@ -17,9 +18,10 @@ export default function ImagesToPdfPage() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [overflow, setOverflow] = useState<{ limit: number; attempted: number } | null>(
-    null,
-  );
+  const [overflow, setOverflow] = useState<{
+    limit: number;
+    attempted: number;
+  } | null>(null);
 
   function addFiles(incoming: File[]) {
     const images = incoming.filter((file) => file.type.startsWith("image/"));
@@ -34,7 +36,9 @@ export default function ImagesToPdfPage() {
     const room = Math.max(0, limit - files.length);
 
     setOverflow(
-      images.length > room ? { limit, attempted: files.length + images.length } : null,
+      images.length > room
+        ? { limit, attempted: files.length + images.length }
+        : null,
     );
 
     setFiles((current) => [...current, ...images.slice(0, room)]);
@@ -71,7 +75,9 @@ export default function ImagesToPdfPage() {
       URL.revokeObjectURL(link.href);
       setStatus(`Built — ${formatBytes(blob.size)}`);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not build the PDF");
+      setError(
+        cause instanceof Error ? cause.message : "Could not build the PDF",
+      );
       setStatus("");
     } finally {
       setBusy(false);
@@ -79,7 +85,9 @@ export default function ImagesToPdfPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("images-to-pdf")}`}
+    >
       <ToolMeta slug="images-to-pdf" />
       <h1 className="headline-sm">Images to PDF</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
@@ -96,7 +104,10 @@ export default function ImagesToPdfPage() {
           onFiles={addFiles}
         />
         {overflow ? (
-          <BatchLimitNotice limit={overflow.limit} attempted={overflow.attempted} />
+          <BatchLimitNotice
+            limit={overflow.limit}
+            attempted={overflow.attempted}
+          />
         ) : null}
       </div>
 
@@ -186,7 +197,9 @@ export default function ImagesToPdfPage() {
         disabled={files.length === 0 || busy}
         className="mt-6 btn btn-primary btn-block"
       >
-        {busy ? status || "Building…" : `Create PDF${files.length ? ` (${files.length} pages)` : ""}`}
+        {busy
+          ? status || "Building…"
+          : `Create PDF${files.length ? ` (${files.length} pages)` : ""}`}
       </button>
 
       {error ? (

@@ -37,14 +37,17 @@
      lightest — the gradient moves, and contrast must hold at its worst. */
   --muted: #b9b1d6;
 
-  /* The hairline. One weight for the grid, one for anything that needs to
-     assert itself over the grid. */
-  --line: rgba(167, 139, 250, 0.24);
-  --line-strong: rgba(167, 139, 250, 0.55);
-
   --accent: #a78bfa;
+  /* Ink for text sitting on a bright accent fill. Near-black rather than pure
+     black so it belongs to the violet family at any hue. */
   --accent-ink: #12071f;
-  --accent-dim: rgba(167, 139, 250, 0.14);
+
+  /* The hairline, and the two other accent derivatives. Mixed from --accent
+     rather than written out, which is what lets a subtree recolour its whole
+     grid by redeclaring one property. */
+  --line: color-mix(in oklab, var(--accent) 34%, transparent);
+  --line-strong: color-mix(in oklab, var(--accent) 58%, transparent);
+  --accent-dim: color-mix(in oklab, var(--accent) 16%, transparent);
 
   --success: #7ee7a5;
   --danger: #ff8f8f;
@@ -240,12 +243,67 @@ h3 {
   letter-spacing: var(--track-label);
   color: var(--muted);
   padding-block-end: var(--space-2xs);
-  border-block-end: 1px solid var(--line);
+  border-block-end: 1px solid var(--line-strong);
   margin-block-end: var(--space-s);
 }
 
 .eyebrow .sep {
   color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Tints
+
+   One hue per tool. They are held at close to equal lightness so the set reads
+   as one system rather than as eight unrelated colours — the same reason a
+   categorical chart palette varies hue and holds lightness steady.
+
+   Every one of these clears 4.5:1 as text on the panel fill; the axe scan over
+   all twelve pages is what keeps that true.
+
+   `--line` and friends are redeclared here, not just inherited: a custom
+   property that references another is substituted on the element that declares
+   it, so :root's --line would keep :root's violet no matter what a descendant
+   sets --accent to.
+   --------------------------------------------------------------------------- */
+
+.tint {
+  --line: color-mix(in oklab, var(--accent) 34%, transparent);
+  --line-strong: color-mix(in oklab, var(--accent) 58%, transparent);
+  --accent-dim: color-mix(in oklab, var(--accent) 16%, transparent);
+}
+
+.tint-01 {
+  --accent: #a78bfa;
+}
+.tint-02 {
+  --accent: #5eead4;
+}
+.tint-03 {
+  --accent: #fbbf24;
+}
+.tint-04 {
+  --accent: #fb7185;
+}
+.tint-05 {
+  --accent: #7dd3fc;
+}
+.tint-06 {
+  --accent: #bef264;
+}
+.tint-07 {
+  --accent: #f0abfc;
+}
+.tint-08 {
+  --accent: #fdba74;
+}
+/* Spare hues, so a ninth and tenth tool are coloured the day they are added
+   rather than falling back to the default violet. */
+.tint-09 {
+  --accent: #67e8f9;
+}
+.tint-10 {
+  --accent: #fca5a5;
 }
 
 /* The index in a cell corner: 01, 02, 03. */
@@ -284,6 +342,7 @@ h3 {
   gap: var(--space-3xs) var(--space-s);
   padding: var(--space-2xs) var(--space-xs);
   border-block-end: 1px solid var(--line);
+  background: var(--accent-dim);
   font-size: var(--step--1);
   text-transform: uppercase;
   letter-spacing: var(--track-label);
@@ -323,6 +382,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
+  border-block-start: 2px solid var(--accent);
   padding: var(--space-s) var(--space-xs);
   color: inherit;
   text-decoration: none;
@@ -331,7 +391,7 @@ h3 {
 
 a.cell:hover,
 a.cell:focus-visible {
-  background: var(--panel-raised);
+  background: var(--accent-dim);
 }
 
 /* Unavailable cells are recessed, never faded: opacity drags the muted text
@@ -639,13 +699,13 @@ input[type="radio"] {
   background:
     radial-gradient(
       50vmax 50vmax at var(--mx, 50%) var(--my, 30%),
-      rgba(139, 92, 246, 0.4),
+      rgba(139, 92, 246, 0.36),
       rgba(139, 92, 246, 0) 62%
     ),
     radial-gradient(
-      32vmax 32vmax at var(--mx, 50%) var(--my, 30%),
-      rgba(217, 70, 239, 0.2),
-      rgba(217, 70, 239, 0) 55%
+      30vmax 30vmax at var(--mx, 50%) var(--my, 30%),
+      rgba(45, 212, 191, 0.2),
+      rgba(45, 212, 191, 0) 55%
     );
 }
 
@@ -655,21 +715,29 @@ input[type="radio"] {
   content: "";
   position: absolute;
   inset: -30%;
+  /* Four hues rather than one, kept far enough apart on the wheel that where
+     two overlap they read as a third colour instead of as mud — which is what
+     happens the moment complementary hues are layered at these alphas. */
   background:
     radial-gradient(
-      40vmax 32vmax at 18% 80%,
-      rgba(109, 40, 217, 0.45),
+      40vmax 32vmax at 18% 78%,
+      rgba(109, 40, 217, 0.42),
       rgba(109, 40, 217, 0) 60%
     ),
     radial-gradient(
-      34vmax 36vmax at 85% 15%,
-      rgba(124, 58, 237, 0.38),
-      rgba(124, 58, 237, 0) 58%
+      34vmax 36vmax at 84% 14%,
+      rgba(13, 148, 136, 0.34),
+      rgba(13, 148, 136, 0) 58%
     ),
     radial-gradient(
-      28vmax 28vmax at 68% 92%,
-      rgba(192, 38, 211, 0.26),
-      rgba(192, 38, 211, 0) 55%
+      30vmax 30vmax at 66% 90%,
+      rgba(190, 24, 93, 0.3),
+      rgba(190, 24, 93, 0) 56%
+    ),
+    radial-gradient(
+      26vmax 26vmax at 8% 18%,
+      rgba(180, 83, 9, 0.26),
+      rgba(180, 83, 9, 0) 55%
     );
   animation: drift 42s ease-in-out infinite alternate;
   will-change: transform;

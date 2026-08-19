@@ -6,6 +6,7 @@ import { trackRun } from "@/lib/analytics";
 import { decodeImage, renderBitmap, type EncodeMime } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 
 /** Target width for the longest edge. */
 const TARGETS = [
@@ -17,11 +18,18 @@ const TARGETS = [
 
 export default function UpscalePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [source, setSource] = useState<{ width: number; height: number } | null>(null);
+  const [source, setSource] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
   const [targetId, setTargetId] = useState<string>("uhd");
   const [format, setFormat] = useState<EncodeMime>("image/jpeg");
   const [busy, setBusy] = useState(false);
-  const [output, setOutput] = useState<{ blob: Blob; width: number; height: number } | null>(null);
+  const [output, setOutput] = useState<{
+    blob: Blob;
+    width: number;
+    height: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const bitmapRef = useRef<ImageBitmap | null>(null);
@@ -88,7 +96,9 @@ export default function UpscalePage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("upscale")}`}
+    >
       <ToolMeta slug="upscale" />
       <h1 className="headline-sm">Upscale to 4K</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
@@ -153,14 +163,20 @@ export default function UpscalePage() {
 
       {projected ? (
         <p className="mt-3 text-sm text-muted">
-          Result: <span className="tabular-nums">{projected.width}×{projected.height}</span>
+          Result:{" "}
+          <span className="tabular-nums">
+            {projected.width}×{projected.height}
+          </span>
           {projected.factor < 1 ? (
             <span className="text-danger">
               {" "}
               — this would shrink the image, not enlarge it
             </span>
           ) : (
-            <span className="tabular-nums"> — {projected.factor.toFixed(2)}× larger</span>
+            <span className="tabular-nums">
+              {" "}
+              — {projected.factor.toFixed(2)}× larger
+            </span>
           )}
         </p>
       ) : null}

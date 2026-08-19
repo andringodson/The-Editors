@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Convert Images to PDF",
   description:
     "Turn photos or scans into a single PDF, on A4 pages or sized to each image. Arrange the order before exporting. Everything happens on your device.",
-  keywords: ["jpg to pdf","images to pdf","photos to pdf"],
+  keywords: ["jpg to pdf", "images to pdf", "photos to pdf"],
   alternates: { canonical: "/tools/images-to-pdf" },
   openGraph: {
     title: "Convert Images to PDF — The Editors",

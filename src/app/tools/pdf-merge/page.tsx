@@ -8,6 +8,7 @@ import { formatBytes } from "@/lib/image/compress";
 import { getPageCount, mergePdfs } from "@/lib/pdf/operations";
 import { BATCH_FILE_LIMIT } from "@/lib/quotas";
 import ToolMeta from "@/components/ToolMeta";
+import { toolTint } from "@/lib/tools";
 
 interface Entry {
   file: File;
@@ -21,13 +22,16 @@ export default function PdfMergePage() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [overflow, setOverflow] = useState<{ limit: number; attempted: number } | null>(
-    null,
-  );
+  const [overflow, setOverflow] = useState<{
+    limit: number;
+    attempted: number;
+  } | null>(null);
 
   async function addFiles(files: File[]) {
     const pdfs = files.filter(
-      (file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"),
+      (file) =>
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf"),
     );
 
     if (pdfs.length === 0) {
@@ -44,7 +48,9 @@ export default function PdfMergePage() {
     const accepted = pdfs.slice(0, room);
 
     setOverflow(
-      pdfs.length > room ? { limit, attempted: entries.length + pdfs.length } : null,
+      pdfs.length > room
+        ? { limit, attempted: entries.length + pdfs.length }
+        : null,
     );
 
     if (accepted.length === 0) return;
@@ -66,7 +72,11 @@ export default function PdfMergePage() {
         setEntries((current) =>
           current.map((item) =>
             item.file === entry.file
-              ? { ...item, pages: 0, error: "Could not read — encrypted or damaged" }
+              ? {
+                  ...item,
+                  pages: 0,
+                  error: "Could not read — encrypted or damaged",
+                }
               : item,
           ),
         );
@@ -123,10 +133,15 @@ export default function PdfMergePage() {
     }
   }
 
-  const totalPages = entries.reduce((sum, entry) => sum + (entry.pages ?? 0), 0);
+  const totalPages = entries.reduce(
+    (sum, entry) => sum + (entry.pages ?? 0),
+    0,
+  );
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div
+      className={`shell-narrow bleed py-[var(--space-l)] ${toolTint("pdf-merge")}`}
+    >
       <ToolMeta slug="pdf-merge" />
       <h1 className="headline-sm">Merge PDFs</h1>
       <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
@@ -144,7 +159,10 @@ export default function PdfMergePage() {
           onFiles={(files) => void addFiles(files)}
         />
         {overflow ? (
-          <BatchLimitNotice limit={overflow.limit} attempted={overflow.attempted} />
+          <BatchLimitNotice
+            limit={overflow.limit}
+            attempted={overflow.attempted}
+          />
         ) : null}
       </div>
 

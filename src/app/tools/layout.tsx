@@ -17,7 +17,10 @@ export default function ToolsLayout({
     <>
       {children}
       <div className="mx-auto max-w-3xl px-4 pb-12">
-        <AdSlot name="toolFooter" label="Advertisement — keeps these tools free" />
+        <AdSlot
+          name="toolFooter"
+          label="Advertisement — keeps these tools free"
+        />
       </div>
     </>
   );

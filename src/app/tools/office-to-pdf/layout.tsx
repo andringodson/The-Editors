@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Convert PowerPoint, Word and Excel to PDF",
   description:
     "Convert PPT, PPTX, DOC, DOCX, XLS and XLSX to PDF with LibreOffice. The one tool here that uses a server — your file is deleted the moment the PDF is returned.",
-  keywords: ["ppt to pdf","word to pdf","excel to pdf"],
+  keywords: ["ppt to pdf", "word to pdf", "excel to pdf"],
   alternates: { canonical: "/tools/office-to-pdf" },
   openGraph: {
     title: "Convert PowerPoint, Word and Excel to PDF — The Editors",

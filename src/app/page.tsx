@@ -8,6 +8,7 @@ import {
   TOOLS,
   effectiveStatus,
   toolOrdinal,
+  toolTint,
 } from "@/lib/tools";
 
 /*
@@ -162,14 +163,20 @@ export default function Home() {
 
                 return status === "live" ? (
                   <li key={tool.id}>
-                    <Link href={`/tools/${tool.slug}`} className="cell h-full">
+                    <Link
+                      href={`/tools/${tool.slug}`}
+                      className={`cell h-full ${toolTint(tool)}`}
+                    >
                       {body}
                     </Link>
                   </li>
                 ) : (
                   /* Recessed, not faded: dimming with opacity drags the muted
                      text below 4.5:1 contrast. */
-                  <li key={tool.id} className="cell cell-muted">
+                  <li
+                    key={tool.id}
+                    className={`cell cell-muted ${toolTint(tool)}`}
+                  >
                     {body}
                   </li>
                 );

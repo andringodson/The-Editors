@@ -12,8 +12,12 @@ export default function OfflinePage() {
   return (
     <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
-        <span>Status <span className="sep">/</span> offline</span>
-        <span>Seven tools <span className="sep">/</span> still working</span>
+        <span>
+          Status <span className="sep">/</span> offline
+        </span>
+        <span>
+          Seven tools <span className="sep">/</span> still working
+        </span>
       </div>
       <h1 className="headline-sm">You&apos;re offline</h1>
       <p className="mt-3 text-muted text-pretty">
@@ -41,8 +45,8 @@ export default function OfflinePage() {
       </ul>
 
       <p className="mt-6 text-sm text-muted">
-        Office to PDF is the exception — it needs a server, so it will wait until
-        you&apos;re back online.
+        Office to PDF is the exception — it needs a server, so it will wait
+        until you&apos;re back online.
       </p>
     </div>
   );

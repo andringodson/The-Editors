@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Convert JPG, PNG and WebP",
   description:
     "Convert between JPEG, PNG and WebP with a quality control. AVIF and HEIC are accepted as input. No upload, no queue, no watermark.",
-  keywords: ["convert png to jpg","webp converter","heic to jpg"],
+  keywords: ["convert png to jpg", "webp converter", "heic to jpg"],
   alternates: { canonical: "/tools/format" },
   openGraph: {
     title: "Convert JPG, PNG and WebP — The Editors",

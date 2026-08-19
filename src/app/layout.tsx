@@ -96,13 +96,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1 pb-16">{children}</main>
 
         <footer className="bleed border-t border-line pb-16">
-          <div className="shell flex flex-wrap items-baseline justify-between gap-2 py-[var(--space-s)]">
+          <div className="shell grid gap-[var(--space-2xs)] py-[var(--space-s)] sm:grid-cols-[auto_1fr] sm:items-baseline sm:gap-[var(--space-m)]">
             <span className="label-tight">
-              Files are processed on your device and never uploaded
+              A Side-Project by{" "}
+              <span className="text-accent">Andrin Godson</span>
             </span>
-            <Link href="/privacy" className="label-tight hover:text-accent">
-              Privacy &amp; ads →
-            </Link>
+
+            <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--space-m)] gap-y-1">
+              <span className="label-tight">
+                Files are processed on your device and never uploaded
+              </span>
+              <Link href="/privacy" className="label-tight hover:text-accent">
+                Privacy &amp; ads →
+              </Link>
+            </div>
           </div>
         </footer>
 

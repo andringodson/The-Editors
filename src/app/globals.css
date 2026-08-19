@@ -37,7 +37,12 @@
      lightest — the gradient moves, and contrast must hold at its worst. */
   --muted: #b9b1d6;
 
-  --accent: #a78bfa;
+  /* The primary. Violet is the site's colour: the header, the status rail, the
+     landing hero, the footer and every page that is not a tool all take it.
+     Stated in OKLCH at the same lightness and chroma as the rainbow below, so
+     the primary is a member of the set rather than an exception to it. */
+  --accent: oklch(0.723 0.155 296.5);
+
   /* Ink for text sitting on a bright accent fill. Near-black rather than pure
      black so it belongs to the violet family at any hue. */
   --accent-ink: #12071f;
@@ -273,37 +278,51 @@ h3 {
   --accent-dim: color-mix(in oklab, var(--accent) 16%, transparent);
 }
 
+/*
+ * The rainbow. One hue per tool, sweeping the wheel from the primary.
+ *
+ * Lightness and chroma are identical across all ten and only the hue angle
+ * moves. That is the whole trick: pick colours by eye and amber leaps off the
+ * screen while indigo sinks into it, so a "rainbow" reads as noise. Holding L
+ * and C fixed makes ten colours read as one set, and means every one of them
+ * clears 4.5:1 on the panel fill by construction rather than by luck.
+ *
+ * OKLCH rather than hex because that is the only way to say "same lightness,
+ * different hue" and have it be true perceptually. It needs no fallback here:
+ * color-mix() is already load-bearing above, and its browser support is
+ * narrower than OKLCH's.
+ */
 .tint-01 {
-  --accent: #a78bfa;
+  --accent: oklch(0.723 0.155 296.5); /* violet — the primary */
 }
 .tint-02 {
-  --accent: #5eead4;
+  --accent: oklch(0.723 0.155 340); /* magenta */
 }
 .tint-03 {
-  --accent: #fbbf24;
+  --accent: oklch(0.723 0.155 20); /* red */
 }
 .tint-04 {
-  --accent: #fb7185;
+  --accent: oklch(0.723 0.155 55); /* orange */
 }
 .tint-05 {
-  --accent: #7dd3fc;
+  --accent: oklch(0.723 0.155 90); /* yellow */
 }
 .tint-06 {
-  --accent: #bef264;
+  --accent: oklch(0.723 0.155 140); /* green */
 }
 .tint-07 {
-  --accent: #f0abfc;
+  --accent: oklch(0.723 0.155 175); /* teal */
 }
 .tint-08 {
-  --accent: #fdba74;
+  --accent: oklch(0.723 0.155 210); /* cyan */
 }
 /* Spare hues, so a ninth and tenth tool are coloured the day they are added
-   rather than falling back to the default violet. */
+   rather than falling back to the primary. */
 .tint-09 {
-  --accent: #67e8f9;
+  --accent: oklch(0.723 0.155 250); /* blue */
 }
 .tint-10 {
-  --accent: #fca5a5;
+  --accent: oklch(0.723 0.155 275); /* indigo */
 }
 
 /* The index in a cell corner: 01, 02, 03. */
@@ -715,29 +734,35 @@ input[type="radio"] {
   content: "";
   position: absolute;
   inset: -30%;
-  /* Four hues rather than one, kept far enough apart on the wheel that where
-     two overlap they read as a third colour instead of as mud — which is what
-     happens the moment complementary hues are layered at these alphas. */
+  /* The rainbow again, at a fifth of the strength and spread across the field.
+     Kept far enough apart on the wheel that where two overlap they read as a
+     third colour rather than as mud — which is what happens the moment
+     complementary hues are layered at these alphas. */
   background:
     radial-gradient(
-      40vmax 32vmax at 18% 78%,
-      rgba(109, 40, 217, 0.42),
-      rgba(109, 40, 217, 0) 60%
+      38vmax 30vmax at 16% 76%,
+      oklch(0.5 0.19 296.5 / 0.5),
+      transparent 60%
     ),
     radial-gradient(
-      34vmax 36vmax at 84% 14%,
-      rgba(13, 148, 136, 0.34),
-      rgba(13, 148, 136, 0) 58%
+      32vmax 34vmax at 84% 12%,
+      oklch(0.5 0.19 200 / 0.42),
+      transparent 58%
     ),
     radial-gradient(
-      30vmax 30vmax at 66% 90%,
-      rgba(190, 24, 93, 0.3),
-      rgba(190, 24, 93, 0) 56%
+      28vmax 28vmax at 64% 92%,
+      oklch(0.5 0.19 340 / 0.38),
+      transparent 56%
     ),
     radial-gradient(
-      26vmax 26vmax at 8% 18%,
-      rgba(180, 83, 9, 0.26),
-      rgba(180, 83, 9, 0) 55%
+      26vmax 24vmax at 6% 16%,
+      oklch(0.5 0.19 55 / 0.34),
+      transparent 55%
+    ),
+    radial-gradient(
+      24vmax 26vmax at 46% 44%,
+      oklch(0.5 0.19 140 / 0.26),
+      transparent 55%
     );
   animation: drift 42s ease-in-out infinite alternate;
   will-change: transform;
@@ -771,7 +796,7 @@ input[type="radio"] {
   pointer-events: none;
   background-image: radial-gradient(
     circle at 1px 1px,
-    rgba(167, 139, 250, 0.18) 1px,
+    color-mix(in oklab, var(--accent) 18%, transparent) 1px,
     transparent 0
   );
   background-size: 0.75rem 0.75rem;
@@ -845,7 +870,7 @@ input[type="radio"] {
   bottom: 0.16em;
   width: var(--caret-w);
   background: var(--accent);
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--accent) 75%, transparent);
   opacity: 0;
   animation: type-caret-lit var(--caret-lit, 20ms) linear;
   animation-delay: inherit;
@@ -872,7 +897,7 @@ input[type="radio"] {
   margin-left: 0.08em;
   margin-right: calc(-0.08em - var(--caret-w));
   background: var(--accent);
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--accent) 75%, transparent);
   opacity: 0;
 }
 

@@ -260,11 +260,32 @@ declares it**. `:root`'s `--line` keeps `:root`'s violet no matter what a
 descendant sets `--accent` to. That is why `.tint` redeclares all three
 derivatives rather than relying on inheritance.
 
-The hues are held at close to equal lightness so eight of them read as one
-system rather than as eight unrelated colours — the same reason a categorical
-chart palette varies hue and holds lightness steady. Each clears 4.5:1 as text
-on the panel fill, and the axe scan across all twelve pages is what keeps that
-true as the palette changes.
+Violet is the primary — the header, status rail, landing hero, footer and every
+page that is not a tool take it — and it is also `.tint-01`, so the primary is a
+member of the set rather than an exception to it. The other nine sweep the wheel
+from there: magenta, red, orange, yellow, green, teal, cyan, blue, indigo.
+
+**Lightness and chroma are identical across all ten and only the hue angle
+moves.** That is the whole trick, and it is why the palette is written in OKLCH
+rather than hex:
+
+```css
+.tint-01 { --accent: oklch(0.723 0.155 296.5); } /* violet */
+.tint-05 { --accent: oklch(0.723 0.155 90); }    /* yellow */
+```
+
+Pick a rainbow by eye and amber leaps off the screen while indigo sinks into it,
+so the set reads as noise. Holding L and C fixed makes ten colours read as one
+system, and means every one clears contrast *by construction* rather than by
+luck — measured, they land in a 7.4:1 to 8.8:1 band on the panel fill, against a
+4.5:1 requirement.
+
+The consequence worth expecting: yellow at this lightness is gold, not lemon.
+Yellow is intrinsically light, so holding it to violet's lightness darkens it.
+That is the palette being correct rather than the value being wrong.
+
+OKLCH needs no fallback here — `color-mix()` is already load-bearing above, and
+its browser support is narrower.
 
 ### The hairline grid
 

@@ -188,26 +188,25 @@ test.describe("Cursor", () => {
   });
 
   test("takes the hue of the tool it is on", async ({ page }) => {
-    const hueOn = async (path: string) => {
+    const rampOn = async (path: string) => {
       await page.goto(path);
-      return page.evaluate(() => {
-        const marks = decodeURIComponent(
+      return page.evaluate(() =>
+        decodeURIComponent(
           getComputedStyle(document.querySelector(".tint")!).cursor,
-        ).match(/stroke="(#[0-9a-fA-F]{6})"/g);
-        return marks ? marks[marks.length - 1] : null;
-      });
+        ).match(/stop-color="(#[0-9a-fA-F]{6})"/g),
+      );
     };
 
-    const compress = await hueOn("/tools/compress");
-    const crop = await hueOn("/tools/crop");
+    const compress = await rampOn("/tools/compress");
+    const crop = await rampOn("/tools/crop");
 
-    expect(compress).toBeTruthy();
-    expect(crop).not.toBe(compress);
+    // The marks carry a gradient from the tool hue into the next one round the
+    // wheel, so the ramp itself is the identity, not a single stroke colour.
+    expect(compress).toHaveLength(2);
+    expect(crop).not.toEqual(compress);
   });
 
-  test("closes in and goes white over anything actionable", async ({
-    page,
-  }) => {
+  test("closes in and lights up over anything actionable", async ({ page }) => {
     await page.goto("/");
 
     const art = (selector: string) =>
@@ -222,12 +221,32 @@ test.describe("Cursor", () => {
     const onLink = await art('a[href="/tools/compress"]');
     const onPage = await art("body");
 
-    // White says "you can act on this"; the hue says where you are. Two jobs,
-    // two signals.
-    expect(onLink).toContain('stroke="#ffffff"');
     expect(onLink).not.toBe(onPage);
-    // The tight variant — marks pulled in.
-    expect(onLink).toContain("M4 9V4h5");
+    // The tight geometry is the part that carries the signal, so it still reads
+    // for anyone who cannot separate the hues.
+    expect(onLink).toContain("M5 10V5h5");
+    // And it ramps across the palette rather than the two-stop resting ramp.
+    expect(onLink.match(/stop-color=/g)!.length).toBeGreaterThan(2);
+  });
+
+  test("shuts to a point while pressed", async ({ page }) => {
+    await page.goto("/");
+
+    const rule = await page.evaluate(() => {
+      for (const sheet of document.styleSheets) {
+        for (const rule of sheet.cssRules) {
+          if (
+            rule.cssText.includes(":active") &&
+            rule.cssText.includes("cursor")
+          )
+            return decodeURIComponent(rule.cssText);
+        }
+      }
+      return null;
+    });
+
+    expect(rule, "no :active cursor rule found").toBeTruthy();
+    expect(rule).toContain("M8 12V8h4");
   });
 
   test("text entry keeps the system caret", async ({ page }) => {

@@ -780,6 +780,46 @@ input[type="radio"] {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Section fluid
+
+   A pool of the section's own colour trailing the cursor through it — the page
+   backdrop, scoped. `FluidSections` publishes --fx/--fy; everything visible
+   here is one gradient, so the compositor handles it and the main thread stays
+   free for image encoding.
+
+   The pool takes var(--accent), which means it is violet on the landing page
+   and the tool's own hue on a tool page, without either having to say so.
+   --------------------------------------------------------------------------- */
+
+[data-fluid] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-fluid]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms linear;
+  background: radial-gradient(
+    26rem 26rem at var(--fx, 50%) var(--fy, 50%),
+    color-mix(in oklab, var(--accent) 20%, transparent),
+    transparent 68%
+  );
+}
+
+/* Only where a pointer can genuinely hover. On a touch screen the pool would
+   appear on tap and stick there, which reads as a rendering fault. */
+@media (hover: hover) {
+  [data-fluid]:hover::after {
+    opacity: 1;
+  }
+}
+
 /* A faint dot matrix, so the empty parts of the grid read as textmode rather
    than as merely empty. Pure CSS — this site's real work is canvas and WASM
    image encoding, and a decorative layer must never compete for that budget. */
@@ -963,7 +1003,8 @@ input[type="radio"] {
   }
 
   .type-char::after,
-  .type-caret {
+  .type-caret,
+  [data-fluid]::after {
     display: none;
   }
 }

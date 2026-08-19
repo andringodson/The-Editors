@@ -47,7 +47,10 @@ export default function Home() {
       {/* ------------------------------------------------------------------ */}
       {/* Hero                                                               */}
       {/* ------------------------------------------------------------------ */}
-      <section className="matrix bleed border-b border-line pt-[var(--space-l)] pb-[var(--space-m)]">
+      <section
+        data-fluid
+        className="matrix bleed border-b border-line pt-[var(--space-l)] pb-[var(--space-m)]"
+      >
         <div className="eyebrow">
           <span>
             Seven tools <span className="sep">/</span> free + open source
@@ -118,6 +121,7 @@ export default function Home() {
         return (
           <section
             key={category}
+            data-fluid
             className="bleed border-b border-line py-[var(--space-m)]"
           >
             <div className="eyebrow">

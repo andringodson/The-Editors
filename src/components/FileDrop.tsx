@@ -78,7 +78,7 @@ export default function FileDrop({
       : "Any file";
 
   return (
-    <div className="panel">
+    <div className="panel" data-fluid>
       <div className="panel-meta">
         <span>
           Input <span className="text-accent">/</span>{" "}

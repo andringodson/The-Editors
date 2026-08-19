@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-62 tests drive headless Chromium against a production build: functional, responsive,
+66 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -327,6 +327,31 @@ Two things to preserve if `FluidBackground.tsx` is ever edited:
 
 Under `prefers-reduced-motion` the pointer tracking never starts and the drift
 animation is disabled, leaving a static violet field.
+
+### The section fluid
+
+Each section carries a pool of its own colour that trails the cursor through it
+— the backdrop, scoped. Sections opt in with `data-fluid`; the paint is one
+radial gradient reading `--fx`/`--fy`, and because it takes `var(--accent)` it
+is violet on the landing page and the tool's own hue on a tool page without
+either having to say so.
+
+`FluidSections.tsx` only publishes the coordinates, and three things keep it off
+the budget the encoders need:
+
+- **One delegated listener for the whole document**, resolved with `closest()`,
+  rather than a pair per section.
+- **The rect is measured once per section**, when the pointer enters it, not
+  once per frame — reading a bounding rect forces layout, and this runs on every
+  pointer move.
+- **The loop cancels itself** once the pool catches up, so a still cursor costs
+  no frames at all. `e2e/fluid.spec.ts` asserts that by counting `rAF`
+  callbacks and requiring zero: a held-open animation frame costs nothing
+  visible and everything measurable.
+
+It never starts under `prefers-reduced-motion`, or on a coarse pointer — a touch
+screen cannot hover, so the pool would appear on tap and stick there, which
+reads as a rendering fault rather than as a response.
 
 ### Type
 

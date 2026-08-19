@@ -45,7 +45,10 @@ export async function mergePdfs(
     });
     const pages = await merged.copyPages(source, source.getPageIndices());
     pages.forEach((page) => merged.addPage(page));
-    onProgress?.((index + 1) / files.length, `Merged ${index + 1} of ${files.length}`);
+    onProgress?.(
+      (index + 1) / files.length,
+      `Merged ${index + 1} of ${files.length}`,
+    );
   }
 
   merged.setProducer("The Editors");
@@ -78,6 +81,37 @@ export async function extractPages(
   const indices = Array.from({ length: to - from + 1 }, (_, i) => from - 1 + i);
   const pages = await output.copyPages(source, indices);
   pages.forEach((page) => output.addPage(page));
+
+  const bytes = await output.save();
+  return new Blob([bytes as BufferSource], { type: "application/pdf" });
+}
+
+/**
+ * Build a document from an explicit list of 1-based page numbers.
+ *
+ * Where `extractPages` takes one contiguous range, this takes whatever the
+ * range parser produced — so "1-3, 7, 9-12" is one call, and the pages come out
+ * in the order asked for rather than in document order.
+ */
+export async function selectPages(file: Blob, pages: number[]): Promise<Blob> {
+  const source = await PDFDocument.load(await readAsBytes(file), {
+    ignoreEncryption: true,
+  });
+
+  const total = source.getPageCount();
+  const indices = pages
+    .filter((page) => page >= 1 && page <= total)
+    .map((page) => page - 1);
+
+  if (indices.length === 0) {
+    throw new Error("None of those pages exist in this document.");
+  }
+
+  const output = await PDFDocument.create();
+  // copyPages is given every index at once so the source is parsed once rather
+  // than once per page — the difference is minutes on a large document.
+  const copied = await output.copyPages(source, indices);
+  copied.forEach((page) => output.addPage(page));
 
   const bytes = await output.save();
   return new Blob([bytes as BufferSource], { type: "application/pdf" });
@@ -129,12 +163,21 @@ export async function imagesToPdf(
 
     if (pageSize === "fit") {
       const page = doc.addPage([image.width, image.height]);
-      page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+      page.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: image.width,
+        height: image.height,
+      });
     } else {
       const page = doc.addPage([A4.width, A4.height]);
       const maxWidth = A4.width - marginPt * 2;
       const maxHeight = A4.height - marginPt * 2;
-      const scale = Math.min(maxWidth / image.width, maxHeight / image.height, 1);
+      const scale = Math.min(
+        maxWidth / image.width,
+        maxHeight / image.height,
+        1,
+      );
       const width = image.width * scale;
       const height = image.height * scale;
       page.drawImage(image, {
@@ -145,7 +188,10 @@ export async function imagesToPdf(
       });
     }
 
-    onProgress?.((index + 1) / files.length, `Added ${index + 1} of ${files.length}`);
+    onProgress?.(
+      (index + 1) / files.length,
+      `Added ${index + 1} of ${files.length}`,
+    );
   }
 
   doc.setProducer("The Editors");
@@ -169,7 +215,10 @@ async function toEmbeddableImage(
   const { decodeImage, renderBitmap } = await import("../image/canvas");
   const bitmap = await decodeImage(file);
   try {
-    const jpeg = await renderBitmap(bitmap, { quality: 0.92, mimeType: "image/jpeg" });
+    const jpeg = await renderBitmap(bitmap, {
+      quality: 0.92,
+      mimeType: "image/jpeg",
+    });
     return { bytes: await readAsBytes(jpeg), type: "image/jpeg" };
   } finally {
     bitmap.close();

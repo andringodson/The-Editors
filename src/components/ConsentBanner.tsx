@@ -59,26 +59,25 @@ export default function ConsentBanner() {
       aria-label="Advertising preferences"
       data-testid="consent-banner"
       data-storage-key={CONSENT_STORAGE_KEY}
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-panel-raised p-4 shadow-lg"
+      /* Sits below the status rail in the stack (rail is z-50) and reserves
+         enough bottom padding for the rail to paint over — which stacks the two
+         fixed bars without either needing to know the other's height. */
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-panel-raised pb-[4.5rem]"
     >
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-pretty">
-          Ads keep this site free. May we let our advertising partner personalise
-          them using cookies? Your files are never involved — they never leave
-          your device either way.
+      <div className="shell flex flex-col gap-[var(--space-2xs)] px-[var(--space-xs)] py-[var(--space-xs)] sm:flex-row sm:items-center sm:justify-between">
+        <p className="prose text-pretty">
+          Ads keep this site free. May we let our advertising partner
+          personalise them using cookies? Your files are never involved — they
+          never leave your device either way.
         </p>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={() => choose("basic")}
-            className="btn text-sm"
-          >
+        <div className="flex shrink-0 gap-px bg-line">
+          <button type="button" onClick={() => choose("basic")} className="btn">
             No, keep it basic
           </button>
           <button
             type="button"
             onClick={() => choose("personalised")}
-            className="btn text-sm"
+            className="btn"
           >
             Yes, that&apos;s fine
           </button>

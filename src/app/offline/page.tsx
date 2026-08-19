@@ -10,7 +10,7 @@ export const metadata = { title: "Offline" };
  */
 export default function OfflinePage() {
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
         <span>Status <span className="sep">/</span> offline</span>
         <span>Seven tools <span className="sep">/</span> still working</span>

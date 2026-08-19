@@ -180,7 +180,9 @@ h1,
    * a ligature from a different letter.
    */
   font-variant-ligatures: none;
-  font-feature-settings: "liga" 0, "clig" 0;
+  font-feature-settings:
+    "liga" 0,
+    "clig" 0;
 }
 
 .headline-sm {
@@ -518,6 +520,16 @@ input[type="radio"] {
   margin-inline: auto;
 }
 
+/* A reading measure for the pages that are mostly prose. Constraining the
+   container rather than individual paragraphs is what keeps headings and body
+   copy on the same left-to-right span — a page where some paragraphs wrap at
+   62ch and others run the full width reads as broken, not as varied. */
+.shell-prose {
+  inline-size: 100%;
+  max-inline-size: 52rem;
+  margin-inline: auto;
+}
+
 /* A working measure for the tool pages. The landing grid wants the full width
    — more cells per row is strictly better there — but a form of three fields
    stretched across 1400px is a worse form, however well it fills the grid. */
@@ -567,7 +579,9 @@ input[type="radio"] {
   position: fixed;
   inset-inline: 0;
   bottom: 0;
-  z-index: 30;
+  /* Above the consent banner, which reserves padding for the rail to sit in.
+     Stacking them this way means neither has to know the other's height. */
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;

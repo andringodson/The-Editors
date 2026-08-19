@@ -24,7 +24,7 @@ export default async function AccountPage() {
     .limit(20);
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
         <span>Account <span className="sep">/</span> optional</span>
         <span>Telemetry <span className="sep">/</span> no filenames</span>

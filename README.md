@@ -348,8 +348,16 @@ lands at ~270ms.
 | Monochrome near-black | Violet OLED field | The backdrop predates the reskin and is the product's own identity |
 | Compact hit targets | 44px minimum | Anything smaller is unusable with a thumb, and this is used on phones |
 | Ten sections of one page | One page per tool | A section index would be inventing navigation that does not exist |
-| Prose set to full width | `62ch` measure | Monospace runs wider per character; unbounded lines are unreadable |
+| Prose set to full width | `52rem` page measure | Monospace runs wider per character; unbounded lines are unreadable |
 | Full-width working area | `64rem` on tool pages | A three-field form stretched across 1400px is a worse form, however well it fills the grid |
+
+There are three page measures, and which one a page takes is a content
+decision rather than a layout one: `.shell` (90rem) for the landing grid, where
+more cells per row is strictly better; `.shell-narrow` (64rem) for tool pages;
+and `.shell-prose` (52rem) for the pages that are mostly text. The measure sits
+on the container rather than on individual paragraphs — a page where some
+paragraphs wrap at 62ch and others run the full width reads as broken, not as
+varied.
 
 Disabled controls change colour rather than fading. Opacity drags the muted text
 below 4.5:1 wherever it is applied, and that is the exact threshold the colour

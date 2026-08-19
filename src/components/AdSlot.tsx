@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AD_SLOTS, adsenseClient, isAdsConfigured, type AdSlotName } from "@/lib/ads";
+import {
+  AD_SLOTS,
+  adsenseClient,
+  isAdsConfigured,
+  type AdSlotName,
+} from "@/lib/ads";
 
 declare global {
   interface Window {
@@ -45,10 +50,16 @@ export default function AdSlot({ name, className = "", label }: AdSlotProps) {
     // Placeholder in development so layout work reflects the real footprint.
     if (process.env.NODE_ENV === "development") {
       return (
-        <div
-          className={`flex min-h-[100px] items-center justify-center rounded-[var(--radius-base)] border border-dashed border-line text-xs text-muted ${className}`}
-        >
-          Ad slot: {name} (unconfigured)
+        <div className={`panel ${className}`}>
+          <div className="panel-meta">
+            <span>
+              Ad slot <span className="text-accent">/</span> {name}
+            </span>
+            <span>Unconfigured</span>
+          </div>
+          <p className="label grid min-h-[100px] place-items-center outline-2 -outline-offset-8 outline-dashed outline-line">
+            Placeholder
+          </p>
         </div>
       );
     }
@@ -56,10 +67,13 @@ export default function AdSlot({ name, className = "", label }: AdSlotProps) {
   }
 
   return (
-    <aside className={className} aria-label="Advertisement">
-      {label ? (
-        <p className="mb-1.5 text-xs text-muted">{label}</p>
-      ) : null}
+    <aside className={`panel ${className}`} aria-label="Advertisement">
+      {/* Labelled in the panel corner like everything else on the grid, so an
+          ad is visibly an ad rather than something that might be a tool. */}
+      <div className="panel-meta">
+        <span>{label ?? "Advertisement"}</span>
+        <span>Sponsored</span>
+      </div>
       <ins
         className="adsbygoogle block"
         style={{ display: "block", minHeight: 100 }}

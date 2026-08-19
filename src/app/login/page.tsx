@@ -50,13 +50,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="shell-narrow bleed py-[var(--space-l)]">
+    <div className="shell-prose bleed py-[var(--space-l)]">
       <div className="eyebrow">
         <span>Sign in <span className="sep">/</span> optional</span>
         <span>Magic link <span className="sep">/</span> no password</span>
       </div>
       <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
+      <p className="mt-[var(--space-2xs)] text-muted text-pretty">
         An account keeps your presets and history. The tools themselves work
         without one.
       </p>

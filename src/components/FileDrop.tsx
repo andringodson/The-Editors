@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { checkBatch, checkImageFile, checkPdfFile } from "@/lib/limits";
 
 interface FileDropProps {
@@ -13,11 +13,16 @@ interface FileDropProps {
 }
 
 /**
- * Drop zone / file picker.
+ * Drop zone, file picker, and paste target.
  *
  * Size limits are enforced here rather than in each tool, so no page can forget
  * them. The rejection message renders inline — a file too large to process is a
  * property of the file, not of whatever the tool was about to do with it.
+ *
+ * Paste is handled here for the same reason: every tool gets it from one
+ * implementation. "My screenshot is too big" is one of the most common versions
+ * of this problem, and without paste it means saving to disk and finding the
+ * file again for no reason.
  */
 export default function FileDrop({
   accept,
@@ -51,6 +56,24 @@ export default function FileDrop({
     [accept],
   );
 
+  /**
+   * Does this file match what the input asked for?
+   *
+   * A clipboard image arrives as `image/png` with no useful name, so the check
+   * has to be on the MIME type. Wildcards are compared by their prefix, the way
+   * the `accept` attribute itself works.
+   */
+  const wanted = useCallback(
+    (file: File) =>
+      accept.split(",").some((pattern) => {
+        const want = pattern.trim();
+        if (want.endsWith("/*")) return file.type.startsWith(want.slice(0, -1));
+        if (want.startsWith(".")) return file.name.toLowerCase().endsWith(want);
+        return file.type === want;
+      }),
+    [accept],
+  );
+
   const handleFiles = useCallback(
     (list: FileList | null) => {
       if (!list || list.length === 0) return;
@@ -68,6 +91,45 @@ export default function FileDrop({
     [onFiles, validate],
   );
 
+  useEffect(() => {
+    if (disabled) return;
+
+    const onPaste = (event: ClipboardEvent) => {
+      // Never steal a paste meant for a field. Someone typing a target size
+      // pastes numbers into it, and that has to keep working.
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.closest("input, textarea, select, [contenteditable]") !==
+          null &&
+        target?.closest("input, textarea, select, [contenteditable]") !==
+          undefined
+      ) {
+        return;
+      }
+
+      const pasted = Array.from(event.clipboardData?.files ?? []).filter(
+        wanted,
+      );
+      if (pasted.length === 0) return;
+
+      event.preventDefault();
+      const list = multiple ? pasted : pasted.slice(0, 1);
+
+      const problem = validate(list);
+      if (problem) {
+        setRejection(problem);
+        return;
+      }
+      setRejection(null);
+      onFiles(list);
+    };
+
+    // On the window rather than the drop zone: a paste is aimed at the page, and
+    // asking someone to focus a div first would defeat the point.
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [disabled, multiple, onFiles, validate, wanted]);
+
   /* A short specification for the panel's right-hand corner, derived from the
      accept list rather than passed in, so it cannot contradict what the input
      will actually take. */
@@ -84,7 +146,10 @@ export default function FileDrop({
           Input <span className="text-accent">/</span>{" "}
           {multiple ? "drop or choose files" : "drop or choose a file"}
         </span>
-        <span>{spec}</span>
+        <span>
+          <span className="hidden sm:inline">Paste, drop or pick</span>
+          <span className="sm:hidden">{spec}</span>
+        </span>
       </div>
 
       <div
@@ -144,6 +209,13 @@ export default function FileDrop({
         {hint ? (
           <p className="label-tight mt-[var(--space-2xs)]">{hint}</p>
         ) : null}
+        <p className="label-tight mt-[var(--space-2xs)] hidden sm:block">
+          <span className="text-accent">or</span> press{" "}
+          <kbd className="border border-line px-1">Ctrl</kbd>
+          <span aria-hidden="true"> + </span>
+          <kbd className="border border-line px-1">V</kbd> to paste{" "}
+          {spec === "PDF" ? "a PDF" : "a screenshot"}
+        </p>
       </div>
 
       {rejection ? (

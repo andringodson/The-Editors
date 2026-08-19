@@ -783,101 +783,80 @@ input[type="radio"] {
 /* ---------------------------------------------------------------------------
    Cursor
 
-   A square dot and a square ring — round would break the grid, which is rules
-   meeting at right angles everywhere else.
+   A native CSS cursor rather than a pair of divs tracking the pointer, and that
+   is the whole point: the compositor draws this, so it has no latency at all
+   and — the reason it matters here specifically — it does not stutter while the
+   main thread is busy encoding an image. A DOM cursor freezes exactly when the
+   tool is working.
 
-   The dot carries no colour of its own. `mix-blend-mode: difference` over white
-   renders it white on a dark ground and black on a light one, so it inverts
-   against whatever is behind it without anything having to measure what that
-   is. One element, both colours, always legible.
-
-   The ring takes the colour of the tool or section under it and transitions
-   between them, which is what makes moving across the grid read as moving
-   between places rather than across a surface.
-
-   Gated on a fine pointer, and only drawn once `PointerLayer` has mounted: the
-   `has-cursor` class is what hides the native one, so a page whose JavaScript
-   never runs keeps a working cursor rather than none at all.
+   It costs no JavaScript, and if a data URI ever fails to parse the browser
+   falls back to the keyword after the comma rather than leaving no cursor.
    --------------------------------------------------------------------------- */
 
-@media (hover: hover) and (pointer: fine) {
-  .has-cursor,
-  .has-cursor * {
-    cursor: none;
-  }
-
-  /* Text entry keeps the system caret. The I-beam says something specific —
-     "you can type here" — that a ring does not. */
-  .has-cursor :where(input, textarea, [contenteditable]) {
-    cursor: auto;
-  }
-
-  .cursor-dot,
-  .cursor-ring {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 90;
-    pointer-events: none;
-    /* Only transform is written per frame, so both stay on the compositor. */
-    will-change: transform;
-  }
-
-  .cursor-dot {
-    inline-size: 7px;
-    block-size: 7px;
-    margin: -3.5px 0 0 -3.5px;
-    background: #ffffff;
-    mix-blend-mode: difference;
-  }
-
-  .cursor-ring {
-    inline-size: 30px;
-    block-size: 30px;
-    margin: -15px 0 0 -15px;
-    border: 1px solid var(--cursor-accent, var(--accent));
-    background: transparent;
-    transition:
-      border-color 300ms linear,
-      background-color 300ms linear,
-      inline-size 180ms ease-out,
-      block-size 180ms ease-out,
-      margin 180ms ease-out,
-      opacity 200ms linear;
-  }
-
-  /* Over anything actionable the ring opens up and fills faintly, so the
-     affordance is the cursor rather than a hover style on every control. */
-  .cursor-ring.is-open {
-    inline-size: 46px;
-    block-size: 46px;
-    margin: -23px 0 0 -23px;
-    background-color: color-mix(
-      in oklab,
-      var(--cursor-accent, var(--accent)) 16%,
-      transparent
-    );
-  }
-
-  .cursor-ring.is-pressed {
-    inline-size: 22px;
-    block-size: 22px;
-    margin: -11px 0 0 -11px;
-  }
-
-  /* Off the window entirely. */
-  .cursor-ring.is-gone,
-  .cursor-dot.is-gone {
-    opacity: 0;
-  }
+/* The primary, inherited by everything that does not override it. */
+html {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23b08ffa%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23b08ffa%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
 }
 
-/* Never drawn where there is no pointer to draw for. */
-@media not all and (hover: hover) and (pointer: fine) {
-  .cursor-dot,
-  .cursor-ring {
-    display: none;
-  }
+/* Each tint swaps the marks for its own hue. `cursor` inherits, so one
+   declaration covers everything inside a tool. */
+.tint-02 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23e47bc4%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23e47bc4%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-03 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23f7797c%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23f7797c%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-04 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23ee8836%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23ee8836%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-05 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23cb9f00%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23cb9f00%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-06 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%236dbd5b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%236dbd5b%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-07 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2300c4a0%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%2300c4a0%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-08 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2300bedb%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%2300bedb%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-09 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%234faaff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%234faaff%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+.tint-10 {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%238a9bff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%238a9bff%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+}
+
+/* Over anything actionable the marks close in and go white. White rather than
+   the local hue on purpose: the hue says where you are, and this says what
+   you can do — two jobs, two signals.
+
+   `:root` is only here for specificity: a landing cell carries its own
+   `.tint-NN`, so without it the tint would win on the very links this is for. */
+:root
+  :is(
+    a,
+    button,
+    [role="button"],
+    summary,
+    label,
+    select,
+    input[type="checkbox"],
+    input[type="radio"],
+    input[type="range"]
+  ) {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M4%209V4h5M15%204h5v5M20%2015v5h-5M9%2020H4v-5%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M4%209V4h5M15%204h5v5M20%2015v5h-5M9%2020H4v-5%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E") 12 12, pointer;
+}
+
+/* Text entry keeps the system caret. The I-beam says something specific —
+   "you can type here" — that crop marks do not. */
+:root :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, [contenteditable]) {
+  cursor: text;
+}
+
+:root :is(a, button, [role="button"], input, select, textarea):disabled {
+  cursor: not-allowed;
 }
 
 /* ---------------------------------------------------------------------------

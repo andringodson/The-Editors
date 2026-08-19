@@ -29,7 +29,7 @@ stays free to run.
 
 ## Status
 
-Seven tools working, all client-side:
+Eight tools working, all client-side:
 
 | Tool | What it does |
 |---|---|
@@ -39,6 +39,7 @@ Seven tools working, all client-side:
 | **Upscale to 4K** | Resample the longest edge to HD/2K/4K/8K |
 | **Change format** | JPEG ⇄ PNG ⇄ WebP, with AVIF and HEIC accepted as input |
 | **Merge PDFs** | Any number of files, reorderable, with live page counts |
+| **Split a PDF** | Keep or remove a page range; the order asked for is the order produced |
 | **Images to PDF** | Photos or scans into one A4 or fit-to-image document |
 
 Plus one that is not:
@@ -74,6 +75,20 @@ The Office quota is enforced server-side at `/api/convert-token` — the one
 chokepoint that cannot be skipped, since the converter rejects any request
 without a token. The batch cap is a client-side affordance by contrast, and the
 code says so rather than pretending otherwise.
+
+### Paste
+
+`Ctrl+V` works on every tool. "My screenshot is too big" is one of the most
+common versions of the problem this site solves, and without paste it means
+saving to disk and hunting for the file again for no reason.
+
+It lives in `FileDrop` rather than in each page, so no tool can be left out, and
+the listener sits on the window rather than the drop zone — a paste is aimed at
+the page, and asking someone to focus a div first would defeat the point. Two
+things it deliberately does not do: it ignores any paste whose target is a
+field, so typing a target size and pasting numbers into it still works; and it
+filters on MIME type against the accept list, so an image pasted into a PDF tool
+is refused rather than handed to something that cannot open it.
 
 ### The honest version of the privacy claim
 
@@ -138,7 +153,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-72 tests drive headless Chromium against a production build: functional, responsive,
+81 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off

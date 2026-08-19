@@ -53,7 +53,8 @@ export default function Home() {
       >
         <div className="eyebrow">
           <span>
-            Seven tools <span className="sep">/</span> free + open source
+            {TOOLS.length} tools <span className="sep">/</span> free + open
+            source
           </span>
           <span>
             Canvas <span className="sep">/</span> WebAssembly

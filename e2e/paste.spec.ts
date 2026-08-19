@@ -47,7 +47,14 @@ async function paste(
 test.describe("Paste", () => {
   test("a pasted screenshot is accepted by the tool", async ({ page }) => {
     await page.goto("/tools/compress");
-    const image = await makeTestImage(page, { name: "screenshot.png" });
+    // Deliberately smaller than the fixture default. What is under test is the
+    // wiring, not the compressor, and a full-size binary search here is slow
+    // enough to time out when the rest of the suite is competing for the CPU.
+    const image = await makeTestImage(page, {
+      width: 900,
+      height: 700,
+      name: "screenshot.png",
+    });
 
     await paste(page, "body", image);
 
@@ -55,7 +62,9 @@ test.describe("Paste", () => {
     // reached the tool rather than merely firing.
     await expect(page.getByText("screenshot.png")).toBeVisible();
 
-    // And it is a usable file, not just a name: run the tool on it.
+    // And it is a usable file, not just a name: run the tool on it. A target
+    // well under the original guarantees the compressor actually has work to do.
+    await page.locator('input[type="number"]').first().fill("30");
     await page.getByRole("button", { name: "Compress" }).click();
     await expect(page.getByRole("heading", { name: "Done" })).toBeVisible({
       timeout: 30_000,

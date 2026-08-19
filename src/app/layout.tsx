@@ -4,7 +4,7 @@ import Link from "next/link";
 import AdScript from "@/components/AdScript";
 import ConsentBanner from "@/components/ConsentBanner";
 import FluidBackground from "@/components/FluidBackground";
-import FluidSections from "@/components/FluidSections";
+import PointerLayer from "@/components/PointerLayer";
 import ServiceWorker from "@/components/ServiceWorker";
 import SiteHeader from "@/components/SiteHeader";
 import StatusRail from "@/components/StatusRail";
@@ -86,7 +86,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <FluidBackground />
-        <FluidSections />
+        <PointerLayer />
         <ServiceWorker />
         <AdScript />
 

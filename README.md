@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-66 tests drive headless Chromium against a production build: functional, responsive,
+70 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -328,7 +328,7 @@ Two things to preserve if `FluidBackground.tsx` is ever edited:
 Under `prefers-reduced-motion` the pointer tracking never starts and the drift
 animation is disabled, leaving a static violet field.
 
-### The section fluid
+### The pointer layer
 
 Each section carries a pool of its own colour that trails the cursor through it
 — the backdrop, scoped. Sections opt in with `data-fluid`; the paint is one
@@ -336,22 +336,57 @@ radial gradient reading `--fx`/`--fy`, and because it takes `var(--accent)` it
 is violet on the landing page and the tool's own hue on a tool page without
 either having to say so.
 
-`FluidSections.tsx` only publishes the coordinates, and three things keep it off
-the budget the encoders need:
+`PointerLayer.tsx` also draws the cursor, and both effects share one listener
+and one animation frame because they are the same information asked twice. Four
+things keep them off the budget the encoders need:
 
 - **One delegated listener for the whole document**, resolved with `closest()`,
   rather than a pair per section.
 - **The rect is measured once per section**, when the pointer enters it, not
   once per frame — reading a bounding rect forces layout, and this runs on every
   pointer move.
-- **The loop cancels itself** once the pool catches up, so a still cursor costs
-  no frames at all. `e2e/fluid.spec.ts` asserts that by counting `rAF`
+- **Only `transform` is written** per frame, so the cursor stays on the
+  compositor and never triggers layout or paint.
+- **The loop cancels itself** once everything catches up, so a still cursor
+  costs no frames at all. `e2e/pointer.spec.ts` asserts that by counting `rAF`
   callbacks and requiring zero: a held-open animation frame costs nothing
   visible and everything measurable.
 
-It never starts under `prefers-reduced-motion`, or on a coarse pointer — a touch
-screen cannot hover, so the pool would appear on tap and stick there, which
-reads as a rendering fault rather than as a response.
+The pool never starts under `prefers-reduced-motion`, and nothing here starts on
+a coarse pointer — a touch screen cannot hover, so the pool would appear on tap
+and stick there, and a drawn cursor would have nothing to track.
+
+#### The cursor
+
+A square dot and a square ring. Square because round would break the grid, which
+is rules meeting at right angles everywhere else.
+
+The dot carries no colour of its own: `mix-blend-mode: difference` over white
+renders it white on a dark ground and black on a light one, so it inverts
+against whatever is behind it without anything having to measure what that is.
+One element, both colours, always legible.
+
+The ring lags behind the dot, takes the colour of the tool or section under it,
+and transitions between them — which is what makes crossing the grid read as
+moving between places rather than across a surface. Over anything actionable it
+opens up and fills faintly, so the affordance is the cursor itself.
+
+Two decisions worth keeping:
+
+- **The native cursor is hidden by a class the component adds on mount**, not by
+  the stylesheet. If the script never runs, the page keeps a working cursor
+  instead of none at all — the same principle as the typed headline, where the
+  base state has to be the one that survives the code not running.
+- **Text inputs keep the system caret.** The I-beam says something specific —
+  "you can type here" — that a ring does not.
+
+Under `prefers-reduced-motion` the cursor stays but the lag is dropped to zero:
+the trailing is the motion, not the cursor.
+
+A caveat worth stating plainly: replacing the system cursor overrides whatever
+size and contrast the reader has configured at OS level. It is drawn only where
+a fine pointer exists, but anyone relying on a large or high-contrast system
+cursor loses it here.
 
 ### Type
 

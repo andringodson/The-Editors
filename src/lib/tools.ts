@@ -70,6 +70,15 @@ export const TOOLS: ToolDefinition[] = [
     clientSide: true,
   },
   {
+    id: "pdf-split",
+    slug: "pdf-split",
+    name: "Split a PDF",
+    blurb: "Pull out a page range, or delete the pages you do not want.",
+    category: "pdf",
+    status: "live",
+    clientSide: true,
+  },
+  {
     id: "images-to-pdf",
     slug: "images-to-pdf",
     name: "Images to PDF",

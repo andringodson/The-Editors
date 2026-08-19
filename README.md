@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-71 tests drive headless Chromium against a production build: functional, responsive,
+72 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -355,10 +355,16 @@ and stick there, and a drawn cursor would have nothing to track.
 
 #### The cursor
 
-Crop marks and a centre pip, in the hue of whatever you are on — the marquee an
-image tool is actually for, and right angles like everything else on the grid.
-Over anything actionable the marks close in and go white: the hue says where you
-are, white says what you can do.
+Crop marks and a centre pip — the marquee an image tool is actually for, and
+right angles like everything else on the grid. Three tensions: open at rest,
+closed over something actionable, shut to a point while pressed. The geometry
+carries the state on its own, so it still reads for anyone who cannot separate
+the hues.
+
+Colour comes from an SVG gradient, which is the only way a native cursor can
+carry more than one. Each tint ramps from its own hue into the next one round
+the wheel, and over anything actionable the marks light up across the whole
+palette.
 
 **It is a native `cursor: url(…)`, not a pair of divs tracking the pointer**, and
 that is the whole design. The compositor draws it, so it has no latency — and,

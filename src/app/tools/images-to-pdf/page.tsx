@@ -7,6 +7,7 @@ import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { imagesToPdf } from "@/lib/pdf/operations";
 import { BATCH_FILE_LIMIT } from "@/lib/quotas";
+import ToolMeta from "@/components/ToolMeta";
 
 type PageSize = "a4" | "fit";
 
@@ -78,9 +79,10 @@ export default function ImagesToPdfPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Images to PDF</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="images-to-pdf" />
+      <h1 className="headline-sm">Images to PDF</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Turn photos or scans into one document, in the order you arrange them.
       </p>
 
@@ -99,7 +101,7 @@ export default function ImagesToPdfPage() {
       </div>
 
       <fieldset className="mt-6">
-        <legend className="text-sm font-medium">Page size</legend>
+        <legend className="label">Page size</legend>
         <div className="mt-2 flex flex-wrap gap-4 text-sm">
           <label className="flex items-center gap-2">
             <input
@@ -131,13 +133,13 @@ export default function ImagesToPdfPage() {
           {files.map((file, index) => (
             <li
               key={`${file.name}-${index}`}
-              className="flex items-center gap-3 bevel-out bg-surface px-4 py-3"
+              className="flex items-center gap-3 panel bg-panel px-4 py-3"
             >
               <span className="w-6 shrink-0 text-sm text-muted tabular-nums">
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{file.name}</p>
+                <p className="label truncate">{file.name}</p>
                 <p className="text-xs text-muted tabular-nums">
                   {formatBytes(file.size)}
                 </p>
@@ -148,7 +150,7 @@ export default function ImagesToPdfPage() {
                   aria-label="Move up"
                   disabled={busy || index === 0}
                   onClick={() => move(index, -1)}
-                  className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
+                  className="panel px-2.5 py-1.5 text-xs disabled:opacity-35"
                 >
                   ↑
                 </button>
@@ -157,7 +159,7 @@ export default function ImagesToPdfPage() {
                   aria-label="Move down"
                   disabled={busy || index === files.length - 1}
                   onClick={() => move(index, 1)}
-                  className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
+                  className="panel px-2.5 py-1.5 text-xs disabled:opacity-35"
                 >
                   ↓
                 </button>
@@ -168,7 +170,7 @@ export default function ImagesToPdfPage() {
                   onClick={() =>
                     setFiles((current) => current.filter((_, i) => i !== index))
                   }
-                  className="bevel-out px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
+                  className="panel px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
                 >
                   ✕
                 </button>
@@ -182,13 +184,13 @@ export default function ImagesToPdfPage() {
         type="button"
         onClick={run}
         disabled={files.length === 0 || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? status || "Building…" : `Create PDF${files.length ? ` (${files.length} pages)` : ""}`}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

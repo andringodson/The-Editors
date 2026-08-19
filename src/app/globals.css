@@ -1,124 +1,599 @@
 @import "tailwindcss";
 
 /*
- * Windows 95 design language.
+ * Textmode grid.
  *
- * The palette and bevel geometry are the genuine article — #c0c0c0 face, white
- * highlight, #808080 shadow, black dark-shadow, navy title bars, teal desktop.
+ * The visual language is a strict modular grid drawn in 1px hairlines, laid
+ * over the violet OLED field: monospace throughout, uppercase micro-labels in
+ * the corner of every panel, and rectangles butted against one another so the
+ * rules between them are shared rather than doubled.
  *
- * What is deliberately NOT authentic:
- *
- *   - Base font is 15px, not 13px. Period-accurate type is below the modern
- *     legibility floor and this is a tool people use on phones.
- *   - Text stays selectable. Real Win95 chrome was unselectable; here people
- *     need to copy dimensions and file sizes out of the UI.
- *   - Focus rings are visible and modern. The 90s dotted outline is nearly
- *     invisible against a grey face.
- *   - Hit targets grow to 44px on touch. Authentic 16px buttons are unusable
- *     with a thumb.
- *
- * Accuracy is the goal right up to the point where it costs someone the task
- * they came to do.
+ * The layout is fluid rather than stepped. There is no width at which the page
+ * "switches" to a different design — type, spacing and columns all interpolate,
+ * so there is no in-between size where it looks broken. Breakpoints appear only
+ * for user preferences, which ask about the person rather than the screen.
  */
+
+/* ---------------------------------------------------------------------------
+   Palette
+
+   True #000000 underneath rather than a near-black: OLED panels switch those
+   pixels off entirely, which is both the deeper look and measurably less
+   battery. Everything above it is translucent violet so the drifting backdrop
+   reads through the grid.
+   --------------------------------------------------------------------------- */
 
 :root {
-  /* Chrome — straight from the era. */
-  --face: #c0c0c0;
-  --face-light: #dfdfdf;
-  --hi: #ffffff;
-  --sh: #808080;
-  --dksh: #000000;
-  --title: #3b1d8f;
-  --title2: #8b5cf6;
-  /* True black, not near-black: on OLED these pixels switch off entirely, which
-     is both the deeper look and measurably less battery. */
-  --desktop: #000000;
+  --bg: #000000;
 
-  /* Semantic mapping onto the chrome palette. */
-  --background: var(--desktop);
-  --surface: var(--face);
-  --surface-raised: var(--face-light);
-  --foreground: #000000;
-  /* #4a4a4a on #c0c0c0 clears 4.5:1; the authentic #808080 does not. */
-  --muted: #4a4a4a;
-  --border: var(--sh);
-  --border-strong: var(--dksh);
-  --accent: var(--title);
-  --accent-foreground: #ffffff;
-  --accent-subtle: #b8c4e0;
-  --success: #006000;
-  --danger: #a80000;
+  /* Panel fills. Translucent, so the backdrop shows through and a panel on a
+     panel reads as depth rather than as a flat block. */
+  --panel: rgba(20, 10, 42, 0.72);
+  --panel-raised: rgba(38, 20, 74, 0.72);
+  --panel-sunk: rgba(6, 2, 16, 0.66);
 
-  /* Square corners. Rounding a Win95 window is the one thing that reads wrong. */
+  --fg: #ece9f7;
+  /* Chosen to clear 4.5:1 against the *darkest* band of the backdrop, not the
+     lightest — the gradient moves, and contrast must hold at its worst. */
+  --muted: #b9b1d6;
+
+  /* The hairline. One weight for the grid, one for anything that needs to
+     assert itself over the grid. */
+  --line: rgba(167, 139, 250, 0.24);
+  --line-strong: rgba(167, 139, 250, 0.55);
+
+  --accent: #a78bfa;
+  --accent-ink: #12071f;
+  --accent-dim: rgba(167, 139, 250, 0.14);
+
+  --success: #7ee7a5;
+  --danger: #ff8f8f;
+
+  /* Square corners throughout. A rounded rectangle breaks the grid — the whole
+     device is rules meeting at right angles. */
   --radius: 0px;
-}
 
-/*
- * "Night" skin. Win95 had no dark mode, so this is an invented dark console
- * rather than a period artefact — but the app already supported a dark theme
- * and silently dropping it would regress anyone who relies on it.
- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --face: #3a3a3a;
-    --face-light: #4a4a4a;
-    --hi: #6e6e6e;
-    --sh: #1c1c1c;
-    --dksh: #000000;
-    --title: #2a1065;
-    --title2: #7c3aed;
-    --desktop: #000000;
+  /* ---------------------------------------------------------------------
+     Fluid type scale.
 
-    --background: var(--desktop);
-    --surface: var(--face);
-    --surface-raised: var(--face-light);
-    --foreground: #f0f0f0;
-    --muted: #c2c2c2;
-    --border: var(--sh);
-    --border-strong: #000000;
-    --accent: #3a6ea5;
-    --accent-foreground: #ffffff;
-    --accent-subtle: #2a3b52;
-    --success: #4ade80;
-    --danger: #ff6b6b;
-  }
+     Each step interpolates between a narrow-viewport size and a wide one, so
+     nothing jumps at a breakpoint. Every preferred value mixes a rem term with
+     the vw term: a pure-vw size ignores browser zoom and the reader's font-size
+     setting, which fails WCAG 1.4.4.
+     --------------------------------------------------------------------- */
+  --step--2: clamp(0.6875rem, 0.67rem + 0.09vw, 0.75rem);
+  --step--1: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --step-0: clamp(0.9375rem, 0.92rem + 0.08vw, 1rem);
+  --step-1: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --step-2: clamp(1.25rem, 1.09rem + 0.8vw, 1.75rem);
+  --step-3: clamp(1.5rem, 1.15rem + 1.75vw, 2.5rem);
+  --step-4: clamp(2rem, 1.13rem + 4.35vw, 4rem);
+
+  /* Fluid spacing, on the same principle. Applied through `gap` on grid and
+     flex parents rather than per-child margins, so there are no first- or
+     last-child exceptions to maintain. */
+  --space-3xs: clamp(0.25rem, 0.24rem + 0.05vw, 0.3125rem);
+  --space-2xs: clamp(0.5rem, 0.46rem + 0.2vw, 0.6875rem);
+  --space-xs: clamp(0.75rem, 0.68rem + 0.35vw, 1rem);
+  --space-s: clamp(1rem, 0.89rem + 0.54vw, 1.375rem);
+  --space-m: clamp(1.5rem, 1.28rem + 1.09vw, 2.25rem);
+  --space-l: clamp(2.25rem, 1.81rem + 2.17vw, 3.75rem);
+  --space-xl: clamp(3.5rem, 2.63rem + 4.35vw, 6.5rem);
+
+  /* Uppercase micro-label tracking. Letter-spacing has to grow as size shrinks,
+     or small caps set solid. */
+  --track-label: 0.14em;
+  --track-head: 0.02em;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-raised: var(--surface-raised);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-panel-sunk: var(--panel-sunk);
+  --color-foreground: var(--fg);
   --color-muted: var(--muted);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-dim: var(--accent-dim);
   --color-success: var(--success);
   --color-danger: var(--danger);
-  --color-face: var(--face);
-  --color-title: var(--title);
-  --color-title2: var(--title2);
-  --font-sans: var(--font-ui);
+  --font-sans: var(--font-mono-ui);
+  --font-mono: var(--font-mono-ui);
   --font-display: var(--font-pixel);
-  --font-mono: var(--font-terminal);
   --radius-base: var(--radius);
 }
 
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
 html {
-  background: var(--desktop);
+  background: var(--bg);
+  /* Belt and braces against a stray wide child: nothing may scroll the page
+     sideways, at any width. */
+  overflow-x: hidden;
 }
 
 body {
-  /* Transparent, not black: an opaque body would paint over the fixed
-     .fluid-bg layer sitting at z-index -1. The base colour lives on html. */
+  /* Transparent, not black: an opaque body would paint over the fixed .fluid-bg
+     layer sitting at z-index -1. The base colour lives on html. */
   background: transparent;
-  color: var(--foreground);
-  font-family: var(--font-ui), Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
-  /* 15px: the smallest size that stays legible on a phone. */
-  font-size: 15px;
-  line-height: 1.5;
+  color: var(--fg);
+  font-family:
+    var(--font-mono-ui), ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  /* Monospace digits are already tabular; this also holds columns steady in any
+     fallback face. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Long tokens — file names, byte counts, URLs — break rather than push the
+   layout wider than the screen. */
+body,
+input,
+select,
+textarea,
+button {
+  overflow-wrap: break-word;
+}
+
+/* Prose keeps a readable measure however wide the viewport gets. Monospace runs
+   wider per character than a proportional face, so the measure is tighter than
+   the usual 65ch. */
+.prose {
+  max-inline-size: 62ch;
+}
+
+img,
+video,
+canvas,
+iframe {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Headings
+
+   Uppercase and letter-spaced, the way the grid wants them. The display face is
+   pixel type, characterful at headline size and punishing below it — so it is
+   confined to h1 and an opt-in headline class.
+   --------------------------------------------------------------------------- */
+
+h1,
+.headline {
+  font-family: var(--font-pixel), var(--font-mono-ui), monospace;
+  font-size: var(--step-4);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: var(--track-head);
+  text-transform: uppercase;
+  /*
+   * Ligatures OFF, and not for taste: Pixelify Sans renders the "fi" ligature
+   * as a glyph that reads as a capital A at display size, so "files" came out
+   * as "Ales" in the headline. Pixel faces have too few pixels to distinguish
+   * a ligature from a different letter.
+   */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0;
+}
+
+.headline-sm {
+  font-size: var(--step-3);
+}
+
+h2 {
+  font-size: var(--step-2);
+  font-weight: 500;
+  letter-spacing: var(--track-head);
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: var(--step-1);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   Micro-type
+
+   The corner labels that make the grid read as an instrument panel rather than
+   a set of boxes: what this panel is on the left, what it is made of on the
+   right.
+   --------------------------------------------------------------------------- */
+
+.label {
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.label-tight {
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* The section eyebrow — "TOOLS / SEVEN AVAILABLE" above a headline. */
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3xs) var(--space-s);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--muted);
+  padding-block-end: var(--space-2xs);
+  border-block-end: 1px solid var(--line);
+  margin-block-end: var(--space-s);
+}
+
+.eyebrow .sep {
+  color: var(--accent);
+}
+
+/* The index in a cell corner: 01, 02, 03. */
+.cell-index {
+  font-size: var(--step--1);
+  letter-spacing: var(--track-label);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Panels and the hairline grid
+
+   `.cells` is the core device. Rather than giving each child a border — which
+   doubles up where two children meet, producing 2px rules — the grid's own
+   background shows through a 1px gap. Every rule is exactly one pixel, however
+   the tracks happen to wrap.
+   --------------------------------------------------------------------------- */
+
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.panel-sunk {
+  border: 1px solid var(--line);
+  background: var(--panel-sunk);
+}
+
+/* Panel header: identity on the left, specification on the right. Wraps to two
+   lines on a narrow panel rather than truncating either. */
+.panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3xs) var(--space-s);
+  padding: var(--space-2xs) var(--space-xs);
+  border-block-end: 1px solid var(--line);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--muted);
+}
+
+.panel-body {
+  padding: var(--space-s) var(--space-xs);
+}
+
+/*
+ * Intrinsic grid. `auto-fit` collapses empty tracks so a short row stretches to
+ * fill the width; the inner `min(100%, …)` is the overflow guard, without which
+ * a bare minmax overflows any container narrower than the track minimum.
+ *
+ * No media queries: the column count falls out of the width available.
+ */
+.cells {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--cell-min, 17rem)), 1fr)
+  );
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.cells > * {
+  background: var(--panel);
+  /* Grid children default to a min-content floor; without this a long unbroken
+     token blows the track out past the viewport. */
+  min-inline-size: 0;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-s) var(--space-xs);
+  color: inherit;
+  text-decoration: none;
+  transition: background 140ms linear;
+}
+
+a.cell:hover,
+a.cell:focus-visible {
+  background: var(--panel-raised);
+}
+
+/* Unavailable cells are recessed, never faded: opacity drags the muted text
+   below 4.5:1 wherever it is applied, and that is the exact threshold the
+   colour was picked to clear. */
+.cells > .cell-muted {
+  background: var(--panel-sunk);
+}
+
+/* A stack of hairline-separated rows — same shared-rule trick, one dimension. */
+.rows {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.rows > * {
+  background: var(--panel);
+  min-inline-size: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+   --------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  /* 44px floor: this is used on phones, with thumbs. */
+  min-height: 44px;
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 140ms linear,
+    color 140ms linear,
+    border-color 140ms linear;
+}
+
+.btn:hover:not(:disabled),
+.btn:focus-visible:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-primary:focus-visible:not(:disabled) {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--accent-ink);
+}
+
+/* Disabled has to reset the fill as well as the text, or a disabled primary
+   keeps its accent background and lands muted violet on violet — a contrast
+   failure that only appears in the one state nobody screenshots. */
+.btn:disabled,
+.btn-primary:disabled {
+  background: var(--panel-sunk);
+  color: var(--muted);
+  border-color: var(--line);
+  font-weight: 400;
+  cursor: not-allowed;
+}
+
+.btn-block {
+  display: flex;
+  inline-size: 100%;
+}
+
+/* Native controls, dressed into the grid. */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="search"],
+select,
+textarea {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-height: 44px;
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel-sunk);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--step-0);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+}
+
+/* The native option list renders in the OS palette, not the page's, so it needs
+   colours of its own or it inherits dark-on-dark and cannot be read when open. */
+select option {
+  background: #14082a;
+  color: var(--fg);
+}
+
+input[type="range"] {
+  inline-size: 100%;
+  accent-color: var(--accent);
+  min-height: 44px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+/* Obvious, modern focus. Keyboard users are not a stylistic flourish. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+/* Anything that cannot be made to fit — a wide table, a long code line —
+   scrolls inside its own box. The page never does. */
+.scroll-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    inline-size: 12px;
+    block-size: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--panel-sunk);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Site frame
+   --------------------------------------------------------------------------- */
+
+/* A fluid gutter that never lets content touch the screen edge, while the
+   hairlines still run the full width. */
+.bleed {
+  inline-size: 100%;
+  padding-inline: var(--space-xs);
+}
+
+.shell {
+  inline-size: 100%;
+  max-inline-size: 90rem;
+  margin-inline: auto;
+}
+
+/* A working measure for the tool pages. The landing grid wants the full width
+   — more cells per row is strictly better there — but a form of three fields
+   stretched across 1400px is a worse form, however well it fills the grid. */
+.shell-narrow {
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+}
+
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-block-end: 1px solid var(--line);
+  background: rgba(4, 1, 12, 0.86);
+  backdrop-filter: blur(10px);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(0.75rem, 0.2rem + 2.2vw, 2.5rem);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  color: var(--accent);
+}
+
+/* The status rail along the foot of the screen. On the reference this is a
+   section index down the right edge on wide screens and a prev/next bar on
+   narrow ones; here there is one page per tool rather than ten sections, so it
+   stays a single bar and carries the state that matters instead. */
+.rail {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2xs);
+  padding: var(--space-3xs) var(--space-xs);
+  /* Clear of the iOS home indicator and the Android gesture bar. */
+  padding-block-end: max(var(--space-3xs), env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--line);
+  background: rgba(4, 1, 12, 0.86);
+  backdrop-filter: blur(10px);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  color: var(--muted);
+}
+
+.rail a {
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.rail a:hover {
+  color: var(--accent);
 }
 
 /* ---------------------------------------------------------------------------
@@ -127,7 +602,7 @@ body {
    Violet light pooling on OLED black. Three layers: a glow that trails the
    pointer, two blobs drifting on long loops, and true black underneath.
 
-   Everything animates transform and opacity only, so it stays on the GPU's
+   Everything animates transform and opacity only, so it stays on the GPU
    compositor thread and never triggers layout or paint. That matters more here
    than on a normal site: the main thread is busy encoding images.
    --------------------------------------------------------------------------- */
@@ -150,12 +625,12 @@ body {
   background:
     radial-gradient(
       50vmax 50vmax at var(--mx, 50%) var(--my, 30%),
-      rgba(139, 92, 246, 0.45),
+      rgba(139, 92, 246, 0.4),
       rgba(139, 92, 246, 0) 62%
     ),
     radial-gradient(
       32vmax 32vmax at var(--mx, 50%) var(--my, 30%),
-      rgba(217, 70, 239, 0.24),
+      rgba(217, 70, 239, 0.2),
       rgba(217, 70, 239, 0) 55%
     );
 }
@@ -169,17 +644,17 @@ body {
   background:
     radial-gradient(
       40vmax 32vmax at 18% 80%,
-      rgba(109, 40, 217, 0.50),
+      rgba(109, 40, 217, 0.45),
       rgba(109, 40, 217, 0) 60%
     ),
     radial-gradient(
       34vmax 36vmax at 85% 15%,
-      rgba(124, 58, 237, 0.42),
+      rgba(124, 58, 237, 0.38),
       rgba(124, 58, 237, 0) 58%
     ),
     radial-gradient(
       28vmax 28vmax at 68% 92%,
-      rgba(192, 38, 211, 0.30),
+      rgba(192, 38, 211, 0.26),
       rgba(192, 38, 211, 0) 55%
     );
   animation: drift 42s ease-in-out infinite alternate;
@@ -198,421 +673,28 @@ body {
   }
 }
 
-/*
- * Page titles carry the era's voice; everything below them stays in Inter.
- * Pixel type is characterful at 30px and punishing at 15px, so it is confined
- * to h1 rather than let loose on the hierarchy.
- */
-h1 {
-  font-family: var(--font-pixel), var(--font-ui), sans-serif;
-  /* tracking-tight fights a pixel face — the glyphs already sit close. */
-  letter-spacing: 0;
-  font-weight: 700;
-  /*
-   * Ligatures OFF, and not for taste: Pixelify Sans renders the "fi" ligature
-   * as a glyph that reads as a capital A at display size, so "files" came out
-   * as "Ales" in the headline. Pixel faces have too few pixels to distinguish
-   * a ligature from a different letter.
-   */
-  font-variant-ligatures: none;
-  font-feature-settings: "liga" 0, "clig" 0;
+/* A faint dot matrix, so the empty parts of the grid read as textmode rather
+   than as merely empty. Pure CSS — this site's real work is canvas and WASM
+   image encoding, and a decorative layer must never compete for that budget. */
+.matrix {
+  position: relative;
+  isolation: isolate;
 }
 
-/* ---------------------------------------------------------------------------
-   Bevels — the whole visual language in four box-shadows.
-   Two rings: the outer pair are highlight/dark-shadow, the inner pair are the
-   softer light/shadow greys. Reversing them inverts the depth.
-   --------------------------------------------------------------------------- */
-
-.bevel-out {
-  box-shadow:
-    inset -1px -1px 0 0 var(--dksh),
-    inset 1px 1px 0 0 var(--hi),
-    inset -2px -2px 0 0 var(--sh),
-    inset 2px 2px 0 0 var(--face-light);
+.matrix::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(167, 139, 250, 0.18) 1px,
+    transparent 0
+  );
+  background-size: 0.75rem 0.75rem;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 88%);
 }
-
-.bevel-in {
-  box-shadow:
-    inset -1px -1px 0 0 var(--hi),
-    inset 1px 1px 0 0 var(--dksh),
-    inset -2px -2px 0 0 var(--face-light),
-    inset 2px 2px 0 0 var(--sh);
-}
-
-/* Shallow inset for text fields and list wells. */
-.bevel-field {
-  box-shadow:
-    inset -1px -1px 0 0 var(--hi),
-    inset 1px 1px 0 0 var(--sh);
-  background: var(--hi);
-}
-
-@media (prefers-color-scheme: dark) {
-  .bevel-field {
-    background: #262626;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   Window chrome
-   --------------------------------------------------------------------------- */
-
-.win {
-  background: var(--face);
-  padding: 3px;
-}
-
-.win-title {
-  background: linear-gradient(90deg, var(--title), var(--title2));
-  color: #ffffff;
-  font-weight: 700;
-  padding: 3px 4px 3px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  /* The one place suppressing selection is right — it is chrome, not content. */
-  user-select: none;
-}
-
-/* Fake window controls. Decorative only, hidden from assistive tech. */
-.win-controls {
-  display: flex;
-  gap: 2px;
-}
-
-.win-control {
-  width: 18px;
-  height: 16px;
-  background: var(--face);
-  display: grid;
-  place-items: center;
-  font-size: 10px;
-  line-height: 1;
-  font-weight: 700;
-  color: #000;
-}
-
-/* ---------------------------------------------------------------------------
-   Controls
-   --------------------------------------------------------------------------- */
-
-.btn-95 {
-  background: var(--face);
-  color: var(--foreground);
-  padding: 6px 14px;
-  font-weight: 400;
-  /* Touch-friendly, which the originals emphatically were not. */
-  min-height: 44px;
-}
-
-.btn-95:active:not(:disabled) {
-  /* Content shifts a pixel down-right, exactly as it did. */
-  padding: 7px 13px 5px 15px;
-}
-
-.btn-95:disabled {
-  color: var(--sh);
-  text-shadow: 1px 1px 0 var(--hi);
-  cursor: not-allowed;
-}
-
-@media (prefers-color-scheme: dark) {
-  .btn-95:disabled {
-    text-shadow: none;
-    color: #7a7a7a;
-  }
-}
-
-/*
- * Focus: modern and obvious. The period-correct 1px dotted outline all but
- * disappears on a grey face, and keyboard users are not a retro flourish.
- */
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--title2);
-  outline-offset: 2px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline-color: #6cb6ff;
-  }
-}
-
-/* Native controls, dressed down to match. */
-input[type="text"],
-input[type="number"],
-input[type="email"],
-select,
-textarea {
-  background: var(--hi);
-  color: #000;
-  border: none;
-  padding: 7px 8px;
-  font-family: inherit;
-  font-size: inherit;
-  min-height: 44px;
-}
-
-@media (prefers-color-scheme: dark) {
-  input[type="text"],
-  input[type="number"],
-  input[type="email"],
-  select,
-  textarea {
-    background: #262626;
-    color: var(--foreground);
-  }
-}
-
-input[type="range"] {
-  accent-color: var(--title);
-  min-height: 44px;
-}
-
-input[type="checkbox"],
-input[type="radio"] {
-  accent-color: var(--title);
-  width: 18px;
-  height: 18px;
-}
-
-::selection {
-  background: var(--title);
-  color: #ffffff;
-}
-
-/* Chunky period scrollbars, without breaking anything that lacks support. */
-@supports selector(::-webkit-scrollbar) {
-  ::-webkit-scrollbar {
-    width: 16px;
-    height: 16px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--face-light);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--face);
-    box-shadow:
-      inset -1px -1px 0 0 var(--dksh),
-      inset 1px 1px 0 0 var(--hi),
-      inset -2px -2px 0 0 var(--sh),
-      inset 2px 2px 0 0 var(--face-light);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   Violet surface
-
-   Used by the landing page so the window's *contents* echo the desktop behind
-   it, while the grey chrome stays the frame. The metaphor still holds: a
-   period OS window, running a modern app.
-
-   Bevels here are rebuilt from violet and black rather than reusing
-   .bevel-out — the grey highlight/shadow pair is invisible against a dark
-   field, so the same geometry needs different pigment.
-   --------------------------------------------------------------------------- */
-
-.surface-violet {
-  background:
-    radial-gradient(
-      70% 55% at 50% 0%,
-      rgba(124, 58, 237, 0.22),
-      rgba(124, 58, 237, 0) 70%
-    ),
-    linear-gradient(180deg, #150a2e 0%, #0a0518 60%, #050110 100%);
-  color: #ece9f7;
-}
-
-/* Secondary text on the violet field. Lightened until it clears 4.5:1 against
-   the darkest band of the gradient, not just the lightest. */
-.surface-violet .text-muted {
-  color: #b9b1d6;
-}
-
-.card-violet {
-  background: rgba(255, 255, 255, 0.045);
-  box-shadow:
-    inset -1px -1px 0 0 rgba(0, 0, 0, 0.7),
-    inset 1px 1px 0 0 rgba(167, 139, 250, 0.38),
-    inset -2px -2px 0 0 rgba(0, 0, 0, 0.45),
-    inset 2px 2px 0 0 rgba(167, 139, 250, 0.14);
-  transition: background-color 140ms ease;
-}
-
-.card-violet:hover {
-  background: rgba(167, 139, 250, 0.12);
-}
-
-/* Recessed variant for tools that are not available yet. Inset rather than
-   faded — dimming with opacity drags the text below contrast. */
-.card-violet-inset {
-  background: rgba(0, 0, 0, 0.28);
-  box-shadow:
-    inset 1px 1px 0 0 rgba(0, 0, 0, 0.7),
-    inset -1px -1px 0 0 rgba(167, 139, 250, 0.20);
-}
-
-.btn-violet {
-  background: linear-gradient(180deg, #7c3aed, #5b21b6);
-  color: #ffffff;
-  box-shadow:
-    inset -1px -1px 0 0 rgba(0, 0, 0, 0.75),
-    inset 1px 1px 0 0 rgba(196, 181, 253, 0.65);
-  min-height: 44px;
-}
-
-.btn-violet:active {
-  box-shadow:
-    inset 1px 1px 0 0 rgba(0, 0, 0, 0.75),
-    inset -1px -1px 0 0 rgba(196, 181, 253, 0.45);
-}
-
-.btn-violet-ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ece9f7;
-  box-shadow:
-    inset -1px -1px 0 0 rgba(0, 0, 0, 0.7),
-    inset 1px 1px 0 0 rgba(167, 139, 250, 0.4);
-  min-height: 44px;
-}
-
-.btn-violet-ghost:hover {
-  background: rgba(167, 139, 250, 0.16);
-}
-
-/* The pixel headline gets a soft violet bloom so it reads as lit by the
-   backdrop rather than pasted on top of it. */
-.headline-glow {
-  color: #ffffff;
-  text-shadow:
-    0 0 24px rgba(139, 92, 246, 0.55),
-    0 0 60px rgba(139, 92, 246, 0.28);
-}
-
-/* ---------------------------------------------------------------------------
-   Violet surface — scoped control overrides
-
-   Once .surface-violet moved onto <main>, every tool page sits on the dark
-   field too. The Win95 controls were pigmented for a grey face, so each one
-   needs a dark counterpart: white highlights vanish on dark, and the grey-face
-   greens and reds fall below contrast.
-
-   Specificity is handled with compound selectors rather than !important —
-   `.surface-violet .bg-surface` (0,2,0) beats Tailwind's `.bg-surface` (0,1,0)
-   without starting an escalation war.
-   --------------------------------------------------------------------------- */
-
-.surface-violet .bg-surface,
-.surface-violet .bg-surface-raised {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Raised panels and buttons */
-.surface-violet .bevel-out {
-  box-shadow:
-    inset -1px -1px 0 0 rgba(0, 0, 0, 0.75),
-    inset 1px 1px 0 0 rgba(167, 139, 250, 0.38),
-    inset -2px -2px 0 0 rgba(0, 0, 0, 0.45),
-    inset 2px 2px 0 0 rgba(167, 139, 250, 0.12);
-}
-
-/* Recessed wells */
-.surface-violet .bevel-in {
-  box-shadow:
-    inset 1px 1px 0 0 rgba(0, 0, 0, 0.8),
-    inset -1px -1px 0 0 rgba(167, 139, 250, 0.28);
-}
-
-/* Text fields and the FileDrop well */
-.surface-violet .bevel-field {
-  background: rgba(0, 0, 0, 0.42);
-  box-shadow:
-    inset 1px 1px 0 0 rgba(0, 0, 0, 0.85),
-    inset -1px -1px 0 0 rgba(167, 139, 250, 0.3);
-}
-
-.surface-violet input[type="text"],
-.surface-violet input[type="number"],
-.surface-violet input[type="email"],
-.surface-violet select,
-.surface-violet textarea {
-  background: rgba(0, 0, 0, 0.42);
-  color: #ece9f7;
-}
-
-/* The native dropdown list renders in the OS palette, so its options need a
-   colour that is legible there rather than inheriting the dark field. */
-.surface-violet select option {
-  background: #1a1030;
-  color: #ece9f7;
-}
-
-.surface-violet input[type="range"],
-.surface-violet input[type="checkbox"],
-.surface-violet input[type="radio"] {
-  accent-color: #8b5cf6;
-}
-
-/* Buttons */
-.surface-violet .btn-95 {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ece9f7;
-}
-
-.surface-violet .btn-95:hover:not(:disabled) {
-  background: rgba(167, 139, 250, 0.16);
-}
-
-.surface-violet .btn-95:disabled {
-  color: #8f86ab;
-  text-shadow: none;
-}
-
-/* The primary action on each tool reads as violet rather than another grey
-   slab, so the main affordance is findable at a glance. */
-.surface-violet .btn-95.font-bold:not(:disabled) {
-  background: linear-gradient(180deg, #7c3aed, #5b21b6);
-  color: #ffffff;
-}
-
-.surface-violet .btn-95.font-bold:not(:disabled):hover {
-  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
-}
-
-/* Status colours: the grey-face green and red are far too dark on this field. */
-.surface-violet .text-danger {
-  color: #ff8f8f;
-}
-
-.surface-violet .text-success {
-  color: #7ee7a5;
-}
-
-/* FileDrop's dashed guide */
-.surface-violet .outline-border {
-  outline-color: rgba(167, 139, 250, 0.4);
-}
-
-.surface-violet .outline-accent {
-  outline-color: #a78bfa;
-}
-
-.surface-violet .bg-accent-subtle {
-  background-color: rgba(167, 139, 250, 0.16);
-}
-
 
 /* ---------------------------------------------------------------------------
    Type-on
@@ -666,9 +748,9 @@ input[type="radio"] {
 /* The travelling caret: each character carries its own, lit for exactly the gap
    until the next character arrives — `--caret-lit`, stamped inline alongside
    the delay. Sizing each window to its own gap rather than to a fixed duration
-   is what makes the caret continuous: it holds through the beat at the end of
-   a word instead of going dark in it, and consecutive windows butt up against
-   one another so what reads on screen is one block moving along the line.
+   is what makes the caret continuous: it holds through the beat at the end of a
+   word instead of going dark in it, and consecutive windows butt up against one
+   another so what reads on screen is one block moving along the line.
 
    `animation-delay: inherit` takes the delay from the character it belongs to,
    so the caret and the letter it precedes can never drift apart. */
@@ -680,7 +762,7 @@ input[type="radio"] {
   top: 0.14em;
   bottom: 0.16em;
   width: var(--caret-w);
-  background: #a78bfa;
+  background: var(--accent);
   box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
   opacity: 0;
   animation: type-caret-lit var(--caret-lit, 20ms) linear;
@@ -707,7 +789,7 @@ input[type="radio"] {
   height: 0.72em;
   margin-left: 0.08em;
   margin-right: calc(-0.08em - var(--caret-w));
-  background: #a78bfa;
+  background: var(--accent);
   box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
   opacity: 0;
 }
@@ -751,7 +833,20 @@ input[type="radio"] {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   User preferences — the one category of media query that is always right,
+   because it asks about the person rather than the screen.
+   --------------------------------------------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   /* The blanket rule above collapses durations but leaves delays intact, which
      would strobe the carets. Switch the effect off outright: the base styles
      are the finished state, so the hero just renders. */
@@ -763,5 +858,13 @@ input[type="radio"] {
   .type-char::after,
   .type-caret {
     display: none;
+  }
+}
+
+/* Hover styling on a touch screen sticks after a tap, so it is withheld from
+   devices that cannot truly hover. */
+@media (hover: none) {
+  a.cell:hover {
+    background: var(--panel);
   }
 }

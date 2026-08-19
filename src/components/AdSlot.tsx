@@ -46,7 +46,7 @@ export default function AdSlot({ name, className = "", label }: AdSlotProps) {
     if (process.env.NODE_ENV === "development") {
       return (
         <div
-          className={`flex min-h-[100px] items-center justify-center rounded-[var(--radius-base)] border border-dashed border-border text-xs text-muted ${className}`}
+          className={`flex min-h-[100px] items-center justify-center rounded-[var(--radius-base)] border border-dashed border-line text-xs text-muted ${className}`}
         >
           Ad slot: {name} (unconfigured)
         </div>

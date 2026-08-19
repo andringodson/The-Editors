@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-55 tests drive headless Chromium against a production build: functional,
+62 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -199,11 +199,59 @@ Adding a tool means adding an entry to `src/lib/tools.ts` and a page under
 
 ## Design
 
-A Windows 95 interface language, adapted from
-[robbyyeager.com](https://robbyyeager.com/), floating on a modern fluid
-backdrop. The chrome is the genuine article — `#c0c0c0` face, white highlight,
-`#808080` shadow, black dark-shadow — and the whole look is four `box-shadow`
-rings (`.bevel-out`, `.bevel-in`, `.bevel-field`) rather than images.
+A textmode grid, adapted from
+[extension.textmode.art](https://extension.textmode.art/), floating on the
+violet OLED field: a strict modular layout drawn in 1px hairlines, monospace
+throughout, uppercase micro-labels in the corner of every panel.
+
+Everything lives in `src/app/globals.css`. No component holds a hard-coded
+colour or size.
+
+### The layout is fluid, not stepped
+
+This is the part that matters, and the part a screenshot cannot show. There is
+no width at which the page switches to a different design — type, spacing and
+column counts all interpolate.
+
+| Device | How |
+|---|---|
+| Type | Seven `clamp()` steps, `--step--2` through `--step-4` |
+| Spacing | Seven `clamp()` steps, applied through `gap`, never per-child margins |
+| Columns | `repeat(auto-fit, minmax(min(100%, 17rem), 1fr))` — the count falls out of the width |
+| Overflow guard | The inner `min(100%, …)`, without which a bare `minmax` overflows any container narrower than the track |
+
+The whole stylesheet contains **two** media queries, and neither is a width:
+`prefers-reduced-motion` and `hover: none`. Both ask about the person rather
+than the screen, which is the only question a media query answers well.
+
+Every fluid step mixes a `rem` term with the `vw` term. A pure-`vw` size ignores
+browser zoom and the reader's font-size setting, which fails WCAG 1.4.4 — the
+kind of bug that never surfaces until someone who needs larger text arrives.
+
+`e2e/responsive.spec.ts` sweeps 320px to 1600px in 40px increments rather than
+spot-checking three device presets, because a broken in-between width is exactly
+what a preset-based check steps over. It asserts no horizontal overflow on any
+page, that the headline never shrinks as the viewport grows, and that no single
+40px step changes it by more than 3px — that last one is what fails if a
+media-query font size is ever reintroduced.
+
+### The hairline grid
+
+`.cells` is the core device, and it does one thing worth knowing about: the
+rules between cells are **shared, not doubled**. Giving each child a border
+produces 2px rules wherever two children meet. Instead the grid's own background
+shows through a 1px gap:
+
+```css
+.cells { display: grid; gap: 1px; background: var(--line); }
+.cells > * { background: var(--panel); }
+```
+
+Every rule is exactly one pixel however the tracks wrap, which is what makes the
+grid read as drawn rather than assembled.
+
+Panels are translucent violet rather than opaque, so the drifting backdrop reads
+through them and a panel on a panel is depth instead of a flat block.
 
 ### The backdrop
 
@@ -212,7 +260,7 @@ because OLED panels switch those pixels off entirely — deeper look, less
 battery.
 
 **It is CSS gradients, not WebGL or canvas, and that is a deliberate
-constraint.** This site's real work is canvas and WASM image encoding; a shader
+constraint.** The real work here is canvas and WASM image encoding; a shader
 background would compete for the exact GPU and CPU the compressor needs, and a
 decorative layer must never make the tool slower. So the visuals are layered
 radial gradients that the compositor handles for free, and the only JavaScript
@@ -228,46 +276,36 @@ Two things to preserve if `FluidBackground.tsx` is ever edited:
 Under `prefers-reduced-motion` the pointer tracking never starts and the drift
 animation is disabled, leaving a static violet field.
 
-### The app surface
+### Type
 
-The window chrome stays period-grey, but every page's *contents* are the
-same violet field as the desktop behind it — so the frame reads as the OS and
-the page reads as the app running inside it, rather than the two ignoring each
-other.
+Two faces. JetBrains Mono carries everything — interface, body copy, labels,
+numbers — because a grid drawn in hairlines wants type that sits on the same
+grid, and a tool reporting dimensions and byte counts is better served by
+figures of equal width. It is chosen over the obvious terminal faces for one
+reason: it was drawn for long reading at small sizes, and the tool pages carry
+real instructional copy.
 
-Its bevels are rebuilt from violet and black rather than reusing `.bevel-out`:
-the grey highlight/shadow pair is invisible against a dark field, so the same
-geometry needs different pigment. Secondary text is lightened to `#b9b1d6`,
-chosen to clear 4.5:1 against the *darkest* band of the gradient rather than the
-lightest — and the unavailable card is recessed rather than faded, because
-opacity drags text below contrast wherever it is applied.
-
-The surface lives on `<main>`, so a new page inherits it automatically. Win95
-controls pigmented for a grey face get dark counterparts scoped under
-`.surface-violet` — white highlights vanish on dark, and the period green and
-red fall below contrast. Specificity is handled with compound selectors rather
-than `!important`: `.surface-violet .bg-surface` beats Tailwind's `.bg-surface`
-without starting an escalation war.
-
-Everything lives in `src/app/globals.css`. No component holds a hard-coded
-colour.
+Pixelify Sans does the display work, confined to `h1` and `.headline`.
+**Ligatures are disabled on it**, and not for taste: its `fi` ligature renders
+as a glyph that reads as a capital A, so "files" came out as "Ales" in the
+headline until it was switched off.
 
 ### The typed headline
 
-The hero headline types itself on, and `TypeOn` is a **server** component —
-the whole effect is one CSS rule plus an `animation-delay` stamped on each
-character at render. Three properties are worth keeping if it is ever
-rewritten, because the obvious client-side version loses all three:
+The hero headline types itself on, and `TypeOn` is a **server** component — the
+whole effect is one CSS rule plus an `animation-delay` stamped on each character
+at render. Three properties are worth keeping if it is ever rewritten, because
+the obvious client-side version loses all three:
 
 - **The sentence ships in the HTML.** A component that starts empty and appends
   characters serves an empty `<h1>` to crawlers, on a site whose only revenue
   channel is organic search.
 - **Characters reveal with opacity, never by growing a box.** The final layout
-  is settled from the first frame, so `text-wrap: balance` does not resettle
-  and the hero contributes no layout shift.
+  is settled from the first frame, so `text-wrap: balance` does not resettle and
+  the hero contributes no layout shift.
 - **The base state is the visible one.** The animation's `from` is the hidden
-  state, held by `backwards` fill, so if the animation never runs the headline
-  is simply there. Starting at `opacity: 0` would mean any failure hides the
+  state, held by `backwards` fill, so if the animation never runs the headline is
+  simply there. Starting at `opacity: 0` would mean any failure hides the
   headline permanently.
 
 The cadence is the part worth reading the code for. A fixed interval per
@@ -287,39 +325,33 @@ leaving it running costs nothing worth measuring.
 
 Its width is a single token, `--caret-w`, shared by all three carets — the
 travelling one and the two blinking ones — so they cannot drift apart, and the
-negative margin that cancels the caret's advance width is derived from it
-rather than written out beside it. Width only: the height stays a full `0.72em`
-so the caret spans the line the way a text cursor does, and the width is set to
-roughly the stroke width of Pixelify Sans at headline size, which is what makes
-it read as part of the type rather than a block beside it.
+negative margin that cancels the caret's advance width is derived from it rather
+than written out beside it. Width only: the height stays a full `0.72em` so the
+caret spans the line the way a text cursor does, and the width is set to roughly
+the stroke width of Pixelify Sans at headline size, which is what makes it read
+as part of the type rather than a block beside it.
 
 Characters are hidden from the accessibility tree and the `<h1>` is labelled
-with the same constant it types, since screen readers announce text split
-across spans erratically. `e2e/hero.spec.ts` asserts on the accessible name, on
-the raw HTML, and on the caret windows tiling the run with no gaps — never on
-the animation itself.
+with the same constant it types, since screen readers announce text split across
+spans erratically. `e2e/hero.spec.ts` asserts on the accessible name, on the raw
+HTML, and on the caret windows tiling the run with no gaps — never on the
+animation itself.
 
-Largest Contentful Paint is unaffected: the `<h1>` is the LCP element and
-Chrome times it from the block's paint, not from the per-character opacity, so
-it still lands at ~270ms.
+Largest Contentful Paint is unaffected: the `<h1>` is the LCP element and Chrome
+times it from the block's paint, not from the per-character opacity, so it still
+lands at ~270ms.
 
-Under `prefers-reduced-motion` the effect is switched off outright rather than
-left to the global duration collapse — that rule zeroes durations but not
-delays, which would strobe the caret.
+### Where it deliberately breaks with the reference
 
-**Where it deliberately breaks with the era**, because authenticity stops being
-a virtue the moment it costs someone the task they came for:
-
-| Authentic | Here | Why |
+| Reference | Here | Why |
 |---|---|---|
-| 13px base type | 15px | Below the modern legibility floor, and this is used on phones |
-| `user-select: none` | Selectable | People copy dimensions and file sizes out of the UI |
-| 16px buttons | 44px min | Authentic hit targets are unusable with a thumb |
-| Dotted focus outline | 2px solid ring | The 90s outline all but vanishes on a grey face |
-| `#808080` secondary text | `#4a4a4a` | The original fails 4.5:1 contrast on `#c0c0c0` |
-| No dark mode | Invented "night" skin | The app already had one; dropping it would regress users |
+| Monochrome near-black | Violet OLED field | The backdrop predates the reskin and is the product's own identity |
+| Compact hit targets | 44px minimum | Anything smaller is unusable with a thumb, and this is used on phones |
+| Ten sections of one page | One page per tool | A section index would be inventing navigation that does not exist |
+| Prose set to full width | `62ch` measure | Monospace runs wider per character; unbounded lines are unreadable |
+| Full-width working area | `64rem` on tool pages | A three-field form stretched across 1400px is a worse form, however well it fills the grid |
 
-Pixel type (Pixelify Sans) is confined to `h1` — characterful at 30px, punishing
-at 15px. **Ligatures are disabled on it**, and not for taste: its `fi` ligature
-renders as a glyph that reads as a capital A, so "files" came out as "Ales" in
-the headline until it was switched off.
+Disabled controls change colour rather than fading. Opacity drags the muted text
+below 4.5:1 wherever it is applied, and that is the exact threshold the colour
+was picked to clear — a contrast failure that appears only in the one state
+nobody screenshots.

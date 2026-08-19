@@ -125,6 +125,9 @@ test.describe("Crop", () => {
     const surface = page.getByTestId("crop-surface");
     await expect(surface).toBeVisible();
 
+    // page.mouse works in raw viewport coordinates and does no scrolling of its
+    // own, so the surface has to be on screen before the box is measured.
+    await surface.scrollIntoViewIfNeeded();
     const box = (await surface.boundingBox())!;
 
     // Drag a box across roughly the middle half of the image.

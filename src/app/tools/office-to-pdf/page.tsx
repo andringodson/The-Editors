@@ -4,6 +4,7 @@ import { useState } from "react";
 import FileDrop from "@/components/FileDrop";
 import { recordToolRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
+import ToolMeta from "@/components/ToolMeta";
 import {
   MAX_OFFICE_BYTES,
   OFFICE_ACCEPT,
@@ -89,13 +90,14 @@ export default function OfficeToPdfPage() {
 
   if (!isConverterConfigured) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16">
-        <h1 className="text-3xl font-semibold tracking-tight">Office to PDF</h1>
+      <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="office-to-pdf" />
+        <h1 className="headline-sm">Office to PDF</h1>
         <p className="mt-3 text-muted text-pretty">
           This is the one tool that cannot run in your browser — converting
           PowerPoint, Word and Excel needs LibreOffice, which means a server.
         </p>
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm text-muted">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm text-muted">
           The conversion service is not connected to this deployment yet. Every
           other tool works normally.
         </p>
@@ -104,9 +106,10 @@ export default function OfficeToPdfPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Office to PDF</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="office-to-pdf" />
+      <h1 className="headline-sm">Office to PDF</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         PowerPoint, Word and Excel into PDF. Unlike every other tool here, this
         one sends your file to a server — it is deleted as soon as the PDF is
         returned.
@@ -134,13 +137,13 @@ export default function OfficeToPdfPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? status || "Converting…" : "Convert to PDF"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

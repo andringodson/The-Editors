@@ -15,7 +15,7 @@ export default function BatchLimitNotice({
   attempted,
 }: BatchLimitNoticeProps) {
   return (
-    <p className="mt-3 bevel-out bg-surface px-4 py-3 text-sm text-muted">
+    <p className="mt-3 panel bg-panel px-4 py-3 text-sm text-muted">
       Kept the first {limit} of {attempted} files. Everything is held in memory
       at once, so past {limit} the browser tab runs out of room — run the rest as
       a second batch.

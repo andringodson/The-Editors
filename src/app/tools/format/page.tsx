@@ -5,6 +5,7 @@ import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { decodeImage, renderBitmap, type EncodeMime } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
+import ToolMeta from "@/components/ToolMeta";
 
 const FORMATS: { value: EncodeMime; label: string; lossy: boolean }[] = [
   { value: "image/jpeg", label: "JPEG", lossy: true },
@@ -67,9 +68,10 @@ export default function FormatPage() {
     output && file ? ((output.size - file.size) / file.size) * 100 : null;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Change format</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="format" />
+      <h1 className="headline-sm">Change format</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Convert between JPEG, PNG and WebP. Your browser reads AVIF and HEIC too,
         so those work as inputs even though they are not offered as outputs.
       </p>
@@ -85,7 +87,7 @@ export default function FormatPage() {
       </div>
 
       <div className="mt-6">
-        <label htmlFor="format" className="block text-sm font-medium">
+        <label htmlFor="format" className="label mb-[var(--space-3xs)] block">
           Convert to
         </label>
         <select
@@ -96,7 +98,7 @@ export default function FormatPage() {
             setFormat(event.target.value as EncodeMime);
             setOutput(null);
           }}
-          className="mt-1.5 w-full bevel-field px-3 py-2"
+          className="mt-1.5 w-full panel-sunk px-3 py-2"
         >
           {FORMATS.map((item) => (
             <option key={item.value} value={item.value}>
@@ -133,19 +135,19 @@ export default function FormatPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? "Converting…" : "Convert"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 bevel-out bg-surface p-4">
+        <section className="mt-8 panel bg-panel p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Done</h2>
             <p className="text-sm tabular-nums">
@@ -162,7 +164,7 @@ export default function FormatPage() {
           <button
             type="button"
             onClick={download}
-            className="mt-4 w-full btn-95 bevel-out"
+            className="mt-4 btn btn-block"
           >
             Download
           </button>

@@ -59,7 +59,7 @@ export default function ConsentBanner() {
       aria-label="Advertising preferences"
       data-testid="consent-banner"
       data-storage-key={CONSENT_STORAGE_KEY}
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface-raised p-4 shadow-lg"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-panel-raised p-4 shadow-lg"
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-pretty">
@@ -71,14 +71,14 @@ export default function ConsentBanner() {
           <button
             type="button"
             onClick={() => choose("basic")}
-            className="btn-95 bevel-out text-sm"
+            className="btn text-sm"
           >
             No, keep it basic
           </button>
           <button
             type="button"
             onClick={() => choose("personalised")}
-            className="btn-95 bevel-out text-sm"
+            className="btn text-sm"
           >
             Yes, that&apos;s fine
           </button>

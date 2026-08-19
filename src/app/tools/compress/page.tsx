@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
+import ToolMeta from "@/components/ToolMeta";
 import {
   compressToTarget,
   formatBytes,
@@ -96,11 +97,12 @@ export default function CompressPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="compress" />
+      <h1 className="headline-sm">
         Compress to a size
       </h1>
-      <p className="mt-2 text-muted text-pretty">
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Most compressors give you a quality slider and let you guess. Give this
         one a number and it searches for the best-looking image that fits under
         it.
@@ -129,7 +131,7 @@ export default function CompressPage() {
         <div>
           <label
             htmlFor="target"
-            className="block text-sm font-medium"
+            className="label mb-[var(--space-3xs)] block"
           >
             Target size
           </label>
@@ -141,14 +143,14 @@ export default function CompressPage() {
               value={amount}
               disabled={busy}
               onChange={(event) => setAmount(Number(event.target.value))}
-              className="w-full bevel-field px-3 py-2 tabular-nums"
+              className="w-full panel-sunk px-3 py-2 tabular-nums"
             />
             <select
               aria-label="Unit"
               value={unit}
               disabled={busy}
               onChange={(event) => setUnit(event.target.value as Unit)}
-              className="bevel-field px-3 py-2"
+              className="panel-sunk px-3 py-2"
             >
               <option value="KB">KB</option>
               <option value="MB">MB</option>
@@ -157,7 +159,7 @@ export default function CompressPage() {
         </div>
 
         <div>
-          <label htmlFor="format" className="block text-sm font-medium">
+          <label htmlFor="format" className="label mb-[var(--space-3xs)] block">
             Output format
           </label>
           <select
@@ -165,7 +167,7 @@ export default function CompressPage() {
             value={format}
             disabled={busy}
             onChange={(event) => setFormat(event.target.value as Format)}
-            className="mt-1.5 w-full bevel-field px-3 py-2"
+            className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             <option value="image/jpeg">JPEG — best for photographs</option>
             <option value="image/webp">WebP — smaller, best for flat art</option>
@@ -177,19 +179,19 @@ export default function CompressPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? `Searching… ${Math.round(progress * 100)}%` : "Compress"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {result ? (
-        <section className="mt-8 bevel-out bg-surface p-4">
+        <section className="mt-8 panel bg-panel p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="font-medium">
               {result.missedTarget ? "Closest possible" : "Done"}
@@ -238,14 +240,14 @@ export default function CompressPage() {
             <img
               src={preview}
               alt="Compressed result"
-              className="mt-5 max-h-96 w-full bevel-out object-contain"
+              className="mt-5 max-h-96 w-full panel object-contain"
             />
           ) : null}
 
           <button
             type="button"
             onClick={download}
-            className="mt-5 w-full btn-95 bevel-out"
+            className="mt-5 btn btn-block"
           >
             Download
           </button>

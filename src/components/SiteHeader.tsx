@@ -10,56 +10,60 @@ const MENU = [
 ];
 
 /**
- * Window title bar plus menu strip.
+ * Site header — wordmark, navigation, and the one primary action.
  *
- * The window controls are decoration — there is nothing to minimise — so they
- * are marked aria-hidden rather than rendered as buttons that lie to a screen
- * reader about what they do.
+ * There is no hamburger, and that is a decision rather than an omission. Four
+ * links wrap onto a second line on a narrow screen and stay visible; hiding
+ * them behind a toggle would cost a tap, cost a client component on a page that
+ * otherwise ships none, and buy nothing at this scale.
  */
 export default async function SiteHeader() {
   const user = isSupabaseConfigured ? await getCurrentUser() : null;
 
   return (
-    <header>
-      <div className="win-title">
+    <header className="site-head">
+      <div className="shell flex flex-wrap items-stretch justify-between gap-x-[var(--space-m)] gap-y-1 px-[var(--space-xs)]">
         <Link
           href="/"
-          className="font-display text-base tracking-wide text-white no-underline"
+          className="flex items-center gap-[var(--space-2xs)] py-[var(--space-2xs)] no-underline"
         >
-          The Editors
+          <span
+            aria-hidden="true"
+            className="grid size-4 shrink-0 place-items-center border border-accent text-[8px] leading-none text-accent"
+          >
+            ▚
+          </span>
+          <span className="label !tracking-[0.12em] text-foreground">
+            the-editors
+          </span>
         </Link>
 
-        <div className="win-controls" aria-hidden="true">
-          <span className="win-control bevel-out">_</span>
-          <span className="win-control bevel-out">□</span>
-          <span className="win-control bevel-out">✕</span>
-        </div>
+        <nav className="site-nav" aria-label="Tools">
+          {MENU.map((item) => (
+            <Link key={item.href} href={item.href}>
+              {item.label}
+            </Link>
+          ))}
+          {isSupabaseConfigured ? (
+            <Link href={user ? "/account" : "/login"}>
+              {user ? "Account" : "Sign in"}
+            </Link>
+          ) : null}
+        </nav>
       </div>
 
-      <nav className="flex flex-wrap items-center gap-0.5 px-1 py-1">
-        {MENU.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-          >
-            {item.label}
-          </Link>
-        ))}
-
-        <span className="flex-1" />
-
-        {isSupabaseConfigured ? (
-          <Link
-            href={user ? "/account" : "/login"}
-            className="btn-95 bevel-out px-3 text-sm"
-          >
-            {user ? "Account" : "Sign in"}
-          </Link>
-        ) : null}
-      </nav>
-
-      <div className="mx-1 h-0.5 bevel-in" />
+      {/* The specification strip: what this is on the left, what it is made of
+          on the right — the corner-metadata device applied to the whole page. */}
+      <div className="border-t border-line">
+        <div className="shell flex flex-wrap items-baseline justify-between gap-x-[var(--space-m)] gap-y-0 px-[var(--space-xs)] py-[var(--space-3xs)]">
+          <span className="label-tight">
+            Image + document tools <span className="text-accent">/</span> free
+          </span>
+          <span className="label-tight">
+            Client-side <span className="text-accent">/</span> no upload
+          </span>
+        </div>
+      </div>
     </header>
   );
 }

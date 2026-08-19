@@ -5,6 +5,7 @@ import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { decodeImage, renderBitmap, type EncodeMime } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
+import ToolMeta from "@/components/ToolMeta";
 
 /** Target width for the longest edge. */
 const TARGETS = [
@@ -87,9 +88,10 @@ export default function UpscalePage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Upscale to 4K</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="upscale" />
+      <h1 className="headline-sm">Upscale to 4K</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Resample to a larger canvas with high-quality smoothing. This enlarges
         an image — it cannot invent detail that was never captured.
       </p>
@@ -110,7 +112,7 @@ export default function UpscalePage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="target" className="block text-sm font-medium">
+          <label htmlFor="target" className="label mb-[var(--space-3xs)] block">
             Target resolution
           </label>
           <select
@@ -121,7 +123,7 @@ export default function UpscalePage() {
               setTargetId(event.target.value);
               setOutput(null);
             }}
-            className="mt-1.5 w-full bevel-field px-3 py-2"
+            className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             {TARGETS.map((item) => (
               <option key={item.id} value={item.id}>
@@ -132,7 +134,7 @@ export default function UpscalePage() {
         </div>
 
         <div>
-          <label htmlFor="format" className="block text-sm font-medium">
+          <label htmlFor="format" className="label mb-[var(--space-3xs)] block">
             Output format
           </label>
           <select
@@ -140,7 +142,7 @@ export default function UpscalePage() {
             value={format}
             disabled={busy}
             onChange={(event) => setFormat(event.target.value as EncodeMime)}
-            className="mt-1.5 w-full bevel-field px-3 py-2"
+            className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             <option value="image/jpeg">JPEG</option>
             <option value="image/png">PNG — lossless</option>
@@ -167,19 +169,19 @@ export default function UpscalePage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? "Resampling…" : "Upscale"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 bevel-out bg-surface p-4">
+        <section className="mt-8 panel bg-panel p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Done</h2>
             <p className="text-sm text-muted tabular-nums">
@@ -189,7 +191,7 @@ export default function UpscalePage() {
           <button
             type="button"
             onClick={download}
-            className="mt-4 w-full btn-95 bevel-out"
+            className="mt-4 btn btn-block"
           >
             Download
           </button>

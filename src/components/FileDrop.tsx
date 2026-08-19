@@ -68,8 +68,25 @@ export default function FileDrop({
     [onFiles, validate],
   );
 
+  /* A short specification for the panel's right-hand corner, derived from the
+     accept list rather than passed in, so it cannot contradict what the input
+     will actually take. */
+  const spec = accept.includes("pdf")
+    ? "PDF"
+    : accept.includes("image")
+      ? "JPG / PNG / WEBP"
+      : "Any file";
+
   return (
-    <div>
+    <div className="panel">
+      <div className="panel-meta">
+        <span>
+          Input <span className="text-accent">/</span>{" "}
+          {multiple ? "drop or choose files" : "drop or choose a file"}
+        </span>
+        <span>{spec}</span>
+      </div>
+
       <div
         onDragOver={(event) => {
           if (disabled) return;
@@ -84,19 +101,20 @@ export default function FileDrop({
           handleFiles(event.dataTransfer.files);
         }}
         /*
-         * A sunken well, the way a Win95 drop target would have looked. The
-         * dashed outline sits inside the bevel rather than replacing it, so the
-         * "drop here" affordance survives without breaking the chrome.
+         * The dashed guide sits inside the panel rather than replacing its
+         * border, so the "drop here" affordance reads without breaking the
+         * grid the panel belongs to.
+         *
+         * Disabled state is a colour change, never opacity: fading drags the
+         * muted text below 4.5:1, which is the exact threshold that colour was
+         * picked to clear.
          */
         className={[
-          "p-8 text-center outline-2 -outline-offset-8 outline-dashed transition-colors",
-          "bevel-in",
+          "p-[var(--space-l)] text-center outline-2 -outline-offset-8 outline-dashed transition-colors",
           disabled
-            ? "cursor-not-allowed opacity-60 outline-transparent"
-            : "cursor-pointer",
-          isDragging
-            ? "bg-accent-subtle outline-accent"
-            : "outline-border",
+            ? "cursor-not-allowed outline-transparent"
+            : "cursor-pointer hover:bg-accent-dim",
+          isDragging ? "bg-accent-dim outline-accent" : "outline-line",
         ].join(" ")}
         onClick={() => !disabled && inputRef.current?.click()}
       >
@@ -114,16 +132,24 @@ export default function FileDrop({
             event.target.value = "";
           }}
         />
-        <label htmlFor={inputId} className="block cursor-pointer font-medium">
+        <label
+          htmlFor={inputId}
+          className={[
+            "label block cursor-pointer",
+            disabled ? "" : "text-foreground",
+          ].join(" ")}
+        >
           {label}
         </label>
-        {hint ? <p className="mt-1.5 text-sm text-muted">{hint}</p> : null}
+        {hint ? (
+          <p className="label-tight mt-[var(--space-2xs)]">{hint}</p>
+        ) : null}
       </div>
 
       {rejection ? (
         <p
           role="alert"
-          className="mt-3 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger"
+          className="label border-t border-line px-[var(--space-xs)] py-[var(--space-2xs)] text-danger"
         >
           {rejection}
         </p>

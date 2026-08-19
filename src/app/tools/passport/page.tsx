@@ -5,6 +5,7 @@ import FileDrop from "@/components/FileDrop";
 import { trackRun } from "@/lib/analytics";
 import { cropBitmap, decodeImage } from "@/lib/image/canvas";
 import { compressToTarget, formatBytes } from "@/lib/image/compress";
+import ToolMeta from "@/components/ToolMeta";
 import {
   DPI_OPTIONS,
   PHOTO_PRESETS,
@@ -129,11 +130,12 @@ export default function PassportPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="passport" />
+      <h1 className="headline-sm">
         Passport &amp; stamp photos
       </h1>
-      <p className="mt-2 text-muted text-pretty">
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Exact millimetre dimensions, rendered at print resolution — and squeezed
         under the portal&apos;s upload limit when there is one.
       </p>
@@ -150,7 +152,7 @@ export default function PassportPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="preset" className="block text-sm font-medium">
+          <label htmlFor="preset" className="label mb-[var(--space-3xs)] block">
             Document type
           </label>
           <select
@@ -161,7 +163,7 @@ export default function PassportPage() {
               setPresetId(event.target.value);
               setOutput(null);
             }}
-            className="mt-1.5 w-full bevel-field px-3 py-2"
+            className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             {PHOTO_PRESETS.map((item) => (
               <option key={item.id} value={item.id}>
@@ -172,7 +174,7 @@ export default function PassportPage() {
         </div>
 
         <div>
-          <label htmlFor="dpi" className="block text-sm font-medium">
+          <label htmlFor="dpi" className="label mb-[var(--space-3xs)] block">
             Resolution
           </label>
           <select
@@ -180,7 +182,7 @@ export default function PassportPage() {
             value={dpi}
             disabled={busy}
             onChange={(event) => setDpi(Number(event.target.value) as Dpi)}
-            className="mt-1.5 w-full bevel-field px-3 py-2"
+            className="mt-1.5 w-full panel-sunk px-3 py-2"
           >
             {DPI_OPTIONS.map((option) => (
               <option key={option} value={option}>
@@ -257,19 +259,19 @@ export default function PassportPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? "Working…" : "Generate photo"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 bevel-out bg-surface p-4">
+        <section className="mt-8 panel bg-panel p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">{preset.label}</h2>
             <p className="text-sm text-muted tabular-nums">
@@ -280,12 +282,12 @@ export default function PassportPage() {
           <img
             src={output.url}
             alt={`${preset.label} result`}
-            className="mx-auto mt-4 max-h-80 rounded border border-border"
+            className="mx-auto mt-4 max-h-80 rounded border border-line"
           />
           <button
             type="button"
             onClick={download}
-            className="mt-5 w-full btn-95 bevel-out"
+            className="mt-5 btn btn-block"
           >
             Download
           </button>

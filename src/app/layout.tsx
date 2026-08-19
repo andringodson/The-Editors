@@ -1,30 +1,35 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Pixelify_Sans, VT323 } from "next/font/google";
+import { JetBrains_Mono, Pixelify_Sans } from "next/font/google";
 import Link from "next/link";
 import AdScript from "@/components/AdScript";
 import ConsentBanner from "@/components/ConsentBanner";
 import FluidBackground from "@/components/FluidBackground";
 import ServiceWorker from "@/components/ServiceWorker";
 import SiteHeader from "@/components/SiteHeader";
-import Taskbar from "@/components/Taskbar";
+import StatusRail from "@/components/StatusRail";
 import { siteName, siteTagline, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 /*
  * Type system.
  *
- * Inter carries the interface. It is not period-accurate — Tahoma is — but
- * Tahoma is unavailable on most non-Windows devices and the fallback is worse
- * than a deliberate choice. Inter at 15px is legible everywhere.
+ * Two faces, and only two. JetBrains Mono carries everything — interface, body
+ * copy, labels, numbers — because a modular grid drawn in hairlines wants type
+ * that sits on the same grid, and because a tool that reports dimensions and
+ * byte counts is better served by figures of equal width.
  *
- * Pixelify Sans and VT323 do the era's talking: display headings and terminal
- * readouts respectively. Confined to those roles, since neither is comfortable
- * for body copy.
+ * It is chosen over the obvious terminal faces for one reason: it was drawn for
+ * long reading at small sizes. The tool pages carry real instructional copy,
+ * and a bitmap face would make that copy a chore.
+ *
+ * Pixelify Sans does the display work, confined to headlines where its pixel
+ * grid is legible.
  */
 
-const ui = Inter({
-  variable: "--font-ui",
+const mono = JetBrains_Mono({
+  variable: "--font-mono-ui",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -32,13 +37,6 @@ const pixel = Pixelify_Sans({
   variable: "--font-pixel",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
-  display: "swap",
-});
-
-const terminal = VT323({
-  variable: "--font-terminal",
-  subsets: ["latin"],
-  weight: "400",
   display: "swap",
 });
 
@@ -83,39 +81,30 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${ui.variable} ${pixel.variable} ${terminal.variable} h-full antialiased`}
+      className={`${mono.variable} ${pixel.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <FluidBackground />
         <ServiceWorker />
         <AdScript />
 
-        {/* The desktop. Padding shrinks to nothing on phones, where a framed
-            window inside a viewport-sized screen wastes real estate. */}
-        {/* Generous desktop padding on larger screens so the backdrop is
-            actually visible around the window — a floating window is the whole
-            point of the metaphor. Phones get none; there the window is the
-            screen. */}
-        <div className="flex flex-1 flex-col p-0 pb-14 sm:p-6 sm:pb-20 lg:p-10 lg:pb-24">
-          <div className="win bevel-out mx-auto flex w-full max-w-5xl flex-col">
-            <SiteHeader />
-            <main className="surface-violet flex-1">{children}</main>
+        <SiteHeader />
 
-            <footer className="mt-1 flex flex-wrap items-center justify-between gap-2 px-1 py-1 text-xs">
-              <span className="bevel-in px-2 py-1 text-muted">
-                Files are processed on your device and never uploaded.
-              </span>
-              <Link
-                href="/privacy"
-                className="bevel-in px-2 py-1 text-muted underline hover:text-foreground"
-              >
-                Privacy &amp; ads
-              </Link>
-            </footer>
+        {/* Padding at the foot clears the fixed status rail. */}
+        <main className="flex-1 pb-16">{children}</main>
+
+        <footer className="bleed border-t border-line pb-16">
+          <div className="shell flex flex-wrap items-baseline justify-between gap-2 py-[var(--space-s)]">
+            <span className="label-tight">
+              Files are processed on your device and never uploaded
+            </span>
+            <Link href="/privacy" className="label-tight hover:text-accent">
+              Privacy &amp; ads →
+            </Link>
           </div>
-        </div>
+        </footer>
 
-        <Taskbar />
+        <StatusRail />
         <ConsentBanner />
       </body>
     </html>

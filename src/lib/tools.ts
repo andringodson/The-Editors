@@ -30,6 +30,9 @@ export function effectiveStatus(
   return tool.status;
 }
 
+/** The order categories are presented in, and therefore numbered in. */
+export const CATEGORY_ORDER: ToolCategory[] = ["image", "pdf", "convert"];
+
 export const CATEGORY_LABELS: Record<ToolCategory, string> = {
   image: "Images",
   pdf: "PDF",
@@ -106,7 +109,8 @@ export const TOOLS: ToolDefinition[] = [
     id: "office-to-pdf",
     slug: "office-to-pdf",
     name: "Office to PDF",
-    blurb: "PowerPoint, Word and Excel into PDF. The one job a browser can't do.",
+    blurb:
+      "PowerPoint, Word and Excel into PDF. The one job a browser can't do.",
     category: "convert",
     status: "live",
     clientSide: false,
@@ -121,4 +125,20 @@ export function toolBySlug(slug: string): ToolDefinition | undefined {
 
 export function toolsByCategory(category: ToolCategory): ToolDefinition[] {
   return TOOLS.filter((tool) => tool.category === category);
+}
+
+/**
+ * Every tool in presentation order.
+ *
+ * The landing grid and each tool page both label tools "01", "02" and so on.
+ * Deriving that from one list here means the number a tool carries on the grid
+ * is the number it carries on its own page — computing it separately in two
+ * places is how they end up disagreeing.
+ */
+export const ORDERED_TOOLS: ToolDefinition[] = CATEGORY_ORDER.flatMap(
+  (category) => TOOLS.filter((tool) => tool.category === category),
+);
+
+export function toolOrdinal(tool: ToolDefinition): string {
+  return String(ORDERED_TOOLS.indexOf(tool) + 1).padStart(2, "0");
 }

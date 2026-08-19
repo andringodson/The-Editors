@@ -24,8 +24,12 @@ export default async function AccountPage() {
     .limit(20);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Account</h1>
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <div className="eyebrow">
+        <span>Account <span className="sep">/</span> optional</span>
+        <span>Telemetry <span className="sep">/</span> no filenames</span>
+      </div>
+      <h1 className="headline-sm">Account</h1>
       <p className="mt-2 text-muted">{user.email}</p>
 
       <h2 className="mt-10 text-sm font-medium tracking-wide text-muted uppercase">
@@ -33,7 +37,7 @@ export default async function AccountPage() {
       </h2>
 
       {runs && runs.length > 0 ? (
-        <ul className="mt-4 divide-y divide-border bevel-out bg-surface">
+        <ul className="mt-4 divide-y divide-border panel bg-panel">
           {runs.map((run, index) => (
             <li
               key={index}
@@ -57,7 +61,7 @@ export default async function AccountPage() {
       <form action="/auth/signout" method="post" className="mt-10">
         <button
           type="submit"
-          className="btn-95 bevel-out text-sm hover:text-danger"
+          className="btn text-sm hover:text-danger"
         >
           Sign out
         </button>

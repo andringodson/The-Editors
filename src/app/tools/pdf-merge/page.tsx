@@ -7,6 +7,7 @@ import { trackRun } from "@/lib/analytics";
 import { formatBytes } from "@/lib/image/compress";
 import { getPageCount, mergePdfs } from "@/lib/pdf/operations";
 import { BATCH_FILE_LIMIT } from "@/lib/quotas";
+import ToolMeta from "@/components/ToolMeta";
 
 interface Entry {
   file: File;
@@ -125,9 +126,10 @@ export default function PdfMergePage() {
   const totalPages = entries.reduce((sum, entry) => sum + (entry.pages ?? 0), 0);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Merge PDFs</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="pdf-merge" />
+      <h1 className="headline-sm">Merge PDFs</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Combine any number of PDFs into one. Reorder them first — the merged
         file follows the order below.
       </p>
@@ -152,13 +154,13 @@ export default function PdfMergePage() {
             {entries.map((entry, index) => (
               <li
                 key={`${entry.file.name}-${index}`}
-                className="flex items-center gap-3 bevel-out bg-surface px-4 py-3"
+                className="flex items-center gap-3 panel bg-panel px-4 py-3"
               >
                 <span className="w-6 shrink-0 text-sm text-muted tabular-nums">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{entry.file.name}</p>
+                  <p className="label truncate">{entry.file.name}</p>
                   <p className="text-xs text-muted tabular-nums">
                     {formatBytes(entry.file.size)}
                     {entry.error
@@ -174,7 +176,7 @@ export default function PdfMergePage() {
                     aria-label="Move up"
                     disabled={busy || index === 0}
                     onClick={() => move(index, -1)}
-                    className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
+                    className="panel px-2.5 py-1.5 text-xs disabled:opacity-35"
                   >
                     ↑
                   </button>
@@ -183,7 +185,7 @@ export default function PdfMergePage() {
                     aria-label="Move down"
                     disabled={busy || index === entries.length - 1}
                     onClick={() => move(index, 1)}
-                    className="bevel-out px-2.5 py-1.5 text-xs disabled:opacity-35"
+                    className="panel px-2.5 py-1.5 text-xs disabled:opacity-35"
                   >
                     ↓
                   </button>
@@ -192,7 +194,7 @@ export default function PdfMergePage() {
                     aria-label="Remove"
                     disabled={busy}
                     onClick={() => remove(index)}
-                    className="bevel-out px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
+                    className="panel px-2.5 py-1.5 text-xs text-danger disabled:opacity-35"
                   >
                     ✕
                   </button>
@@ -211,13 +213,13 @@ export default function PdfMergePage() {
         type="button"
         onClick={run}
         disabled={entries.length < 2 || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? status || "Merging…" : "Merge and download"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}

@@ -10,6 +10,7 @@ import {
   type CropRect,
 } from "@/lib/image/canvas";
 import { formatBytes } from "@/lib/image/compress";
+import ToolMeta from "@/components/ToolMeta";
 
 const RATIOS = [
   { id: "free", label: "Free", value: null },
@@ -215,9 +216,10 @@ export default function CropPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Crop &amp; straighten</h1>
-      <p className="mt-2 text-muted text-pretty">
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <ToolMeta slug="crop" />
+      <h1 className="headline-sm">Crop &amp; straighten</h1>
+      <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
         Drag a box over the part you want to keep. Straighten a tilted scan
         first, then crop the result.
       </p>
@@ -235,7 +237,7 @@ export default function CropPage() {
       {previewUrl ? (
         <>
           <div className="mt-6 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium">Ratio</span>
+            <span className="label">Ratio</span>
             {RATIOS.map((item) => (
               <button
                 key={item.id}
@@ -249,8 +251,8 @@ export default function CropPage() {
                 className={[
                   "px-3 py-2 text-xs",
                   ratioId === item.id
-                    ? "bevel-in bg-accent-subtle font-bold"
-                    : "bevel-out",
+                    ? "panel-sunk bg-accent-dim font-bold"
+                    : "panel",
                 ].join(" ")}
               >
                 {item.label}
@@ -264,7 +266,7 @@ export default function CropPage() {
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
-            className="relative mt-4 touch-none select-none overflow-hidden bevel-out bg-surface"
+            className="relative mt-4 touch-none select-none overflow-hidden panel bg-panel"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -308,7 +310,7 @@ export default function CropPage() {
                 type="button"
                 disabled={busy || angle === 0}
                 onClick={() => void applyRotation(angle)}
-                className="bevel-out px-3 py-1.5 text-xs disabled:opacity-35"
+                className="panel px-3 py-1.5 text-xs disabled:opacity-35"
               >
                 Apply tilt
               </button>
@@ -316,7 +318,7 @@ export default function CropPage() {
                 type="button"
                 disabled={busy}
                 onClick={() => void applyRotation(90)}
-                className="bevel-out px-3 py-1.5 text-xs disabled:opacity-35"
+                className="panel px-3 py-1.5 text-xs disabled:opacity-35"
               >
                 Rotate 90°
               </button>
@@ -335,19 +337,19 @@ export default function CropPage() {
         type="button"
         onClick={run}
         disabled={!file || busy}
-        className="mt-6 w-full btn-95 bevel-out font-bold"
+        className="mt-6 btn btn-primary btn-block"
       >
         {busy ? "Working…" : "Crop"}
       </button>
 
       {error ? (
-        <p className="mt-4 bevel-out bg-surface px-4 py-3 text-sm font-bold text-danger">
+        <p className="mt-4 panel bg-panel px-4 py-3 text-sm font-bold text-danger">
           {error}
         </p>
       ) : null}
 
       {output ? (
-        <section className="mt-8 bevel-out bg-surface p-4">
+        <section className="mt-8 panel bg-panel p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="font-medium">Done</h2>
             <p className="text-sm text-muted tabular-nums">
@@ -357,7 +359,7 @@ export default function CropPage() {
           <button
             type="button"
             onClick={download}
-            className="mt-4 w-full btn-95 bevel-out"
+            className="mt-4 btn btn-block"
           >
             Download
           </button>

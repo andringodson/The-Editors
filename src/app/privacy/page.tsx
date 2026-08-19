@@ -6,8 +6,12 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-14">
-      <h1 className="text-3xl font-semibold tracking-tight">Privacy &amp; ads</h1>
+    <div className="shell-narrow bleed py-[var(--space-l)]">
+      <div className="eyebrow">
+        <span>Privacy <span className="sep">/</span> advertising</span>
+        <span>Plain english <span className="sep">/</span> no lawyers</span>
+      </div>
+      <h1 className="headline-sm">Privacy &amp; ads</h1>
       <p className="mt-3 text-muted text-pretty">
         This site is free because it shows advertising. That is worth being
         precise about, because &ldquo;we don&apos;t upload your files&rdquo; and
@@ -17,7 +21,7 @@ export default function PrivacyPage() {
 
       <section className="mt-10">
         <h2 className="text-lg font-medium">Your files</h2>
-        <p className="mt-2 text-muted text-pretty">
+        <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
           Every tool except Office→PDF runs entirely inside your browser.
           Cropping, compressing, passport photos, PDF merging — the file is read
           by your own machine, processed there, and handed back. It is never
@@ -35,7 +39,7 @@ export default function PrivacyPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">The ads</h2>
-        <p className="mt-2 text-muted text-pretty">
+        <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
           Advertising is served by Google AdSense. Google sets cookies and
           collects data about your visit — the pages you view, your approximate
           location, your device. That is Google&apos;s collection, under
@@ -56,7 +60,7 @@ export default function PrivacyPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">What we collect</h2>
-        <p className="mt-2 text-muted text-pretty">
+        <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
           We record which tool ran, how big the input and output were, how long
           it took, and whether it worked. That tells us which tools are slow or
           failing. It does not include filenames or file contents, and there is
@@ -70,7 +74,7 @@ export default function PrivacyPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">Why an account for Office→PDF</h2>
-        <p className="mt-2 text-muted text-pretty">
+        <p className="prose mt-[var(--space-2xs)] text-muted text-pretty">
           It is the only tool that runs on hardware we pay for. Without knowing
           who is asking, there is no way to stop one visitor consuming the whole
           budget — so it is capped per account per day. Every other tool stays

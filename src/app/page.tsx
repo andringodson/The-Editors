@@ -4,12 +4,11 @@ import TypeOn, { typeOnDuration } from "@/components/TypeOn";
 import { isConverterConfigured } from "@/lib/converter";
 import {
   CATEGORY_LABELS,
+  CATEGORY_ORDER,
   TOOLS,
   effectiveStatus,
-  type ToolCategory,
+  toolOrdinal,
 } from "@/lib/tools";
-
-const CATEGORY_ORDER: ToolCategory[] = ["image", "pdf", "convert"];
 
 /*
  * One constant, two jobs: the string the headline types out, and the heading's
@@ -23,119 +22,155 @@ const HEADLINE = "Image and document tools that never upload your files";
  *
  * The body starts at just past halfway and the buttons land marginally early:
  * a strictly sequential stagger reads as waiting, whereas a slight overlap
- * reads as one movement. Nothing here gates interaction — the CTA is clickable
- * from the first frame; only its paint is delayed.
+ * reads as one movement. Nothing here gates interaction — the buttons are
+ * clickable from the first frame; only their paint is delayed.
  */
 const TYPED_MS = typeOnDuration(HEADLINE);
 const BODY_DELAY = Math.round(TYPED_MS * 0.55);
 const CTA_DELAY = TYPED_MS - 80;
 const CHIP_DELAY = TYPED_MS + 120;
 
+const CHIPS = ["Free", "No upload", "No account", "Works offline"];
+
 /**
  * Landing page.
  *
- * The window chrome around it stays period-grey, but the contents are the
- * violet field of the desktop behind it — so the frame reads as the OS and the
- * page reads as the app running inside it, rather than the two ignoring each
- * other.
+ * Laid out on the hairline grid: a full-bleed hero over the dot matrix, then
+ * one `.cells` grid per category. The grids take no breakpoints — the column
+ * count falls out of the width available, so there is no viewport at which the
+ * page looks half-built.
  */
 export default function Home() {
   return (
-    <div className="px-4 py-14 sm:px-8">
-      <section className="mx-auto max-w-4xl">
+    <div className="shell">
+      {/* ------------------------------------------------------------------ */}
+      {/* Hero                                                               */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="matrix bleed border-b border-line pt-[var(--space-l)] pb-[var(--space-m)]">
+        <div className="eyebrow">
+          <span>
+            Seven tools <span className="sep">/</span> free + open source
+          </span>
+          <span>
+            Canvas <span className="sep">/</span> WebAssembly
+          </span>
+        </div>
+
         {/* The characters are hidden from the accessibility tree and the name
             supplied here instead — screen readers announce text split across
             spans erratically. */}
-        <h1
-          className="headline-glow text-4xl leading-tight text-balance sm:text-5xl"
-          aria-label={HEADLINE}
-        >
+        <h1 className="mt-[var(--space-l)] text-balance" aria-label={HEADLINE}>
           <TypeOn text={HEADLINE} />
         </h1>
-        <p
-          className="rise-in mt-5 max-w-2xl text-lg text-muted text-pretty"
-          style={{ animationDelay: `${BODY_DELAY}ms` }}
-        >
-          Compress to an exact size, size a passport photo to the millimetre,
-          merge PDFs. Everything runs inside your browser — nothing is sent to a
-          server, so it works offline and finishes as fast as your machine can
-          go.
-        </p>
 
-        <div
-          className="rise-in mt-8 flex flex-wrap gap-3"
-          style={{ animationDelay: `${CTA_DELAY}ms` }}
-        >
-          <Link
-            href="/tools/compress"
-            className="btn-violet inline-flex items-center px-6 py-3 font-bold no-underline"
+        <div className="mt-[var(--space-l)] grid gap-[var(--space-s)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <p
+            className="rise-in prose text-muted"
+            style={{ animationDelay: `${BODY_DELAY}ms` }}
           >
-            Compress an image
-          </Link>
-          <Link
-            href="/tools/pdf-merge"
-            className="btn-violet-ghost inline-flex items-center px-6 py-3 font-medium no-underline"
+            Compress to an exact size, size a passport photo to the millimetre,
+            merge PDFs. Everything runs inside your browser — nothing is sent to
+            a server, so it works offline and finishes as fast as your machine
+            can go.
+          </p>
+
+          {/* Two equal actions, sharing a single hairline where they meet and
+              stacking when the column cannot hold both. */}
+          <div
+            className="rise-in grid gap-px self-start bg-line sm:grid-cols-2"
+            style={{ animationDelay: `${CTA_DELAY}ms` }}
           >
-            Merge PDFs
-          </Link>
+            <Link href="/tools/compress" className="btn btn-primary btn-block">
+              Compress an image
+              <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/tools/pdf-merge" className="btn btn-block">
+              Merge PDFs
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
 
-        <ul className="mt-8 flex flex-wrap gap-2 text-xs">
-          {["Free", "No upload", "No account", "Works offline"].map((chip, i) => (
+        <ul className="mt-[var(--space-s)] flex flex-wrap gap-x-[var(--space-s)] gap-y-1">
+          {CHIPS.map((chip, i) => (
             <li
               key={chip}
-              className="rise-in card-violet px-3 py-1.5 text-muted"
+              className="rise-in label-tight"
               style={{ animationDelay: `${CHIP_DELAY + i * 70}ms` }}
             >
+              <span aria-hidden="true" className="text-accent">
+                +{" "}
+              </span>
               {chip}
             </li>
           ))}
         </ul>
       </section>
 
+      {/* ------------------------------------------------------------------ */}
+      {/* Tool grids                                                         */}
+      {/* ------------------------------------------------------------------ */}
       {CATEGORY_ORDER.map((category) => {
         const tools = TOOLS.filter((tool) => tool.category === category);
         if (tools.length === 0) return null;
 
         return (
-          <section key={category} className="mx-auto mt-14 max-w-4xl">
-            <h2 className="text-xs font-semibold tracking-[0.2em] text-muted uppercase">
-              {CATEGORY_LABELS[category]}
+          <section
+            key={category}
+            className="bleed border-b border-line py-[var(--space-m)]"
+          >
+            <div className="eyebrow">
+              <span>
+                {tools.length} {tools.length === 1 ? "tool" : "tools"}{" "}
+                <span className="sep">/</span>{" "}
+                {category === "convert" ? "server assisted" : "on device"}
+              </span>
+              <span>
+                No account <span className="sep">/</span> no upload
+              </span>
+            </div>
+
+            <h2 className="headline headline-sm">
+              {CATEGORY_LABELS[category]}.
             </h2>
 
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="cells mt-[var(--space-s)]">
               {tools.map((tool) => {
                 const status = effectiveStatus(tool, isConverterConfigured);
-                const card = (
+
+                const body = (
                   <>
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold">{tool.name}</h3>
-                      {status === "soon" ? (
-                        <span className="shrink-0 border border-white/15 px-2 py-0.5 text-[11px] text-muted">
-                          Soon
-                        </span>
-                      ) : null}
+                    <div className="flex items-baseline justify-between gap-[var(--space-2xs)]">
+                      <span className="cell-index">{toolOrdinal(tool)}</span>
+                      <span className="label-tight">
+                        {status === "live" ? "Ready" : "Soon"}
+                      </span>
                     </div>
-                    <p className="mt-2 text-sm text-muted text-pretty">
-                      {tool.blurb}
-                    </p>
+                    <h3>{tool.name}</h3>
+                    <p className="text-muted text-pretty">{tool.blurb}</p>
+                    <span className="label-tight mt-auto pt-[var(--space-2xs)]">
+                      {status === "live" ? (
+                        <>
+                          Open <span className="text-accent">→</span>
+                        </>
+                      ) : (
+                        "Not connected"
+                      )}
+                    </span>
                   </>
                 );
 
-                return (
+                return status === "live" ? (
                   <li key={tool.id}>
-                    {status === "live" ? (
-                      <Link
-                        href={`/tools/${tool.slug}`}
-                        className="card-violet block h-full p-4 no-underline"
-                      >
-                        {card}
-                      </Link>
-                    ) : (
-                      /* Recessed, not faded: dimming with opacity drags the
-                         muted text below 4.5:1 contrast. */
-                      <div className="card-violet-inset h-full p-4">{card}</div>
-                    )}
+                    <Link href={`/tools/${tool.slug}`} className="cell h-full">
+                      {body}
+                    </Link>
+                  </li>
+                ) : (
+                  /* Recessed, not faded: dimming with opacity drags the muted
+                     text below 4.5:1 contrast. */
+                  <li key={tool.id} className="cell cell-muted">
+                    {body}
                   </li>
                 );
               })}
@@ -144,10 +179,10 @@ export default function Home() {
         );
       })}
 
-      <div className="mx-auto max-w-4xl">
+      <div className="bleed">
         <AdSlot
           name="landingInline"
-          className="mt-14"
+          className="my-[var(--space-m)]"
           label="Advertisement — keeps these tools free"
         />
       </div>

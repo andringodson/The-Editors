@@ -15,6 +15,7 @@ const TOOL_PATHS = [
   "/tools/upscale",
   "/tools/format",
   "/tools/pdf-merge",
+  "/tools/pdf-split",
   "/tools/images-to-pdf",
   "/tools/office-to-pdf",
 ];

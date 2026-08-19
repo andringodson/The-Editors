@@ -19,6 +19,7 @@ const PAGES = [
   "/tools/passport",
   "/tools/crop",
   "/tools/pdf-merge",
+  "/tools/pdf-split",
   "/tools/images-to-pdf",
   "/tools/upscale",
   "/tools/format",

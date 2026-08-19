@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * The pointer layer — the section pool and the drawn cursor.
+ * The pointer layer — the section pool and the cursor.
  *
- * The interesting assertions here are about cost, not looks. This site's real
- * work is canvas and WASM image encoding, and a decorative layer that holds an
- * animation frame open would take exactly the budget the compressor needs. Two
- * of these tests exist to make that promise enforceable.
+ * The interesting assertions here are about cost and about drift, not looks.
+ * This site's real work is canvas and WASM image encoding, and a decorative
+ * layer that holds an animation frame open would take exactly the budget the
+ * compressor needs.
  */
 
 async function countIdleFrames(
@@ -64,17 +64,15 @@ test.describe("Section fluid", () => {
     const section = page.locator("[data-fluid]").first();
     const box = (await section.boundingBox())!;
 
-    // A short move on purpose. Both eased loops converge per frame, so the
-    // distance travelled sets how many frames the test has to wait out — and a
-    // test that idles for seconds starves the workers running beside it, which
-    // is how this one first turned the compressor tests flaky.
+    // A short move on purpose. The easing converges per frame, so the distance
+    // travelled sets how many frames the test has to wait out — and a test that
+    // idles for seconds starves the workers running beside it, which is how
+    // this one first turned the compressor tests flaky.
     await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
     await page.mouse.move(
       box.x + box.width * 0.5 + 60,
       box.y + box.height * 0.5,
-      {
-        steps: 6,
-      },
+      { steps: 6 },
     );
 
     // Poll for quiet rather than hardcoding a settle time: "it stops" is the
@@ -135,78 +133,110 @@ test.describe("Section fluid", () => {
 });
 
 test.describe("Cursor", () => {
-  test("the native cursor is only hidden once the layer is running", async ({
+  test("is a native cursor, drawn by the compositor", async ({ page }) => {
+    await page.goto("/");
+
+    const cursor = await page.evaluate(
+      () => getComputedStyle(document.body).cursor,
+    );
+
+    // Not a pair of divs chasing the pointer: those cannot be zero-latency, and
+    // on this site they stutter exactly when the encoder is busy.
+    expect(cursor).toContain("data:image/svg+xml");
+    expect(await page.locator(".cursor-dot, .cursor-ring").count()).toBe(0);
+
+    // A keyword after the comma, so a data URI that ever fails to parse leaves
+    // a working cursor rather than none.
+    expect(cursor.trimEnd()).toMatch(/,\s*(auto|pointer|text)$/);
+  });
+
+  test("the art and the palette cannot drift apart", async ({ page }) => {
+    await page.goto("/");
+
+    // The hues are written twice — once as OKLCH tokens, once as hex inside the
+    // cursor SVGs, because a data URI cannot read a custom property. This is
+    // the guard that makes the duplication safe.
+    const drift = await page.evaluate(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext("2d")!;
+      const toHex = (css: string) => {
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.fillStyle = css;
+        ctx.fillRect(0, 0, 1, 1);
+        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+        return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+      };
+
+      const probe = document.createElement("div");
+      document.body.append(probe);
+      const bad: string[] = [];
+      for (let i = 1; i <= 10; i++) {
+        const n = String(i).padStart(2, "0");
+        probe.className = `tint tint-${n}`;
+        const style = getComputedStyle(probe);
+        const accent = toHex(style.getPropertyValue("--accent").trim());
+        if (!decodeURIComponent(style.cursor).includes(accent)) {
+          bad.push(`tint-${n}: --accent is ${accent}, cursor art disagrees`);
+        }
+      }
+      probe.remove();
+      return bad;
+    });
+
+    expect(drift, drift.join("\n")).toEqual([]);
+  });
+
+  test("takes the hue of the tool it is on", async ({ page }) => {
+    const hueOn = async (path: string) => {
+      await page.goto(path);
+      return page.evaluate(() => {
+        const marks = decodeURIComponent(
+          getComputedStyle(document.querySelector(".tint")!).cursor,
+        ).match(/stroke="(#[0-9a-fA-F]{6})"/g);
+        return marks ? marks[marks.length - 1] : null;
+      });
+    };
+
+    const compress = await hueOn("/tools/compress");
+    const crop = await hueOn("/tools/crop");
+
+    expect(compress).toBeTruthy();
+    expect(crop).not.toBe(compress);
+  });
+
+  test("closes in and goes white over anything actionable", async ({
     page,
   }) => {
     await page.goto("/");
 
-    // The class is added by the component, not by the stylesheet. If the script
-    // never runs the page keeps a working cursor instead of none at all — the
-    // safe state has to be the one that survives the code not running.
-    await expect(page.locator("html")).toHaveClass(/has-cursor/);
+    const art = (selector: string) =>
+      page.evaluate(
+        (sel) =>
+          decodeURIComponent(
+            getComputedStyle(document.querySelector(sel)!).cursor,
+          ),
+        selector,
+      );
 
-    const hiddenWithoutIt = await page.evaluate(() => {
-      document.documentElement.classList.remove("has-cursor");
-      const cursor = getComputedStyle(document.body).cursor;
-      document.documentElement.classList.add("has-cursor");
-      return cursor;
-    });
-    expect(hiddenWithoutIt).not.toBe("none");
+    const onLink = await art('a[href="/tools/compress"]');
+    const onPage = await art("body");
+
+    // White says "you can act on this"; the hue says where you are. Two jobs,
+    // two signals.
+    expect(onLink).toContain('stroke="#ffffff"');
+    expect(onLink).not.toBe(onPage);
+    // The tight variant — marks pulled in.
+    expect(onLink).toContain("M4 9V4h5");
   });
 
-  test("the dot inverts against what is behind it", async ({ page }) => {
-    await page.goto("/");
+  test("text entry keeps the system caret", async ({ page }) => {
+    await page.goto("/tools/compress");
 
-    // One element, both colours: difference blending over white renders white
-    // on a dark ground and black on a light one, without anything having to
-    // measure what is underneath.
-    const dot = page.locator(".cursor-dot");
-    await expect(dot).toHaveCSS("mix-blend-mode", "difference");
-    await expect(dot).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  });
-
-  test("the ring takes the colour of the tool it is over", async ({ page }) => {
-    await page.goto("/");
-
-    const ring = page.locator(".cursor-ring");
-    const colourOver = async (index: number) => {
-      const cell = page.locator(".cells > *").nth(index);
-      await cell.scrollIntoViewIfNeeded();
-      const box = (await cell.boundingBox())!;
-      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-      await page.waitForTimeout(450);
-      return ring.evaluate((el) => getComputedStyle(el).borderTopColor);
-    };
-
-    const first = await colourOver(0);
-    const second = await colourOver(2);
-
-    expect(first).toBeTruthy();
-    expect(second).not.toBe(first);
-  });
-
-  test("the ring opens over anything actionable", async ({ page }) => {
-    await page.goto("/");
-
-    const ring = page.locator(".cursor-ring");
-    const heading = page.locator("h1");
-    const headingBox = (await heading.boundingBox())!;
-    await page.mouse.move(
-      headingBox.x + 10,
-      headingBox.y + headingBox.height / 2,
+    // The I-beam says something specific that crop marks do not.
+    await expect(page.locator('input[type="number"]').first()).toHaveCSS(
+      "cursor",
+      "text",
     );
-    await page.waitForTimeout(300);
-    const closed = await ring.evaluate((el) => getComputedStyle(el).inlineSize);
-
-    const link = page.getByRole("link", { name: "Compress an image" });
-    const linkBox = (await link.boundingBox())!;
-    await page.mouse.move(
-      linkBox.x + linkBox.width / 2,
-      linkBox.y + linkBox.height / 2,
-    );
-    await page.waitForTimeout(300);
-    const open = await ring.evaluate((el) => getComputedStyle(el).inlineSize);
-
-    expect(parseFloat(open)).toBeGreaterThan(parseFloat(closed));
   });
 });

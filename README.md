@@ -138,7 +138,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-70 tests drive headless Chromium against a production build: functional, responsive,
+71 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -336,17 +336,14 @@ radial gradient reading `--fx`/`--fy`, and because it takes `var(--accent)` it
 is violet on the landing page and the tool's own hue on a tool page without
 either having to say so.
 
-`PointerLayer.tsx` also draws the cursor, and both effects share one listener
-and one animation frame because they are the same information asked twice. Four
-things keep them off the budget the encoders need:
+`PointerLayer.tsx` publishes only the coordinates, and three things keep it off
+the budget the encoders need:
 
 - **One delegated listener for the whole document**, resolved with `closest()`,
   rather than a pair per section.
 - **The rect is measured once per section**, when the pointer enters it, not
   once per frame — reading a bounding rect forces layout, and this runs on every
   pointer move.
-- **Only `transform` is written** per frame, so the cursor stays on the
-  compositor and never triggers layout or paint.
 - **The loop cancels itself** once everything catches up, so a still cursor
   costs no frames at all. `e2e/pointer.spec.ts` asserts that by counting `rAF`
   callbacks and requiring zero: a held-open animation frame costs nothing
@@ -358,35 +355,37 @@ and stick there, and a drawn cursor would have nothing to track.
 
 #### The cursor
 
-A square dot and a square ring. Square because round would break the grid, which
-is rules meeting at right angles everywhere else.
+Crop marks and a centre pip, in the hue of whatever you are on — the marquee an
+image tool is actually for, and right angles like everything else on the grid.
+Over anything actionable the marks close in and go white: the hue says where you
+are, white says what you can do.
 
-The dot carries no colour of its own: `mix-blend-mode: difference` over white
-renders it white on a dark ground and black on a light one, so it inverts
-against whatever is behind it without anything having to measure what that is.
-One element, both colours, always legible.
+**It is a native `cursor: url(…)`, not a pair of divs tracking the pointer**, and
+that is the whole design. The compositor draws it, so it has no latency — and,
+the reason it matters on this site specifically, it does not stutter while the
+main thread is busy encoding an image. A DOM cursor freezes exactly when the
+tool is working, which is the worst possible moment for the pointer to lag.
 
-The ring lags behind the dot, takes the colour of the tool or section under it,
-and transitions between them — which is what makes crossing the grid read as
-moving between places rather than across a surface. Over anything actionable it
-opens up and fills faintly, so the affordance is the cursor itself.
+It also costs no JavaScript at all, and every declaration ends in a keyword
+(`, auto` / `, pointer`), so a data URI that ever failed to parse would leave a
+working cursor rather than none.
 
-Two decisions worth keeping:
+The trade this replaced: a DOM cursor could blend against its backdrop and trail
+the pointer with easing. A native one cannot do either. The trailing colour
+response now lives entirely in the section pool, which is the right place for
+it — ambient and lagging by design — leaving the cursor itself crisp and exact.
 
-- **The native cursor is hidden by a class the component adds on mount**, not by
-  the stylesheet. If the script never runs, the page keeps a working cursor
-  instead of none at all — the same principle as the typed headline, where the
-  base state has to be the one that survives the code not running.
-- **Text inputs keep the system caret.** The I-beam says something specific —
-  "you can type here" — that a ring does not.
+Text entry keeps the system caret. The I-beam says something specific — "you can
+type here" — that crop marks do not.
 
-Under `prefers-reduced-motion` the cursor stays but the lag is dropped to zero:
-the trailing is the motion, not the cursor.
+**One duplication, deliberately.** A data URI cannot read a custom property, so
+each hue is written twice: once as an OKLCH token, once as hex inside the cursor
+art. `e2e/pointer.spec.ts` resolves every tint through a canvas and asserts the
+hex appears in that tint's cursor, so the two copies cannot drift.
 
-A caveat worth stating plainly: replacing the system cursor overrides whatever
-size and contrast the reader has configured at OS level. It is drawn only where
-a fine pointer exists, but anyone relying on a large or high-contrast system
-cursor loses it here.
+A caveat worth stating plainly: any custom cursor overrides the size and
+contrast a reader has configured at OS level. Anyone relying on a large or
+high-contrast system cursor loses it here.
 
 ### Type
 

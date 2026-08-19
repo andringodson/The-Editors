@@ -783,54 +783,90 @@ input[type="radio"] {
 /* ---------------------------------------------------------------------------
    Cursor
 
+   Crop marks and a centre pip — the marquee an image tool is actually for, and
+   right angles like the rest of the grid. Three tensions: open at rest, closed
+   over something actionable, shut while pressed.
+
    A native CSS cursor rather than a pair of divs tracking the pointer, and that
    is the whole point: the compositor draws this, so it has no latency at all
    and — the reason it matters here specifically — it does not stutter while the
    main thread is busy encoding an image. A DOM cursor freezes exactly when the
    tool is working.
 
-   It costs no JavaScript, and if a data URI ever fails to parse the browser
-   falls back to the keyword after the comma rather than leaving no cursor.
+   Colour comes from an SVG gradient, which is the only way a native cursor can
+   carry more than one. It costs no JavaScript, and every declaration ends in a
+   keyword, so a data URI that ever failed to parse would leave a working cursor
+   rather than none.
    --------------------------------------------------------------------------- */
 
-/* The primary, inherited by everything that does not override it. */
+/* The primary, inherited by everything that does not override it. Each tint
+   ramps from its own hue into the next one round the wheel, so the marks
+   carry a gradient rather than a flat stroke. */
 html {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23b08ffa%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23b08ffa%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23b08ffa%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23e47bc4%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 
-/* Each tint swaps the marks for its own hue. `cursor` inherits, so one
-   declaration covers everything inside a tool. */
 .tint-02 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23e47bc4%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23e47bc4%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23e47bc4%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23f7797c%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-03 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23f7797c%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23f7797c%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23f7797c%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23ee8836%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-04 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23ee8836%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23ee8836%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23ee8836%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23cb9f00%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-05 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%23cb9f00%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23cb9f00%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23cb9f00%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%236dbd5b%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-06 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%236dbd5b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%236dbd5b%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%236dbd5b%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%2300c4a0%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-07 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2300c4a0%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%2300c4a0%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%2300c4a0%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%2300bedb%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-08 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2300bedb%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%2300bedb%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%2300bedb%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%234faaff%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-09 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%234faaff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%234faaff%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%234faaff%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%238a9bff%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 .tint-10 {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%207V1h6M17%201h6v6M23%2017v6h-6M7%2023H1v-6%22%20fill%3D%22none%22%20stroke%3D%22%238a9bff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2211%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%238a9bff%22%2F%3E%3C%2Fsvg%3E") 12 12, auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%238a9bff%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23b08ffa%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M1%208V1h7M18%201h7v7M25%2018v7h-7M8%2025H1v-7%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    auto;
 }
 
-/* Over anything actionable the marks close in and go white. White rather than
-   the local hue on purpose: the hue says where you are, and this says what
-   you can do — two jobs, two signals.
+/* Over anything actionable the marks close in and light up across the whole
+   palette. The geometry carries the signal, so it still reads instantly for
+   anyone who cannot separate the hues.
 
    `:root` is only here for specificity: a landing cell carries its own
    `.tint-NN`, so without it the tint would win on the very links this is for. */
@@ -846,12 +882,39 @@ html {
     input[type="radio"],
     input[type="range"]
   ) {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cpath%20d%3D%22M4%209V4h5M15%204h5v5M20%2015v5h-5M9%2020H4v-5%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.55%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M4%209V4h5M15%204h5v5M20%2015v5h-5M9%2020H4v-5%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E") 12 12, pointer;
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23f7797c%22%2F%3E%3Cstop%20offset%3D%220.20%22%20stop-color%3D%22%23ee8836%22%2F%3E%3Cstop%20offset%3D%220.40%22%20stop-color%3D%22%23cb9f00%22%2F%3E%3Cstop%20offset%3D%220.60%22%20stop-color%3D%22%236dbd5b%22%2F%3E%3Cstop%20offset%3D%220.80%22%20stop-color%3D%22%2300bedb%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23b08ffa%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M5%2010V5h5M16%205h5v5M21%2016v5h-5M10%2021H5v-5%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M5%2010V5h5M16%205h5v5M21%2016v5h-5M10%2021H5v-5%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2211.0%22%20y%3D%2211.0%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    pointer;
+}
+
+/* Pressed: the marks shut to a point. */
+:root
+  :is(
+    a,
+    button,
+    [role="button"],
+    summary,
+    label,
+    select,
+    input[type="checkbox"],
+    input[type="radio"],
+    input[type="range"]
+  ):active {
+  cursor:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220.00%22%20stop-color%3D%22%23f7797c%22%2F%3E%3Cstop%20offset%3D%220.20%22%20stop-color%3D%22%23ee8836%22%2F%3E%3Cstop%20offset%3D%220.40%22%20stop-color%3D%22%23cb9f00%22%2F%3E%3Cstop%20offset%3D%220.60%22%20stop-color%3D%22%236dbd5b%22%2F%3E%3Cstop%20offset%3D%220.80%22%20stop-color%3D%22%2300bedb%22%2F%3E%3Cstop%20offset%3D%221.00%22%20stop-color%3D%22%23b08ffa%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M8%2012V8h4M14%208h4v4M18%2014v4h-4M12%2018H8v-4%22%20fill%3D%22none%22%20stroke%3D%22%2305010e%22%20stroke-width%3D%223.5%22%20stroke-opacity%3D%22.5%22%20stroke-linecap%3D%22square%22%2F%3E%3Cpath%20d%3D%22M8%2012V8h4M14%208h4v4M18%2014v4h-4M12%2018H8v-4%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22square%22%2F%3E%3Crect%20x%3D%2212.0%22%20y%3D%2212.0%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E")
+      13 13,
+    pointer;
 }
 
 /* Text entry keeps the system caret. The I-beam says something specific —
    "you can type here" — that crop marks do not. */
-:root :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, [contenteditable]) {
+:root
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    textarea,
+    [contenteditable]
+  ) {
   cursor: text;
 }
 

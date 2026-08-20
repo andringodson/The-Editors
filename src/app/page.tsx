@@ -125,7 +125,7 @@ export default function Home() {
             data-fluid
             className="bleed border-b border-line py-[var(--space-m)]"
           >
-            <div className="eyebrow">
+            <div className="eyebrow reveal">
               <span>
                 {tools.length} {tools.length === 1 ? "tool" : "tools"}{" "}
                 <span className="sep">/</span>{" "}
@@ -136,7 +136,7 @@ export default function Home() {
               </span>
             </div>
 
-            <h2 className="headline headline-sm">
+            <h2 className="headline headline-sm reveal">
               {CATEGORY_LABELS[category]}.
             </h2>
 

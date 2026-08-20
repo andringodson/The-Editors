@@ -153,7 +153,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-81 tests drive headless Chromium against a production build: functional, responsive,
+87 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -342,6 +342,32 @@ Two things to preserve if `FluidBackground.tsx` is ever edited:
 
 Under `prefers-reduced-motion` the pointer tracking never starts and the drift
 animation is disabled, leaving a static violet field.
+
+### Tabs and reveals
+
+The nav is a tab bar: the current tool is marked with `aria-current`, and the
+rule under each tab is drawn in that tool's own tint, so the nav agrees with the
+landing grid and with the page the tab leads to. It wipes in from the left
+rather than fading, which matches the direction the tabs read, and it is a
+`transform` so it stays on the compositor.
+
+Sections and cells arrive as they enter the viewport. That is a **scroll-driven
+CSS animation** — `animation-timeline: view()` — not an observer, so no
+JavaScript is involved at all.
+
+Two guards around it matter more than the effect does:
+
+- **`@supports (animation-timeline: view())`.** The failure mode otherwise is
+  the bad one: a `both` fill on a timeline that never advances holds every
+  section at `opacity: 0` permanently.
+- **Declared under `prefers-reduced-motion: no-preference`**, rather than
+  overridden under `reduce`, so it never exists for anyone who asked for
+  stillness.
+
+`e2e/reveal.spec.ts` asserts only that everything ends up visible — above the
+fold without scrolling, and after scrolling past. Nothing else in the suite
+would catch content stuck invisible, including the accessibility scan, which
+reads the DOM rather than the paint.
 
 ### The pointer layer
 

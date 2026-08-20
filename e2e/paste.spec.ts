@@ -73,7 +73,11 @@ test.describe("Paste", () => {
 
   test("pasting into a text field is left alone", async ({ page }) => {
     await page.goto("/tools/compress");
-    const image = await makeTestImage(page, { name: "screenshot.png" });
+    const image = await makeTestImage(page, {
+      width: 900,
+      height: 700,
+      name: "screenshot.png",
+    });
 
     // Someone typing a target size pastes numbers into it; that has to keep
     // working, so the listener must ignore pastes aimed at a field.
@@ -87,7 +91,11 @@ test.describe("Paste", () => {
 
     // An image is not a PDF: the accept filter has to reject it rather than
     // hand the tool something it cannot open.
-    const image = await makeTestImage(page, { name: "screenshot.png" });
+    const image = await makeTestImage(page, {
+      width: 900,
+      height: 700,
+      name: "screenshot.png",
+    });
     await paste(page, "body", image);
     await expect(page.getByText("screenshot.png")).toBeHidden();
   });

@@ -192,7 +192,10 @@ test.describe("Cursor", () => {
       await page.goto(path);
       return page.evaluate(() =>
         decodeURIComponent(
-          getComputedStyle(document.querySelector(".tint")!).cursor,
+          // `main .tint` on purpose: the nav tabs are tinted as well now, and
+          // they are links, so they wear the interactive cursor rather than
+          // the page one.
+          getComputedStyle(document.querySelector("main .tint")!).cursor,
         ).match(/stop-color="(#[0-9a-fA-F]{6})"/g),
       );
     };

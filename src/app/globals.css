@@ -638,16 +638,46 @@ input[type="radio"] {
 }
 
 .site-nav a {
+  position: relative;
   color: var(--muted);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  transition: color 200ms linear;
+}
+
+/* The rule under a tab, in that tool's own hue. It wipes in from the left
+   rather than fading, so the direction of travel matches the way the tabs read;
+   `transform` only, so it stays on the compositor. */
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(50% - 0.95em);
+  block-size: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .site-nav a:hover,
+.site-nav a:focus-visible,
 .site-nav a[aria-current="page"] {
   color: var(--accent);
+}
+
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after,
+.site-nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* The tab you are on stays lit; leaving it should not look like a hover that
+   failed to clear. */
+.site-nav a[aria-current="page"] {
+  color: var(--fg);
 }
 
 /* The status rail along the foot of the screen. On the reference this is a
@@ -1115,6 +1145,54 @@ html {
   from {
     opacity: 0;
     transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reveal on scroll
+
+   Sections and cells arrive as they come into view. This is a scroll-driven CSS
+   animation — `animation-timeline: view()` — so there is no observer, no
+   listener and no JavaScript at all: the compositor advances it against scroll
+   position directly.
+
+   Two guards, and both matter more than the effect does:
+
+   - `@supports` keeps it away from engines without scroll-driven animations.
+     The failure mode otherwise is the bad one: a `both` fill on a timeline that
+     never advances would hold every section at `opacity: 0` permanently.
+   - `prefers-reduced-motion: no-preference` rather than a `reduce` override, so
+     the animation is never even declared for anyone who asked for stillness.
+
+   `e2e/reveal.spec.ts` asserts every cell ends at full opacity, because
+   "the content is invisible" is the one way this can fail badly and it would
+   not show up in any other test.
+   --------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal,
+    .cells > * {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      /* Finishes well before the element reaches the middle of the screen —
+         content that is still fading while you are trying to read it is worse
+         than no animation. */
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    /* translateY only. A horizontal offset on a full-bleed section would widen
+       the page and break the no-sideways-scroll guarantee. */
+    transform: translateY(1.25rem);
   }
   to {
     opacity: 1;

@@ -1,21 +1,17 @@
 import Link from "next/link";
+import SiteNav from "@/components/SiteNav";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-
-const MENU = [
-  { href: "/tools/compress", label: "Compress" },
-  { href: "/tools/passport", label: "Passport" },
-  { href: "/tools/crop", label: "Crop" },
-  { href: "/tools/pdf-merge", label: "PDF" },
-];
 
 /**
  * Site header — wordmark, navigation, and the one primary action.
  *
  * There is no hamburger, and that is a decision rather than an omission. Four
  * links wrap onto a second line on a narrow screen and stay visible; hiding
- * them behind a toggle would cost a tap, cost a client component on a page that
- * otherwise ships none, and buy nothing at this scale.
+ * them behind a toggle would cost a tap and buy nothing at this scale.
+ *
+ * The tabs themselves live in a client component, because marking the current
+ * one needs the current path. Everything else here stays on the server.
  */
 export default async function SiteHeader() {
   const user = isSupabaseConfigured ? await getCurrentUser() : null;
@@ -38,18 +34,12 @@ export default async function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="site-nav" aria-label="Tools">
-          {MENU.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
-          {isSupabaseConfigured ? (
-            <Link href={user ? "/account" : "/login"}>
-              {user ? "Account" : "Sign in"}
-            </Link>
-          ) : null}
-        </nav>
+        <SiteNav
+          accountHref={
+            isSupabaseConfigured ? (user ? "/account" : "/login") : undefined
+          }
+          accountLabel={user ? "Account" : "Sign in"}
+        />
       </div>
 
       {/* The specification strip: what this is on the left, what it is made of

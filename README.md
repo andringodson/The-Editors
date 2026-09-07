@@ -36,7 +36,7 @@ Eight tools working, all client-side:
 | **Compress to a size** | Binary-searches quality, then dimensions, to land under a byte budget you name |
 | **Passport & stamp photos** | 7 official presets, 200/300/600 DPI, optional squeeze under portal limits |
 | **Crop & straighten** | Drag-select with ratio locks, plus tilt correction and 90° rotation |
-| **Upscale to 4K** | Resample the longest edge to HD/2K/4K/8K |
+| **Upscale with AI** | Real-ESRGAN reconstruction on-device, or a plain resample, up to 8K |
 | **Change format** | JPEG ⇄ PNG ⇄ WebP, with AVIF and HEIC accepted as input |
 | **Merge PDFs** | Any number of files, reorderable, with live page counts |
 | **Split a PDF** | Keep or remove a page range; the order asked for is the order produced |
@@ -58,6 +58,54 @@ The file goes straight from the browser to that service — never through Vercel
 which caps request bodies at about 4.5 MB. Access is gated by a five-minute HMAC
 token minted at `/api/convert-token`, so the endpoint is not free CPU for
 whoever finds it, without putting a login in front of a first-time user.
+
+## The AI upscaler
+
+Enlarging is the one image job where resampling is genuinely not good enough:
+there is no arrangement of the pixels you have that puts back an edge the sensor
+never resolved. So the upscaler runs a real super-resolution network —
+[Real-ESRGAN][real-esrgan] general x4v3 — and it runs it **on the device**, like
+everything else here.
+
+The model was chosen by measurement rather than by reputation:
+
+| Model | Weights | Per 128px tile |
+|---|---|---|
+| **Real-ESRGAN general x4v3** | 4.9 MB | **0.22 s** |
+| Real-ESRGAN x4plus | 69 MB | 3.7 s |
+| Swin2SR realworld x4 | 52 MB | 5.1 s |
+
+The heavier two are sharper on paper and hard to tell apart at normal viewing
+sizes, at fifteen to twenty times the wait and ten times the download. A tool
+nobody is willing to wait for is not a better tool. This is also what Upscayl
+ships as its default, for the same reason.
+
+Four decisions worth keeping:
+
+- **Both the weights and the ONNX runtime are served from this origin**, so
+  `connect-src 'self'` survives. The only CSP concession is
+  `'wasm-unsafe-eval'` in `script-src`, which permits WebAssembly and nothing
+  else. Shipping the model from a CDN would have meant opening `connect-src` to
+  a third party on the one site whose entire promise is that nothing is sent
+  anywhere. The runtime is copied out of `node_modules` at build time
+  (`scripts/sync-onnx-runtime.mjs`); the weights are committed, so a build can
+  never depend on a mirror staying up.
+- **It runs in a worker.** Inference blocks whatever thread it is on, and a
+  frozen tab reads as a crash rather than as work in progress.
+- **Tiles overlap by 8px and the overlap is discarded.** A convolutional network
+  reconstructs edge pixels from less context than middle ones, so keeping only
+  the middles is what makes the seams absent rather than merely faint.
+- **The plain resample stayed.** It is instant, it invents nothing, and for an
+  original that is already detailed it is the honest answer. A tool that only
+  offered the model would be selling the model.
+
+WebGPU does the work where it exists and WebAssembly where it does not — about
+ten times slower, which is why the estimate and the per-tile progress are shown
+before anyone commits to the wait, and why it can be cancelled. Past 2 MP the AI
+path steps aside and says so: at that size the image is already big enough that
+resampling is the better tool.
+
+[real-esrgan]: https://github.com/xinntao/Real-ESRGAN
 
 ## How it's funded
 
@@ -153,7 +201,7 @@ If you later want raster fallbacks for older platforms, export these at 192 and
 npm run test:e2e
 ```
 
-87 tests drive headless Chromium against a production build: functional, responsive,
+88 tests drive headless Chromium against a production build: functional, responsive,
 accessibility (axe, WCAG 2.1 A/AA), SEO, PWA and touch.
 
 The functional ones assert on **real output bytes**, not UI text — compressed files are read off
@@ -200,11 +248,15 @@ src/
   app/            routes — landing, /tools/*, auth
   components/     shared UI
   lib/
-    image/        canvas helpers, target-size compressor, photo presets
+    image/        canvas helpers, resampler, target-size compressor, photo
+                  presets, and the Real-ESRGAN worker
     pdf/          merge, split, rotate, images→PDF
     supabase/     browser + server clients (null when unconfigured)
     analytics.ts  fire-and-forget telemetry
     tools.ts      tool registry — drives nav, landing grid, telemetry IDs
+public/
+  models/         Real-ESRGAN weights, committed (see its README)
+  ort/            ONNX runtime, copied from node_modules at build — gitignored
 supabase/
   schema.sql      tables, RLS policies, health view
 ```

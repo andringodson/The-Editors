@@ -43,6 +43,9 @@ next-env.d.ts
 # keep the template committed
 !.env.example
 
+# onnx runtime, copied out of node_modules by scripts/sync-onnx-runtime.mjs
+/public/ort/
+
 # playwright
 /test-results/
 /playwright-report/

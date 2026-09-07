@@ -24,6 +24,14 @@ and a privacy story to defend.
 The single planned exception is Office→PDF, which needs LibreOffice in a
 container. Keep it isolated so the rest of the site stays free to run.
 
+The upscaler is the test of how far that goes: it runs a real neural network,
+and it runs it in a worker on the user's machine. Weights and ONNX runtime are
+served from this origin so `connect-src 'self'` holds — if you ever find
+yourself widening `connect-src` to reach a model host, the model is in the wrong
+place. `public/ort/` is copied from `node_modules` by `scripts/sync-onnx-runtime.mjs`
+on `predev`/`prebuild` and is gitignored; the weights in `public/models/` are
+committed on purpose, so no build depends on a third-party mirror.
+
 ## Adding a tool
 
 1. Register it in `src/lib/tools.ts` — this drives the nav, the landing grid and

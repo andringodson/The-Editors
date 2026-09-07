@@ -99,8 +99,9 @@ export const TOOLS: ToolDefinition[] = [
   {
     id: "upscale",
     slug: "upscale",
-    name: "Upscale to 4K",
-    blurb: "Enlarge to 4K with high-quality resampling.",
+    name: "Upscale with AI",
+    blurb:
+      "Real-ESRGAN reconstructs edges and texture, on your device. Up to 8K.",
     category: "image",
     status: "live",
     clientSide: true,

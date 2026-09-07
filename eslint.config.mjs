@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored build output: the ONNX runtime loader copied in by
+    // scripts/sync-onnx-runtime.mjs. Minified, and not ours to fix.
+    "public/ort/**",
   ]),
 ]);
 

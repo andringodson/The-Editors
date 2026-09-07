@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/sync-onnx-runtime.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/sync-onnx-runtime.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,6 +15,7 @@
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "next": "16.3.1",
+    "onnxruntime-web": "^1.29.0",
     "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"

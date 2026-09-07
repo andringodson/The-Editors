@@ -70,11 +70,14 @@ test.describe("Upscale", () => {
     const image = await makeTestImage(page, { width: 800, height: 600 });
     await page.setInputFiles('input[type="file"]', image);
 
+    await page.getByRole("radio", { name: "Sharp resample" }).check();
+    await page.getByLabel("Target resolution").selectOption("uhd");
+
     // 800 → 3840 is 4.8×, so 600 → 2880.
     await expect(page.getByText("3840×2880")).toBeVisible();
 
     await page.getByLabel("Output format").selectOption("image/png");
-    await page.getByRole("button", { name: "Upscale" }).click();
+    await page.getByRole("button", { name: "Upscale", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Done" })).toBeVisible({
       timeout: 60_000,
     });
@@ -85,6 +88,49 @@ test.describe("Upscale", () => {
 
     const buffer = readFileSync((await download.path())!);
     expect(pngDimensions(buffer)).toEqual({ width: 3840, height: 2880 });
+  });
+
+  /*
+   * That the model actually ran, rather than the tool quietly resampling and
+   * calling it AI. Proving it needs both paths run over the same input: the
+   * dimensions are identical by construction, so only the pixels can tell them
+   * apart.
+   *
+   * CI has no GPU, so this exercises the WebAssembly fallback — the slow path,
+   * and the one every visitor without WebGPU gets. The fixture is deliberately
+   * tiny; a larger one proves nothing further and costs minutes.
+   */
+  test("reconstructs with the model rather than resampling", async ({ page }) => {
+    test.setTimeout(240_000);
+
+    async function upscale(method: "AI reconstruction" | "Sharp resample") {
+      await page.goto("/tools/upscale");
+      const image = await makeTestImage(page, { width: 120, height: 90 });
+      await page.setInputFiles('input[type="file"]', image);
+
+      await page.getByRole("radio", { name: method }).check();
+      // Both runs target the model's native 4×, so sizes cannot differ.
+      await expect(page.getByText("480×360")).toBeVisible();
+      await page.getByLabel("Output format").selectOption("image/png");
+
+      const downloadPromise = page.waitForEvent("download");
+      await page
+        .getByRole("button", { name: /^Upscale( with AI)?$/ })
+        .click();
+      await expect(page.getByRole("heading", { name: "Done" })).toBeVisible({
+        timeout: 180_000,
+      });
+      await page.getByRole("button", { name: "Download" }).click();
+      return readFileSync((await (await downloadPromise).path())!);
+    }
+
+    const reconstructed = await upscale("AI reconstruction");
+    expect(pngDimensions(reconstructed)).toEqual({ width: 480, height: 360 });
+
+    const resampled = await upscale("Sharp resample");
+    expect(pngDimensions(resampled)).toEqual({ width: 480, height: 360 });
+
+    expect(reconstructed.equals(resampled)).toBe(false);
   });
 });
 

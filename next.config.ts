@@ -52,8 +52,14 @@ function join(...parts: (string | string[])[]): string {
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next injects inline bootstrap scripts; 'unsafe-inline' is required until
-  // nonce-based CSP is wired through.
-  join("script-src 'self' 'unsafe-inline'", adsEnabled ? AD_SCRIPT_ORIGINS : []),
+  // nonce-based CSP is wired through. 'wasm-unsafe-eval' is what lets the
+  // upscaler compile its ONNX runtime — it permits WebAssembly and nothing
+  // else, which is the narrow version of a permission 'unsafe-eval' would
+  // otherwise grant wholesale.
+  join(
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+    adsEnabled ? AD_SCRIPT_ORIGINS : [],
+  ),
   "style-src 'self' 'unsafe-inline'",
   // blob: and data: cover canvas output and object URLs, which is how every
   // result is previewed and downloaded.
@@ -89,9 +95,32 @@ const securityHeaders = [
   },
 ];
 
+/*
+ * The upscaler's weights and runtime are tens of megabytes that Next would
+ * otherwise serve as `max-age=0`, re-validating them on every visit. Both are
+ * static artefacts, so they are cached hard — but not identically:
+ *
+ *   /models  a year, immutable. The filename names the network; different
+ *            weights arrive as a different file.
+ *   /ort     a month. The runtime's filename carries no version, so an upgrade
+ *            to onnxruntime-web reuses this path and needs a way to land.
+ */
+const assetCaching = [
+  {
+    source: "/models/:path*",
+    headers: [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+    ],
+  },
+  {
+    source: "/ort/:path*",
+    headers: [{ key: "Cache-Control", value: "public, max-age=2592000" }],
+  },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [{ source: "/:path*", headers: securityHeaders }, ...assetCaching];
   },
 };
 

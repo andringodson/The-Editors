@@ -131,6 +131,19 @@ test.describe("Upscale", () => {
     expect(pngDimensions(resampled)).toEqual({ width: 480, height: 360 });
 
     expect(reconstructed.equals(resampled)).toBe(false);
+
+    /*
+     * The weights and runtime are ~32 MB. Having run once, they must be on
+     * disk in a cache that survives a deploy — otherwise every visit pays for
+     * them again and the tool does not work offline at all.
+     */
+    const cached = await page.evaluate(async () => {
+      const cache = await caches.open("models");
+      const keys = await cache.keys();
+      return keys.map((request) => new URL(request.url).pathname);
+    });
+    expect(cached).toContain("/models/realesrgan-x4v3.onnx");
+    expect(cached.some((path) => path.startsWith("/ort/"))).toBe(true);
   });
 });
 

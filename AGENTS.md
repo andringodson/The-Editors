@@ -44,6 +44,18 @@ committed on purpose, so no build depends on a third-party mirror.
 
 Put reusable computation in `src/lib/image/` or `src/lib/pdf/`, not in the page.
 
+## Import heavy dependencies inside the thing that uses them
+
+pdf-lib (415 KB), the Supabase client (245 KB) and onnxruntime-web are all
+loaded with `await import(...)` at the point of use, not at the top of the
+module. The nav prefetches every tool route from every page, so a static import
+anywhere ends up on all of them — that is how the image tools came to ship a PDF
+writer.
+
+Nothing in the test suite fails when a page is merely too heavy, so this is one
+of the few things worth checking by hand: build, then look at which chunks a
+page actually requests.
+
 ## Testing
 
 A passing type-check proves almost nothing here. Everything of value is canvas

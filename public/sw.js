@@ -13,13 +13,29 @@
  *                   build indefinitely.
  *   /_next/static   cache-first. Content-hashed and immutable, so a hit is
  *                   always correct and revalidating would be pure latency.
+ *   /models, /ort   cache-first, and kept across deploys. See below.
  *   /api, /auth     never cached. Auth state and token minting must not be
  *                   answered from disk.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `shell-${VERSION}`;
 const ASSET_CACHE = `assets-${VERSION}`;
+
+/**
+ * The upscaler's weights and ONNX runtime — about 32 MB between them.
+ *
+ * Deliberately **not** stamped with VERSION, so a deploy does not silently cost
+ * every returning visitor a 32 MB re-download. Both are safe to keep: the model
+ * filename names the network, and the runtime is only replaced when
+ * onnxruntime-web is upgraded, which is rare and lands through the month-long
+ * `Cache-Control` on it.
+ *
+ * They are cached on first use rather than at install. Precaching 32 MB for
+ * visitors who may never open the upscaler would be a worse trade than the one
+ * download it saves.
+ */
+const MODEL_CACHE = "models";
 
 const SHELL_ROUTES = [
   "/",
@@ -50,7 +66,12 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key !== SHELL_CACHE && key !== ASSET_CACHE)
+            .filter(
+              (key) =>
+                key !== SHELL_CACHE &&
+                key !== ASSET_CACHE &&
+                key !== MODEL_CACHE,
+            )
             .map((key) => caches.delete(key)),
         ),
       )
@@ -92,16 +113,29 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icon")) {
-    event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ??
-          fetch(request).then((response) => {
-            const copy = response.clone();
-            void caches.open(ASSET_CACHE).then((cache) => cache.put(request, copy));
-            return response;
-          }),
-      ),
-    );
+    event.respondWith(cacheFirst(request, ASSET_CACHE));
+    return;
+  }
+
+  // The upscaler's weights and runtime, so a second run starts instantly and
+  // the tool keeps working with no network at all.
+  if (url.pathname.startsWith("/models/") || url.pathname.startsWith("/ort/")) {
+    event.respondWith(cacheFirst(request, MODEL_CACHE));
   }
 });
+
+function cacheFirst(request, cacheName) {
+  return caches.match(request).then(
+    (cached) =>
+      cached ??
+      fetch(request).then((response) => {
+        // Only a complete, successful response is worth keeping. Caching a 206
+        // or an error would poison every later hit.
+        if (response.ok && response.status === 200) {
+          const copy = response.clone();
+          void caches.open(cacheName).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }),
+  );
+}

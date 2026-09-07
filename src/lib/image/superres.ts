@@ -72,6 +72,19 @@ export async function detectWebGPU(): Promise<boolean> {
   }
 }
 
+/**
+ * Build the session without running anything.
+ *
+ * Sent as soon as an image is chosen, so the 32 MB of runtime and weights
+ * downloads while the target and format are still being picked rather than
+ * after the button is pressed. It is the difference between a tool that pauses
+ * once and a tool that appears to hang.
+ */
+export interface SuperResWarm {
+  type: "warm";
+  device: SuperResDevice;
+}
+
 export interface SuperResRequest {
   type: "run";
   file: Blob;
@@ -84,6 +97,7 @@ export interface SuperResRequest {
 }
 
 export type SuperResResponse =
+  | { type: "warmed" }
   | { type: "stage"; stage: "loading-model" | "upscaling" | "encoding" }
   /** `elapsedMs` is measured in the worker so the page can stay a pure render. */
   | { type: "progress"; done: number; total: number; elapsedMs: number }

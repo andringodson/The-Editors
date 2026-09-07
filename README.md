@@ -105,7 +105,46 @@ before anyone commits to the wait, and why it can be cancelled. Past 2 MP the AI
 path steps aside and says so: at that size the image is already big enough that
 resampling is the better tool.
 
+Two things hide the 32 MB the first run costs. The worker starts loading as soon
+as an image is **chosen**, so the download overlaps with picking a target and a
+format rather than following the button press. And the service worker keeps both
+files in a cache that is deliberately not stamped with the deploy version, so
+shipping a change does not silently make every returning visitor download them
+again — and the tool keeps working with no network at all.
+
 [real-esrgan]: https://github.com/xinntao/Real-ESRGAN
+
+## Page weight
+
+Every page used to carry both heavy dependencies, and neither was reachable
+from most of them:
+
+| | Was | Now |
+|---|---|---|
+| Landing page, over the wire | 503 KB | 243 KB |
+| Any tool page, over the wire | ~497 KB | ~244 KB |
+| Landing page, long tasks | 4 (768 ms) | 2 (527 ms) |
+
+Both came from a static import, and both fixes are the same fix:
+
+- **pdf-lib, 415 KB.** The nav links to the PDF tools from every page, so
+  Next prefetched those routes' chunks — and the library with them. Someone on
+  the image tools was paying to parse a PDF writer they would never call. It is
+  now imported inside the operation that needs it.
+- **The Supabase client, 245 KB.** Every tool calls `trackRun`, so a static
+  import in `analytics.ts` put an auth and Postgrest client on all of them — to
+  report byte counts, on a deployment where telemetry may not even be
+  configured. It is now fetched when the first batch flushes, and never on a
+  deployment without Supabase.
+
+The rule worth keeping: **a dependency only one interaction needs should be
+imported by that interaction, not by the module that mentions it.** Both of
+these type-checked, linted and passed every test while being wrong, because
+nothing in a test suite fails when a page is merely heavier than it needs to
+be. Measure the built chunks.
+
+Long-task time is measured under 4× CPU throttling, which is roughly a
+mid-range phone — the device this is actually used on.
 
 ## How it's funded
 

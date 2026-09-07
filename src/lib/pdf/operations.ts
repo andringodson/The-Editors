@@ -7,7 +7,20 @@
  * large merges are bounded by the tab's heap rather than any upload limit.
  */
 
-import { PDFDocument, degrees } from "pdf-lib";
+/**
+ * pdf-lib is loaded on demand, and that is a page-weight decision rather than a
+ * stylistic one. It is 415 KB — larger than everything else on the site put
+ * together — and a static import made it part of this route's chunk, which the
+ * nav prefetches from every page. Merging a PDF is not something a visitor
+ * looking at the image tools is about to do, so it is fetched when an operation
+ * actually runs. The promise is cached, so a second operation does not wait.
+ */
+let library: Promise<typeof import("pdf-lib")> | null = null;
+
+function pdfLib(): Promise<typeof import("pdf-lib")> {
+  library ??= import("pdf-lib");
+  return library;
+}
 
 export interface ProgressReporter {
   (fraction: number, label?: string): void;
@@ -18,6 +31,7 @@ async function readAsBytes(file: Blob): Promise<Uint8Array> {
 }
 
 export async function getPageCount(file: Blob): Promise<number> {
+  const { PDFDocument } = await pdfLib();
   const doc = await PDFDocument.load(await readAsBytes(file), {
     // Encrypted files would otherwise throw before we can report a useful error.
     ignoreEncryption: true,
@@ -37,6 +51,7 @@ export async function mergePdfs(
 ): Promise<Blob> {
   if (files.length === 0) throw new Error("Select at least one PDF to merge");
 
+  const { PDFDocument } = await pdfLib();
   const merged = await PDFDocument.create();
 
   for (const [index, file] of files.entries()) {
@@ -69,6 +84,7 @@ export async function extractPages(
   file: Blob,
   range: SplitRange,
 ): Promise<Blob> {
+  const { PDFDocument } = await pdfLib();
   const source = await PDFDocument.load(await readAsBytes(file), {
     ignoreEncryption: true,
   });
@@ -94,6 +110,7 @@ export async function extractPages(
  * in the order asked for rather than in document order.
  */
 export async function selectPages(file: Blob, pages: number[]): Promise<Blob> {
+  const { PDFDocument } = await pdfLib();
   const source = await PDFDocument.load(await readAsBytes(file), {
     ignoreEncryption: true,
   });
@@ -118,6 +135,7 @@ export async function selectPages(file: Blob, pages: number[]): Promise<Blob> {
 }
 
 export async function rotatePdf(file: Blob, angle: number): Promise<Blob> {
+  const { PDFDocument, degrees } = await pdfLib();
   const doc = await PDFDocument.load(await readAsBytes(file), {
     ignoreEncryption: true,
   });
@@ -152,6 +170,7 @@ export async function imagesToPdf(
   if (files.length === 0) throw new Error("Select at least one image");
 
   const { pageSize = "a4", marginPt = 24 } = options;
+  const { PDFDocument } = await pdfLib();
   const doc = await PDFDocument.create();
 
   for (const [index, file] of files.entries()) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "./supabase/client";
+import { isSupabaseConfigured } from "./supabase/config";
 
 /**
  * Anonymous usage telemetry.
@@ -13,6 +13,15 @@ import { createClient } from "./supabase/client";
  * of this product whose cost scales with traffic, so a busy session produces a
  * handful of requests instead of one per action. Nothing here may ever block
  * the UI or surface an error: every failure is swallowed and the batch dropped.
+ *
+ * The Supabase client is imported **dynamically**, and that is the load-bearing
+ * detail rather than a style choice. Every tool page calls `trackRun`, so a
+ * static import put 245 KB of auth and Postgrest client into all of them — to
+ * report byte counts, on a deployment where telemetry may not even be switched
+ * on. Now nothing is fetched until the first batch actually flushes, and a
+ * deployment without Supabase configured never fetches it at all. The
+ * configuration flag comes from `config.ts` precisely because reading it must
+ * not pull the client in.
  */
 
 export interface ToolRunEvent {
@@ -59,16 +68,14 @@ function toRow(event: ToolRunEvent): QueuedRow {
 async function flush(): Promise<void> {
   if (queue.length === 0) return;
 
-  const supabase = createClient();
-  if (!supabase) {
-    queue = [];
-    return;
-  }
-
   const batch = queue;
   queue = [];
 
   try {
+    const { createClient } = await import("./supabase/client");
+    const supabase = createClient();
+    if (!supabase) return;
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -137,7 +144,7 @@ function schedule(): void {
 }
 
 export function recordToolRun(event: ToolRunEvent): void {
-  if (!createClient()) return;
+  if (!isSupabaseConfigured) return;
 
   ensureListeners();
 

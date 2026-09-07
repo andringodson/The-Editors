@@ -28,6 +28,7 @@ import {
   type SuperResDevice,
   type SuperResRequest,
   type SuperResResponse,
+  type SuperResWarm,
 } from "./superres";
 
 // Both served from this origin — see the note in superres.ts.
@@ -213,12 +214,27 @@ async function upscale(request: SuperResRequest) {
   });
 }
 
-self.addEventListener("message", (event: MessageEvent<SuperResRequest>) => {
-  void upscale(event.data).catch((cause: unknown) => {
-    post({
-      type: "error",
-      message:
-        cause instanceof Error ? cause.message : "The upscaling pass failed",
+self.addEventListener(
+  "message",
+  (event: MessageEvent<SuperResRequest | SuperResWarm>) => {
+    const message = event.data;
+
+    if (message.type === "warm") {
+      // Failure here is not worth reporting: nothing was asked for yet, and the
+      // real run will surface the same error with somewhere to put it.
+      void getSession(message.device).then(
+        () => post({ type: "warmed" }),
+        () => {},
+      );
+      return;
+    }
+
+    void upscale(message).catch((cause: unknown) => {
+      post({
+        type: "error",
+        message:
+          cause instanceof Error ? cause.message : "The upscaling pass failed",
+      });
     });
-  });
-});
+  },
+);

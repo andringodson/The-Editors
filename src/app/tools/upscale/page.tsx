@@ -17,6 +17,7 @@ import {
   type SuperResDevice,
   type SuperResRequest,
   type SuperResResponse,
+  type SuperResWarm,
 } from "@/lib/image/superres";
 import { checkDecodedSize } from "@/lib/limits";
 import { toolTint } from "@/lib/tools";
@@ -160,6 +161,8 @@ export default function UpscalePage() {
     setSource({ width: bitmap.width, height: bitmap.height });
     setOutput(null);
     setError(null);
+
+    if (method === "ai" && bitmap.width * bitmap.height <= MAX_AI_PIXELS) warm();
   }
 
   function finish(blob: Blob, width: number, height: number, used: Method) {
@@ -173,14 +176,32 @@ export default function UpscalePage() {
     setOutput({ blob, width, height, method: used });
   }
 
+  function getWorker(): Worker {
+    workerRef.current ??= new Worker(
+      new URL("@/lib/image/superres.worker.ts", import.meta.url),
+    );
+    return workerRef.current;
+  }
+
+  /**
+   * Start fetching the runtime and weights the moment an image is chosen.
+   *
+   * Choosing a target and a format takes a few seconds; the 32 MB download can
+   * happen during them instead of after the button is pressed. Nothing depends
+   * on it finishing — `run` asks for the session again and gets the one this
+   * built, or waits for it.
+   */
+  function warm() {
+    if (!device) return;
+    const request: SuperResWarm = { type: "warm", device };
+    getWorker().postMessage(request);
+  }
+
   /** The AI pass. Everything happens in the worker; this only reports on it. */
   function runModel() {
     if (!file || !projected || !device) return;
 
-    const worker =
-      workerRef.current ??
-      new Worker(new URL("@/lib/image/superres.worker.ts", import.meta.url));
-    workerRef.current = worker;
+    const worker = getWorker();
 
     setProgress({
       stage: "loading-model",
@@ -196,6 +217,8 @@ export default function UpscalePage() {
         new Promise<void>((resolve, reject) => {
           worker.onmessage = (event: MessageEvent<SuperResResponse>) => {
             const message = event.data;
+            // A warm-up started when the file was chosen can still land here.
+            if (message.type === "warmed") return;
             if (message.type === "stage") {
               setProgress((current) =>
                 current ? { ...current, stage: message.stage } : current,
@@ -350,6 +373,7 @@ export default function UpscalePage() {
                   onChange={() => {
                     setMethod("ai");
                     setOutput(null);
+                    if (aiAvailable) warm();
                   }}
                   className="mr-2 accent-[var(--accent)]"
                 />
